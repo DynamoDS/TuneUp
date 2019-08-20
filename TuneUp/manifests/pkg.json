@@ -1,0 +1,20 @@
+﻿{
+  "license": "",
+  "file_hash": null,
+  "name": "TuneUp",
+  "version": "0.0.1",
+  "description": "TuneUp allows you to analyze the performance of Dynamo graphs.",
+  "group": "",
+  "keywords": null,
+  "dependencies": [],
+  "contents": "",
+  "engine_version": "2.2",
+  "engine": "dynamo",
+  "engine_metadata": "",
+  "site_url": "https://dynamobim.org/",
+  "repository_url": "https://github.com/DynamoDS/TuneUp",
+  "contains_binaries": true,
+  "node_libraries": [
+    
+  ]
+}

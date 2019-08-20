@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6FF12D3A-025E-49A5-A773-D99AB82778A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TuneUp</RootNamespace>
+    <AssemblyName>TuneUp</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files\Dynamo\Dynamo Core\2\DynamoSandbox.exe</StartProgram>
+    <FileAlignment>512</FileAlignment>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CoreNodeModels">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\nodes\CoreNodeModels.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="CoreNodeModelsWpf">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\nodes\CoreNodeModelsWpf.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DesignScriptBuiltin">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DesignScriptBuiltin.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DSCoreNodes">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSCoreNodes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DSIronPython">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSIronPython.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoApplications">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoApplications.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoCore">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoCoreWpf">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreWpf.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoInstallDetective">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoInstallDetective.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoServices">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoServices.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoShapeManager">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoShapeManager.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoUnits">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUnits.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DynamoUtilities">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUtilities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ProtoCore">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\ProtoCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="VMDataBridge">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\VMDataBridge.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ProfiledNodeViewModel.cs" />
+    <Compile Include="TuneUpViewExtension.cs" />
+    <Compile Include="TuneUpWindowViewModel.cs" />
+    <Compile Include="TuneUpWindow.xaml.cs">
+      <DependentUpon>TuneUpWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="TuneUpWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="manifests\pkg.json" />
+    <None Include="manifests\TuneUp_ViewExtensionDefinition.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <DynamoVersion>2.5</DynamoVersion>
+    <PackageName>TuneUp</PackageName>
+    <PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
+    <BinFolder>$(PackageFolder)bin\</BinFolder>
+    <ExtraFolder>$(PackageFolder)extra\</ExtraFolder>
+    <DyfFolder>$(PackageFolder)dyf\</DyfFolder>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <Dlls Include="$(OutDir)*.dll" />
+      <Pdbs Include="$(OutDir)*.pdb" />
+      <Xmls Include="$(OutDir)*.xml" />
+      <ViewExtensionDefs Include="$(ProjectDir)manifests\*ViewExtensionDefinition.xml" />
+      <Xmls Include="$(ProjectDir)manifests\*.xml" Exclude="@(ViewExtensionDefs)" />
+      <PackageJson Include="$(ProjectDir)manifests\pkg.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Dlls)" DestinationFolder="$(BinFolder)" />
+    <Copy SourceFiles="@(Pdbs)" DestinationFolder="$(BinFolder)" />
+    <Copy SourceFiles="@(Xmls)" DestinationFolder="$(BinFolder)" />
+    <Copy SourceFiles="@(ViewExtensionDefs)" DestinationFolder="$(ExtraFolder)" />
+    <Copy SourceFiles="@(PackageJson)" DestinationFolder="$(PackageFolder)" />
+    <MakeDir Directories="$(ExtraFolder)" Condition="!Exists($(ExtraFolder))">
+    </MakeDir>
+    <MakeDir Directories="$(DyfFolder)" Condition="!Exists($(DyfFolder))">
+    </MakeDir>
+    <CallTarget Condition="'$(Configuration)' == 'Debug'" Targets="PackageDeploy" />
+  </Target>
+  <Target Name="PackageDeploy">
+    <ItemGroup>
+      <SourcePackage Include="$(PackageFolder)**\*" />
+    </ItemGroup>
+    <PropertyGroup>
+      <DynamoCore>$(AppData)\Dynamo\Dynamo Core\$(DynamoVersion)\packages</DynamoCore>
+      <DynamoRevit>$(AppData)\Dynamo\Dynamo Revit\$(DynamoVersion)\packages</DynamoRevit>
+    </PropertyGroup>
+    <!--Copying to Package Folder-->
+    <Message Importance="high" Text="Dynamo Core Package Folder = $(DynamoCore)" />
+    <Message Importance="high" Text="Dynamo Revit Package Folder = $(DynamoRevit)" />
+    <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoCore))" DestinationFolder="$(DynamoCore)\$(PackageName)\%(RecursiveDir)" />
+    <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoRevit))" DestinationFolder="$(DynamoRevit)\$(PackageName)\%(RecursiveDir)" />
+  </Target>
+</Project>
