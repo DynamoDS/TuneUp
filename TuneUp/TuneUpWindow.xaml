@@ -85,7 +85,7 @@
             CanUserSortColumns="True"
             HeadersVisibility="Column"
             SelectionChanged="NodeAnalysisTable_SelectionChanged">
-            
+
             <DataGrid.Columns>
                 <!-- Execution Order -->
                 <DataGridTextColumn 
@@ -130,12 +130,6 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
-            <DataGrid.ItemContainerStyle>
-                <Style TargetType="DataGridRow">
-                    <EventSetter Event="Selected"  Handler="DataGridRow_Selected"/>
-                </Style>
-            </DataGrid.ItemContainerStyle>
-            
         </DataGrid>
     </Grid>
 </Window>

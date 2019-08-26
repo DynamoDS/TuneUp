@@ -1,16 +1,14 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using Dynamo.Core;
-using Dynamo.Models;
-using Dynamo.Utilities;
-using Dynamo.Wpf.Extensions;
-using Dynamo.ViewModels;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dynamo.Extensions;
+using System.Windows;
+using System.Windows.Controls;
+using Dynamo.Models;
+using Dynamo.Utilities;
+using Dynamo.ViewModels;
+using Dynamo.Wpf.Extensions;
 using Dynamo.Graph.Nodes;
-using Dynamo.Graph.Workspaces;
 
 namespace TuneUp
 {
@@ -23,7 +21,10 @@ namespace TuneUp
 
         ViewLoadedParams viewLoadedParams;
 
-
+        /// <summary>
+        /// Create the TuneUp Window
+        /// </summary>
+        /// <param name="vlp"></param>
         public TuneUpWindow(ViewLoadedParams vlp)
         {
             InitializeComponent();
@@ -31,38 +32,23 @@ namespace TuneUp
             viewLoadedParams = vlp;
         }
 
-        private void DataGridRow_Selected(object sender, RoutedEventArgs e)
-        {
-            var nodeModel = ((ProfiledNodeViewModel)((DataGridRow)sender).DataContext).NodeModel;
-            nodeModel.Select();
-
-            /*var nodeViewModels = dynamoViewModel.CurrentSpaceViewModel.Nodes;
-
-            NodeViewModel nodeViewModel = null;
-            foreach(var n in nodeViewModels)
-            {
-                if (n.Id == nodeModel.GUID)
-                {
-                    nodeViewModel = n;
-                }
-            }
-
-            var nodePt = new Point2D(nodeModel.X, nodeModel.Y);
-
-            var zoomArgs = new ModelEventArgs(nodeModel, nodeModel.X, nodeModel.Y, true);
-
-            dynamoViewModel.CurrentSpaceViewModel.FitViewToNode(nodeViewModel);*/
-        }
-
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (var row in e.AddedItems)
+            // Get NodeModel(s) that correspond to selected row(s)
+            var selectedNodes = new List<NodeModel>();
+            foreach(var item in e.AddedItems)
             {
-                (row as ProfiledNodeViewModel).NodeModel.Select();
+                selectedNodes.Add((item as ProfiledNodeViewModel).NodeModel);
             }
-            foreach (var row in e.RemovedItems)
+
+            if (selectedNodes.Count() > 0)
             {
-                (row as ProfiledNodeViewModel).NodeModel.Deselect();
+                // Select
+                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
+                viewLoadedParams.CommandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
+
+                // Zoom to selected
+                dynamoViewModel.FitViewCommand.Execute(null);
             }
         }
     }
