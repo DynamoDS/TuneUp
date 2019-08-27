@@ -48,7 +48,8 @@ namespace TuneUp
                 viewLoadedParams.CommandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
 
                 // Zoom to selected
-                dynamoViewModel.FitViewCommand.Execute(null);
+                viewLoadedParams.DynamoViewModelDelegateCommands.FitViewCommand.Execute(null);
+                //dynamoViewModel.FitViewCommand.Execute(null);
             }
         }
     }
