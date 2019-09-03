@@ -27,7 +27,7 @@ namespace TuneUp
         public void Loaded(ViewLoadedParams p)
         {
             ViewModel = new TuneUpWindowViewModel(p);
-            TuneUpView = new TuneUpWindow(p)
+            TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
                 NodeAnalysisTable = { DataContext = ViewModel },

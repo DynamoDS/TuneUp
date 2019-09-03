@@ -27,11 +27,13 @@ namespace TuneUp
 
         ViewModelCommandExecutive viewModelCommandExecutive;
 
+        string uniqueId;
+
         /// <summary>
         /// Create the TuneUp Window
         /// </summary>
         /// <param name="vlp"></param>
-        public TuneUpWindow(ViewLoadedParams vlp)
+        public TuneUpWindow(ViewLoadedParams vlp, string id)
         {
             InitializeComponent();
             dynamoViewModel = (vlp.DynamoWindow.DataContext as DynamoViewModel);
@@ -39,6 +41,7 @@ namespace TuneUp
 
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
+            uniqueId = id;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,7 +57,7 @@ namespace TuneUp
             {
                 // Select
                 var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
-                commandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
+                commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
                 // Focus on selected
                 viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
