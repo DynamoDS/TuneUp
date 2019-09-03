@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
-using Dynamo.Graph.Workspaces;
-using Dynamo.Graph.Nodes;
-using Dynamo.ViewModels;
 
 namespace TuneUp
 {
@@ -46,7 +39,6 @@ namespace TuneUp
             {
                 p.AddToExtensionsSideBar(this, TuneUpView);
                 ViewModel.EnableProfiling();
-                
             };
             p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
         }

@@ -25,6 +25,8 @@ namespace TuneUp
 
         ICommandExecutive commandExecutive;
 
+        ViewModelCommandExecutive viewModelCommandExecutive;
+
         /// <summary>
         /// Create the TuneUp Window
         /// </summary>
@@ -36,6 +38,7 @@ namespace TuneUp
             viewLoadedParams = vlp;
 
             commandExecutive = vlp.CommandExecutive;
+            viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -51,21 +54,10 @@ namespace TuneUp
             {
                 // Select
                 var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
-                viewLoadedParams.CommandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
+                commandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
 
                 // Focus on selected
-                var ce = viewLoadedParams.GetType().GetProperty("ViewModelCommandExecutive");
-                if ( ce != null)
-                {
-                    // Use the new viewModelCommandExecutive if it exists
-                    var method = ce.PropertyType.GetMethod("FindByIdCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                    method.Invoke(ce, new object[] { selectedNodes.First().GUID.ToString() });
-                }
-                else
-                {
-                    // Otherwise use the view model "hack"
-                    (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).CurrentSpaceViewModel.FindByIdCommand.Execute(selectedNodes.First().GUID.ToString());
-                }
+                viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
             }
         }
     }

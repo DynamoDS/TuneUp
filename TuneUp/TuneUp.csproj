@@ -34,64 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreNodeModels">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\nodes\CoreNodeModels.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CoreNodeModelsWpf">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\nodes\CoreNodeModelsWpf.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DesignScriptBuiltin">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DesignScriptBuiltin.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DSCoreNodes">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSCoreNodes.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DSIronPython">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSIronPython.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoApplications">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoApplications.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoCore">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoCoreWpf">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreWpf.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoInstallDetective">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoInstallDetective.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoServices">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoServices.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoShapeManager">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoShapeManager.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoUnits">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUnits.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DynamoUtilities">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUtilities.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="ProtoCore">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\ProtoCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml" />
@@ -100,10 +44,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VMDataBridge">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\VMDataBridge.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -121,7 +61,20 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="DynamoVisualProgramming.Core">
+      <Version>2.5.0-beta6104</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.DynamoServices">
+      <Version>2.5.0-beta6104</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.WpfUILibrary">
+      <Version>2.5.0-beta6104</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="manifests\pkg.json" />
     <None Include="manifests\TuneUp_ViewExtensionDefinition.xml" />
