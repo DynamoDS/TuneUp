@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Dynamo.Extensions;
 using Dynamo.Models;
 using Dynamo.Utilities;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using Dynamo.Graph.Nodes;
+using System.Reflection;
 
 namespace TuneUp
 {
@@ -21,6 +23,8 @@ namespace TuneUp
 
         ViewLoadedParams viewLoadedParams;
 
+        ICommandExecutive commandExecutive;
+
         /// <summary>
         /// Create the TuneUp Window
         /// </summary>
@@ -30,6 +34,8 @@ namespace TuneUp
             InitializeComponent();
             dynamoViewModel = (vlp.DynamoWindow.DataContext as DynamoViewModel);
             viewLoadedParams = vlp;
+
+            commandExecutive = vlp.CommandExecutive;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -47,9 +53,19 @@ namespace TuneUp
                 var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
                 viewLoadedParams.CommandExecutive.ExecuteCommand(command, Guid.NewGuid().ToString(), "TuneUp");
 
-                // Zoom to selected
-                viewLoadedParams.DynamoViewModelDelegateCommands.FitViewCommand.Execute(null);
-                //dynamoViewModel.FitViewCommand.Execute(null);
+                // Focus on selected
+                var ce = viewLoadedParams.GetType().GetProperty("ViewModelCommandExecutive");
+                if ( ce != null)
+                {
+                    // Use the new viewModelCommandExecutive if it exists
+                    var method = ce.PropertyType.GetMethod("FindByIdCommand", BindingFlags.NonPublic | BindingFlags.Instance);
+                    method.Invoke(ce, new object[] { selectedNodes.First().GUID.ToString() });
+                }
+                else
+                {
+                    // Otherwise use the view model "hack"
+                    (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).CurrentSpaceViewModel.FindByIdCommand.Execute(selectedNodes.First().GUID.ToString());
+                }
             }
         }
     }

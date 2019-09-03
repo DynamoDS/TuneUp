@@ -78,7 +78,7 @@
             FontSize="11"
             VerticalAlignment="Center"
             SelectionUnit="FullRow"
-            SelectionMode="Extended"
+            SelectionMode="Single"
             ScrollViewer.CanContentScroll="False" 
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True" 
