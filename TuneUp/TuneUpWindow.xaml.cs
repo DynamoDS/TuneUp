@@ -19,14 +19,16 @@ namespace TuneUp
     /// </summary>
     public partial class TuneUpWindow : Window
     {
-        DynamoViewModel dynamoViewModel;
-
         ViewLoadedParams viewLoadedParams;
 
         ICommandExecutive commandExecutive;
 
         ViewModelCommandExecutive viewModelCommandExecutive;
 
+        /// <summary>
+        /// The unique ID for the TuneUp view extension. 
+        /// Used to identify the view extension when sending recordable commands.
+        /// </summary>
         string uniqueId;
 
         /// <summary>
@@ -36,7 +38,6 @@ namespace TuneUp
         public TuneUpWindow(ViewLoadedParams vlp, string id)
         {
             InitializeComponent();
-            dynamoViewModel = (vlp.DynamoWindow.DataContext as DynamoViewModel);
             viewLoadedParams = vlp;
 
             commandExecutive = vlp.CommandExecutive;
