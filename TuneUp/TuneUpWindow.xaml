@@ -78,14 +78,14 @@
             FontSize="11"
             VerticalAlignment="Center"
             SelectionUnit="FullRow"
-            SelectionMode="Extended"
+            SelectionMode="Single"
             ScrollViewer.CanContentScroll="False" 
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             CanUserResizeColumns="True" 
             CanUserSortColumns="True"
             HeadersVisibility="Column"
             SelectionChanged="NodeAnalysisTable_SelectionChanged">
-            
+
             <DataGrid.Columns>
                 <!-- Execution Order -->
                 <DataGridTextColumn 
@@ -130,12 +130,6 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
-            <DataGrid.ItemContainerStyle>
-                <Style TargetType="DataGridRow">
-                    <EventSetter Event="Selected"  Handler="DataGridRow_Selected"/>
-                </Style>
-            </DataGrid.ItemContainerStyle>
-            
         </DataGrid>
     </Grid>
 </Window>

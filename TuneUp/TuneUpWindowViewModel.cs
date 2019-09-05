@@ -103,13 +103,14 @@ namespace TuneUp
         {
             workspace.NodeAdded -= CurrentWorkspaceModel_NodesChanged;
             workspace.NodeRemoved -= CurrentWorkspaceModel_NodesChanged;
-            currentWorkspace = null;
             RaisePropertyChanged(nameof(ProfiledNodes));
             foreach (var node in currentWorkspace.Nodes)
             {
                 node.NodeExecutionBegin -= OnNodeExecutionBegin;
                 node.NodeExecutionEnd -= OnNodeExecutionEnd;
             }
+
+            currentWorkspace = null;
             nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         }
 

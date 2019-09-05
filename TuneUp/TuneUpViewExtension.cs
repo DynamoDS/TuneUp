@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
-using Dynamo.Graph.Workspaces;
-using Dynamo.Graph.Nodes;
-using Dynamo.ViewModels;
 
 namespace TuneUp
 {
@@ -34,7 +27,7 @@ namespace TuneUp
         public void Loaded(ViewLoadedParams p)
         {
             ViewModel = new TuneUpWindowViewModel(p);
-            TuneUpView = new TuneUpWindow(p)
+            TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
                 NodeAnalysisTable = { DataContext = ViewModel },
@@ -46,7 +39,6 @@ namespace TuneUp
             {
                 p.AddToExtensionsSideBar(this, TuneUpView);
                 ViewModel.EnableProfiling();
-                
             };
             p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
         }
