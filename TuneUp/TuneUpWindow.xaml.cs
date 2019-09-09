@@ -64,5 +64,16 @@ namespace TuneUp
                 viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
             }
         }
+
+        private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var node in (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).CurrentWorkspace.Nodes)
+            {
+                node.MarkNodeAsModified();
+            }
+            var c = new DynamoModel.RunCancelCommand(true, false);
+            commandExecutive.ExecuteCommand(c, uniqueId, "TuneUp");
+            //viewModelCommandExecutive.ForceRunExpressionCommand();
+        }
     }
 }

@@ -10,22 +10,85 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
+using System.Collections.ObjectModel;
+using System.Windows.Data;
 
 namespace TuneUp
 {
+    public enum ProfiledNodeState
+    {
+        NotProfiled,
+        ProfiledOnLastRun,
+        ProfiledOnPreviousRun
+    }
+
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
         private ViewLoadedParams viewLoadedParams;
         private IProfilingExecutionTimeData executionTimeData;
         private int numNodesExecuted;
+        private bool profilingEnabled;
 
-        IWorkspaceModel currentWorkspace;
-
-        public IEnumerable<ProfiledNodeViewModel> ProfiledNodes
+        private HomeWorkspaceModel currentWorkspace;
+        internal HomeWorkspaceModel CurrentWorkspace
         {
             get
             {
-                return nodeDictionary.Values;
+                return currentWorkspace;
+            }
+            set
+            {
+                // Unsubscribe from old workspace
+                if (currentWorkspace != null)
+                {
+                    currentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
+                    currentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
+                    CurrentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
+                    CurrentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
+
+                    foreach (var node in currentWorkspace.Nodes)
+                    {
+                        node.NodeExecutionBegin -= OnNodeExecutionBegin;
+                        node.NodeExecutionEnd -= OnNodeExecutionEnd;
+                    }
+                }
+
+                // Set new workspace
+                currentWorkspace = value;
+
+                // Subscribe to new workspace
+                if (currentWorkspace != null)
+                {
+                    currentWorkspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
+                    currentWorkspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
+                    CurrentWorkspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
+                    CurrentWorkspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
+
+                    foreach (var node in currentWorkspace.Nodes)
+                    {
+                        node.NodeExecutionBegin += OnNodeExecutionBegin;
+                        node.NodeExecutionEnd += OnNodeExecutionEnd;
+                    }
+                }
+            }
+        }
+
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes
+        {
+            get
+            {
+                return new ObservableCollection<ProfiledNodeViewModel>(nodeDictionary.Values);
+            }
+        }
+        
+        public ListCollectionView ProfiledNodesCollection
+        {
+            get
+            {
+                //return profiledNodesCollection;
+                var collection = new ListCollectionView(ProfiledNodes);
+                collection.GroupDescriptions.Add(new PropertyGroupDescription("State"));
+                return collection;
             }
         }
 
@@ -35,107 +98,147 @@ namespace TuneUp
         public TuneUpWindowViewModel(ViewLoadedParams p)
         {
             viewLoadedParams = p;
-            p.CurrentWorkspaceModel.NodeAdded += CurrentWorkspaceModel_NodesChanged;
-            p.CurrentWorkspaceModel.NodeRemoved += CurrentWorkspaceModel_NodesChanged;
+            
             p.CurrentWorkspaceChanged += OnCurrentWorkspaceChanged;
             p.CurrentWorkspaceCleared += OnCurrentWorkspaceCleared;
-            currentWorkspace = p.CurrentWorkspaceModel;
+
+            if (p.CurrentWorkspaceModel is HomeWorkspaceModel)
+            {
+                CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
+                ResetProfiledNodes();
+            }
+        }
+
+        private void ResetProfiledNodes()
+        {
+            if (CurrentWorkspace == null)
+            {
+                return;
+            }
+
             nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-            numNodesExecuted = 0;
+
+            foreach (var node in CurrentWorkspace.Nodes)
+            {
+                var profiledNode = new ProfiledNodeViewModel(node);
+                nodeDictionary[node.GUID] = profiledNode;
+            }
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         internal void EnableProfiling()
         {
-            // Unenable old profiling data
-            var nodesToReset = nodeDictionary.Values.Select(v => v.NodeModel);
-            if (nodesToReset.Count() > 0)
+            /*if (profilingEnabled)
             {
-                (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).EngineController.EnableProfiling(false, currentWorkspace as HomeWorkspaceModel, nodesToReset);
+                CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, new List<NodeModel>());
             }
-            foreach (var node in nodesToReset)
-            {
-                node.NodeExecutionBegin -= OnNodeExecutionBegin;
-                node.NodeExecutionEnd -= OnNodeExecutionEnd;
-            }
+            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);*/
 
-            // Enable new profiling
-            (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).EngineController.EnableProfiling(true, currentWorkspace as HomeWorkspaceModel, currentWorkspace.Nodes);
-            executionTimeData = (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).EngineController.ExecutionTimeData;
+            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, new List<NodeModel>());
+            profilingEnabled = true;
 
-            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-            numNodesExecuted = 0;
-            foreach (var node in currentWorkspace.Nodes)
-            {
-                node.NodeExecutionBegin += OnNodeExecutionBegin;
-                node.NodeExecutionEnd += OnNodeExecutionEnd;
-                nodeDictionary[node.GUID] = new ProfiledNodeViewModel(node);
-            }
-            RaisePropertyChanged(nameof(ProfiledNodes));
+            executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
+
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
-        private void CurrentWorkspaceModel_NodesChanged(NodeModel obj)
+        private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
+            foreach(var node in nodeDictionary.Values)
+            {
+                node.WasExecutedOnLastRun = false;
+                if (node.State == ProfiledNodeState.ProfiledOnLastRun)
+                {
+                    node.State = ProfiledNodeState.ProfiledOnPreviousRun;
+                }
+            }
+            numNodesExecuted = 1;
             EnableProfiling();
         }
 
+        private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
+        {
+        }
+
+        
+        private void CurrentWorkspaceModel_NodeAdded(NodeModel node)
+        {
+            var profiledNode = new ProfiledNodeViewModel(node);
+            nodeDictionary[node.GUID] = profiledNode;
+            node.NodeExecutionBegin += OnNodeExecutionBegin;
+            node.NodeExecutionEnd += OnNodeExecutionEnd;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+        private void CurrentWorkspaceModel_NodeRemoved(NodeModel node)
+        {
+            var profiledNode = nodeDictionary[node.GUID];
+            nodeDictionary.Remove(node.GUID);
+            node.NodeExecutionBegin -= OnNodeExecutionBegin;
+            node.NodeExecutionEnd -= OnNodeExecutionEnd;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+
+
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
-            if (currentWorkspace != null)
+            if (workspace is HomeWorkspaceModel)
             {
-                currentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodesChanged;
-                currentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodesChanged;
-
-                foreach (var node in currentWorkspace.Nodes)
+                if (profilingEnabled)
                 {
-                    node.NodeExecutionBegin -= OnNodeExecutionBegin;
-                    node.NodeExecutionEnd -= OnNodeExecutionEnd;
+                    CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
                 }
-                nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+                CurrentWorkspace = workspace as HomeWorkspaceModel;
+                ResetProfiledNodes();
             }
-            
-            workspace.NodeAdded += CurrentWorkspaceModel_NodesChanged;
-            workspace.NodeRemoved += CurrentWorkspaceModel_NodesChanged;
-            currentWorkspace = workspace;
-            RaisePropertyChanged(nameof(ProfiledNodes));
         }
 
         private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
         {
-            workspace.NodeAdded -= CurrentWorkspaceModel_NodesChanged;
-            workspace.NodeRemoved -= CurrentWorkspaceModel_NodesChanged;
-            RaisePropertyChanged(nameof(ProfiledNodes));
-            foreach (var node in currentWorkspace.Nodes)
+            CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
+            CurrentWorkspace = null;
+        }
+
+        internal void OnNodeExecutionBegin(NodeModel nm)
+        {
+        }
+
+        internal void OnNodeExecutionEnd(NodeModel nm)
+        {
+            var profiledNode = nodeDictionary[nm.GUID];
+            if (executionTimeData != null)
+            {
+                var executionTime = executionTimeData.NodeExecutionTime(nm);
+                if (executionTime != null)
+                {
+                    profiledNode.ExecutionTime = ((TimeSpan)executionTime).ToString("s\\.ffff");
+                }
+                if (!profiledNode.WasExecutedOnLastRun)
+                {
+                    profiledNode.ExecutionOrderNumber = numNodesExecuted++;
+                }
+            }
+            profiledNode.WasExecutedOnLastRun = true;
+            profiledNode.State = ProfiledNodeState.ProfiledOnLastRun;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+        public void Dispose()
+        {
+            foreach (var node in CurrentWorkspace.Nodes)
             {
                 node.NodeExecutionBegin -= OnNodeExecutionBegin;
                 node.NodeExecutionEnd -= OnNodeExecutionEnd;
             }
 
-            currentWorkspace = null;
-            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-        }
+            CurrentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
+            CurrentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
+            CurrentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
+            CurrentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
 
-
-        internal void OnNodeExecutionBegin(NodeModel nm)
-        {
-            //Thread.Sleep(500);
-        }
-
-        internal void OnNodeExecutionEnd(NodeModel nm)
-        {
-            if (executionTimeData != null)
-            {
-                var executionTime = executionTimeData.NodeExecutionTime(nm);
-                nodeDictionary[nm.GUID].ExecutionTime = executionTime.ToString();
-                nodeDictionary[nm.GUID].ExecutionOrderNumber = numNodesExecuted++;
-            }
-            
-        }
-
-        public void Dispose()
-        {
-            currentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodesChanged;
-            currentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodesChanged;
             viewLoadedParams.CurrentWorkspaceChanged -= OnCurrentWorkspaceChanged;
+            viewLoadedParams.CurrentWorkspaceCleared -= OnCurrentWorkspaceCleared;
         }
     }
 }

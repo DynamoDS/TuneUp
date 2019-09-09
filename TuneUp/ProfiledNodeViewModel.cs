@@ -39,7 +39,35 @@ namespace TuneUp
             }
         }
 
-        internal NodeModel NodeModel { get; set; }
+        private bool wasExecutedOnLastRun;
+        public bool WasExecutedOnLastRun
+        {
+            get
+            {
+                return wasExecutedOnLastRun;
+            }
+            set
+            {
+                wasExecutedOnLastRun = value;
+                RaisePropertyChanged("WasExecutedOnLastRun");
+            }
+        }
+
+        private ProfiledNodeState state;
+        public ProfiledNodeState State
+        {
+            get
+            {
+                return state;
+            }
+            set
+            {
+                state = value;
+                RaisePropertyChanged("State");
+            }
+        }
+
+internal NodeModel NodeModel { get; set; }
 
         /// <summary>
         /// Create a Profiled Node View Model from a NodeModel
@@ -48,6 +76,7 @@ namespace TuneUp
         public ProfiledNodeViewModel(NodeModel node)
         {
             NodeModel = node;
+            State = ProfiledNodeState.NotProfiled;
         }
         
     }
