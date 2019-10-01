@@ -21,7 +21,6 @@ namespace TuneUp
 
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
-
         #region InternalProperties
         private ViewLoadedParams viewLoadedParams;
         private IProfilingExecutionTimeData executionTimeData;

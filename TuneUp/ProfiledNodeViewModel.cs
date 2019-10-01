@@ -26,7 +26,7 @@ namespace TuneUp
             set
             {
                 executionOrderNumber = value;
-                RaisePropertyChanged("ExecutionOrderNumber");
+                RaisePropertyChanged(nameof(ExecutionOrderNumber));
             }
         }
         private int? executionOrderNumber;
@@ -44,8 +44,8 @@ namespace TuneUp
             set
             {
                 executionTime = value;
-                RaisePropertyChanged("ExecutionTime");
-                RaisePropertyChanged("ExecutionMilliseconds");
+                RaisePropertyChanged(nameof(ExecutionTime));
+                RaisePropertyChanged(nameof(ExecutionMilliseconds));
             }
         }
         private TimeSpan executionTime;
@@ -73,7 +73,7 @@ namespace TuneUp
             set
             {
                 wasExecutedOnLastRun = value;
-                RaisePropertyChanged("WasExecutedOnLastRun");
+                RaisePropertyChanged(nameof(WasExecutedOnLastRun));
             }
         }
         private bool wasExecutedOnLastRun;
@@ -90,8 +90,8 @@ namespace TuneUp
             set
             {
                 state = value;
-                RaisePropertyChanged("State");
-                RaisePropertyChanged("StateValue");
+                RaisePropertyChanged(nameof(State));
+                RaisePropertyChanged(nameof(StateValue));
             }
         }
         private ProfiledNodeState state;
