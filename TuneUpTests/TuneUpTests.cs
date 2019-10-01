@@ -12,7 +12,7 @@ namespace TuneUpTests
     public class TuneUpTests : SystemTestBase
     {
         [Test, RequiresSTA]
-        public void TestMethod1()
+        public void TuneUpCreatesProfilingDataForEveryNodeInWorkspace()
         {
             var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
         }

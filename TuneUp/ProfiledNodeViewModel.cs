@@ -6,13 +6,18 @@ namespace TuneUp
 {
     public class ProfiledNodeViewModel : NotificationObject
     {
+        #region Properties
+
         /// <summary>
         /// The name of this node
         /// </summary>
         public string Name => NodeModel.Name;
-
-        private int executionOrderNumber;
-        public int ExecutionOrderNumber
+        
+        /// <summary>
+        /// The order number of this node in the most recent graph run.
+        /// Returns null if the node was not executed during the most recent graph run.
+        /// </summary>
+        public int? ExecutionOrderNumber
         {
             get
             {
@@ -24,9 +29,13 @@ namespace TuneUp
                 RaisePropertyChanged("ExecutionOrderNumber");
             }
         }
+        private int? executionOrderNumber;
 
-        private string executionTime;
-        public string ExecutionTime
+
+        /// <summary>
+        /// The most recent execution time of this node
+        /// </summary>
+        public TimeSpan ExecutionTime
         {
             get
             {
@@ -36,10 +45,25 @@ namespace TuneUp
             {
                 executionTime = value;
                 RaisePropertyChanged("ExecutionTime");
+                RaisePropertyChanged("ExecutionMilliseconds");
+            }
+        }
+        private TimeSpan executionTime;
+
+        /// <summary>
+        /// The most recent execution time of this node in milliseconds
+        /// </summary>
+        public int ExecutionMilliseconds
+        {
+            get
+            {
+                return (int)Math.Round(ExecutionTime.TotalMilliseconds);
             }
         }
 
-        private bool wasExecutedOnLastRun;
+        /// <summary>
+        /// Indicates whether this node was executed on the most recent graph run
+        /// </summary>
         public bool WasExecutedOnLastRun
         {
             get
@@ -52,8 +76,11 @@ namespace TuneUp
                 RaisePropertyChanged("WasExecutedOnLastRun");
             }
         }
+        private bool wasExecutedOnLastRun;
 
-        private ProfiledNodeState state;
+        /// <summary>
+        /// The current profiling state of this node
+        /// </summary>
         public ProfiledNodeState State
         {
             get
@@ -64,10 +91,19 @@ namespace TuneUp
             {
                 state = value;
                 RaisePropertyChanged("State");
+                RaisePropertyChanged("StateValue");
             }
         }
+        private ProfiledNodeState state;
 
-internal NodeModel NodeModel { get; set; }
+        /// <summary>
+        /// The current profiling state of this node as an integer value
+        /// </summary>
+        public int StateValue => (int)State;
+        
+        internal NodeModel NodeModel { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Create a Profiled Node View Model from a NodeModel
@@ -76,7 +112,7 @@ internal NodeModel NodeModel { get; set; }
         public ProfiledNodeViewModel(NodeModel node)
         {
             NodeModel = node;
-            State = ProfiledNodeState.NotProfiled;
+            State = ProfiledNodeState.NotExecuted;
         }
         
     }

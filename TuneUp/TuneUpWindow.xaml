@@ -79,6 +79,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <!--
         <StackPanel 
             Orientation="Horizontal"
             HorizontalAlignment="Left"
@@ -91,7 +92,7 @@
                 Click="RecomputeGraph_Click">
                 Recompute All
             </Button>
-        </StackPanel>
+        </StackPanel>-->
         <StackPanel Grid.Row="1">
 
             <DataGrid 
@@ -122,9 +123,9 @@
                                 <StackPanel>
                                     <TextBlock 
                                         Text="{Binding Name}"
-                                        Foreground="#999999"
+                                        Foreground="#ffffff"
                                         Margin="3"
-                                        FontSize="13"
+                                        FontSize="11"
                                         />
                                 </StackPanel>
                             </DataTemplate>
@@ -163,8 +164,8 @@
                     </DataGridTextColumn>
                     <!-- Execution Time -->
                     <DataGridTextColumn 
-                    Header="Execution Time" 
-                    Binding="{Binding ExecutionTime}" 
+                    Header="Execution Time (ms)" 
+                    Binding="{Binding ExecutionMilliseconds}" 
                     Foreground="#aaaaaa" 
                     IsReadOnly="True" 
                     Width="Auto">

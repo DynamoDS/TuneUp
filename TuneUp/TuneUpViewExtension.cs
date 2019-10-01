@@ -21,7 +21,6 @@ namespace TuneUp
 
         public void Startup(ViewStartupParams p)
         {
-
         }
 
         public void Loaded(ViewLoadedParams p)
@@ -47,14 +46,21 @@ namespace TuneUp
         {
         }
 
+        /// <summary>
+        /// ID for the TuneUp extension
+        /// </summary>
         public string UniqueId
         {
             get
             {
-                return Guid.NewGuid().ToString();
+                return uniqueId.ToString() ?? (uniqueId = Guid.NewGuid()).ToString();
             }
         }
+        private Guid? uniqueId;
 
+        /// <summary>
+        /// Name of this extension
+        /// </summary>
         public string Name
         {
             get

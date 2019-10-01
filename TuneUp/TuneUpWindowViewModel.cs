@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Timers;
 using Dynamo.Core;
-using Dynamo.Extensions;
 using Dynamo.Engine.Profiling;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
-using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using System.ComponentModel;
 
 namespace TuneUp
 {
     public enum ProfiledNodeState
     {
-        NotProfiled,
-        ProfiledOnLastRun,
-        ProfiledOnPreviousRun
+        Executing = 0,
+        ExecutedOnCurrentRun = 1,
+        ExecutedOnPreviousRun = 2,
+        NotExecuted = 3,
     }
 
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
+
+        #region InternalProperties
         private ViewLoadedParams viewLoadedParams;
         private IProfilingExecutionTimeData executionTimeData;
         private int numNodesExecuted;
         private bool profilingEnabled;
-
         private HomeWorkspaceModel currentWorkspace;
+        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
         internal HomeWorkspaceModel CurrentWorkspace
         {
             get
@@ -72,7 +71,13 @@ namespace TuneUp
                 }
             }
         }
+        #endregion
 
+        #region PublicProperties
+
+        /// <summary>
+        /// Collection of profiling data for nodes in the current workspace
+        /// </summary>
         public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes
         {
             get
@@ -80,20 +85,25 @@ namespace TuneUp
                 return new ObservableCollection<ProfiledNodeViewModel>(nodeDictionary.Values);
             }
         }
-        
+
+        /// <summary>
+        /// Collection of profiling data for nodes in the current workspace.
+        /// Profiling data in this collection is grouped by the profiled nodes' states.
+        /// </summary>
         public ListCollectionView ProfiledNodesCollection
         {
             get
             {
-                //return profiledNodesCollection;
                 var collection = new ListCollectionView(ProfiledNodes);
                 collection.GroupDescriptions.Add(new PropertyGroupDescription("State"));
+                collection.SortDescriptions.Add(new SortDescription("StateValue", ListSortDirection.Ascending));
                 return collection;
             }
         }
 
-        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
-        
+        #endregion
+
+        #region Constructors
 
         public TuneUpWindowViewModel(ViewLoadedParams p)
         {
@@ -109,47 +119,68 @@ namespace TuneUp
             }
         }
 
-        private void ResetProfiledNodes()
+        #endregion
+
+        #region ProfilingMethods
+
+        internal void ResetProfiledNodes()
         {
+            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+
             if (CurrentWorkspace == null)
             {
                 return;
             }
-
-            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-
+            
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
                 nodeDictionary[node.GUID] = profiledNode;
             }
+
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+        internal void ResetProfiling()
+        {
+            // Disable profiling
+            CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, new List<NodeModel>());
+
+            // Enable profiling
+            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);
+            profilingEnabled = true;
+            executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
         }
 
         internal void EnableProfiling()
         {
-            /*if (profilingEnabled)
+            if (!profilingEnabled && CurrentWorkspace != null)
             {
-                CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, new List<NodeModel>());
+                ResetProfiledNodes();
+                CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);
+                profilingEnabled = true;
+                executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
             }
-            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);*/
-
-            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, new List<NodeModel>());
-            profilingEnabled = true;
-
-            executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
-
+            
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
+        #endregion
+
+        #region ExecutionEvents
+
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
-            foreach(var node in nodeDictionary.Values)
+            foreach (var node in nodeDictionary.Values)
             {
+                // Reset Node Execution Order info
+                node.ExecutionOrderNumber = null;
                 node.WasExecutedOnLastRun = false;
-                if (node.State == ProfiledNodeState.ProfiledOnLastRun)
+
+                // Update Node state
+                if (node.State == ProfiledNodeState.ExecutedOnCurrentRun)
                 {
-                    node.State = ProfiledNodeState.ProfiledOnPreviousRun;
+                    node.State = ProfiledNodeState.ExecutedOnPreviousRun;
                 }
             }
             numNodesExecuted = 1;
@@ -158,9 +189,47 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
+            foreach (var node in nodeDictionary.Values)
+            {
+                // Update state of any node that is still in the "Executing" state
+                if (node.State == ProfiledNodeState.Executing)
+                {
+                    node.State = ProfiledNodeState.ExecutedOnCurrentRun;
+                }
+            }
         }
 
-        
+        internal void OnNodeExecutionBegin(NodeModel nm)
+        {
+            var profiledNode = nodeDictionary[nm.GUID];
+            profiledNode.State = ProfiledNodeState.Executing;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+        internal void OnNodeExecutionEnd(NodeModel nm)
+        {
+            var profiledNode = nodeDictionary[nm.GUID];
+            if (executionTimeData != null)
+            {
+                var executionTime = executionTimeData.NodeExecutionTime(nm);
+                if (executionTime != null)
+                {
+                    profiledNode.ExecutionTime = (TimeSpan)executionTime;
+                }
+                if (!profiledNode.WasExecutedOnLastRun)
+                {
+                    profiledNode.ExecutionOrderNumber = numNodesExecuted++;
+                }
+            }
+            profiledNode.WasExecutedOnLastRun = true;
+            profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+        }
+
+        #endregion
+
+        #region WorkspaceEvents
+
         private void CurrentWorkspaceModel_NodeAdded(NodeModel node)
         {
             var profiledNode = new ProfiledNodeViewModel(node);
@@ -179,50 +248,23 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
-
-
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
-            if (workspace is HomeWorkspaceModel)
-            {
-                if (profilingEnabled)
-                {
-                    CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
-                }
-                CurrentWorkspace = workspace as HomeWorkspaceModel;
-                ResetProfiledNodes();
-            }
+            profilingEnabled = false;
+            CurrentWorkspace = workspace as HomeWorkspaceModel;
+            ResetProfiledNodes();
         }
 
         private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
         {
-            CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
-            CurrentWorkspace = null;
+            profilingEnabled = false;
+            CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
+            ResetProfiledNodes();
         }
 
-        internal void OnNodeExecutionBegin(NodeModel nm)
-        {
-        }
+        #endregion
 
-        internal void OnNodeExecutionEnd(NodeModel nm)
-        {
-            var profiledNode = nodeDictionary[nm.GUID];
-            if (executionTimeData != null)
-            {
-                var executionTime = executionTimeData.NodeExecutionTime(nm);
-                if (executionTime != null)
-                {
-                    profiledNode.ExecutionTime = ((TimeSpan)executionTime).ToString("s\\.ffff");
-                }
-                if (!profiledNode.WasExecutedOnLastRun)
-                {
-                    profiledNode.ExecutionOrderNumber = numNodesExecuted++;
-                }
-            }
-            profiledNode.WasExecutedOnLastRun = true;
-            profiledNode.State = ProfiledNodeState.ProfiledOnLastRun;
-            RaisePropertyChanged(nameof(ProfiledNodesCollection));
-        }
+        #region Dispose
 
         public void Dispose()
         {
@@ -240,5 +282,7 @@ namespace TuneUp
             viewLoadedParams.CurrentWorkspaceChanged -= OnCurrentWorkspaceChanged;
             viewLoadedParams.CurrentWorkspaceCleared -= OnCurrentWorkspaceCleared;
         }
+
+        #endregion
     }
 }
