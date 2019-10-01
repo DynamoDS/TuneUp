@@ -11,6 +11,9 @@ using System.ComponentModel;
 
 namespace TuneUp
 {
+    /// <summary>
+    /// Enum of possible states of node profiling data
+    /// </summary>
     public enum ProfiledNodeState
     {
         Executing = 0,
@@ -19,6 +22,10 @@ namespace TuneUp
         NotExecuted = 3,
     }
 
+    /// <summary>
+    /// ViewModel for TuneUp. 
+    /// Handles profiling setup, workspace events, execution events, etc.
+    /// </summary>
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
         #region InternalProperties
