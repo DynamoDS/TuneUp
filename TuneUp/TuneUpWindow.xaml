@@ -79,7 +79,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <!--
+
+        <!-- Recompute All Button -->
         <StackPanel 
             Orientation="Horizontal"
             HorizontalAlignment="Left"
@@ -92,7 +93,8 @@
                 Click="RecomputeGraph_Click">
                 Recompute All
             </Button>
-        </StackPanel>-->
+        </StackPanel>
+        
         <StackPanel Grid.Row="1">
 
             <DataGrid 
@@ -134,6 +136,7 @@
                 </DataGrid.GroupStyle>
                 
                 <DataGrid.Columns>
+                    
                     <!-- Execution Order -->
                     <DataGridTextColumn 
                     Header="#" 
@@ -148,6 +151,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    
                     <!-- Node Name -->
                     <DataGridTextColumn 
                     Header="Name" 
@@ -162,10 +166,41 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    
                     <!-- Execution Time -->
                     <DataGridTextColumn 
                     Header="Execution Time (ms)" 
                     Binding="{Binding ExecutionMilliseconds}" 
+                    Foreground="#aaaaaa" 
+                    IsReadOnly="True" 
+                    Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Execution Start Events -->
+                    <DataGridTextColumn 
+                    Header=" Execution Start Events" 
+                    Binding="{Binding NumExecutionStartEvents}" 
+                    Foreground="#aaaaaa" 
+                    IsReadOnly="True" 
+                    Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Execution End Events -->
+                    <DataGridTextColumn 
+                    Header=" Execution End Events" 
+                    Binding="{Binding NumExecutionEndEvents}" 
                     Foreground="#aaaaaa" 
                     IsReadOnly="True" 
                     Width="Auto">

@@ -100,7 +100,11 @@ namespace TuneUp
         /// The current profiling state of this node as an integer value
         /// </summary>
         public int StateValue => (int)State;
-        
+
+        public int NumExecutionStartEvents { get; set; }
+
+        public int NumExecutionEndEvents { get; set; }
+
         internal NodeModel NodeModel { get; set; }
 
         #endregion
