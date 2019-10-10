@@ -40,54 +40,76 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreNodeModels, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.WpfUILibrary.2.5.0-beta6246\lib\net47\CoreNodeModels.dll</HintPath>
-    </Reference>
-    <Reference Include="CoreNodeModelsWpf, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.WpfUILibrary.2.5.0-beta6246\lib\net47\CoreNodeModelsWpf.dll</HintPath>
-    </Reference>
     <Reference Include="DesignScriptBuiltin, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DesignScriptBuiltin.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DesignScriptBuiltin.dll</HintPath>
+    </Reference>
+    <Reference Include="DSCoreNodes, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSCoreNodes.dll</HintPath>
     </Reference>
     <Reference Include="DSIronPython, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DSIronPython.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DSIronPython.dll</HintPath>
     </Reference>
     <Reference Include="DynamoApplications, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DynamoApplications.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoApplications.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoConversions, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoConversions.dll</HintPath>
     </Reference>
     <Reference Include="DynamoCore, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DynamoCore.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCore.dll</HintPath>
     </Reference>
-    <Reference Include="DynamoCoreTests, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Tests.2.5.0-beta6246\lib\net47\DynamoCoreTests.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="DynamoCoreTests, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreTests.dll</HintPath>
     </Reference>
     <Reference Include="DynamoCoreWpf, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.WpfUILibrary.2.5.0-beta6246\lib\net47\DynamoCoreWpf.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreWpf.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoCoreWpfTests">
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreWpfTests.dll</HintPath>
     </Reference>
     <Reference Include="DynamoInstallDetective, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DynamoInstallDetective.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoInstallDetective.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoManipulation, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoManipulation.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoPackages, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoPackages.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoPackagesWPF, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoPackagesWPF.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamoPython, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoPython.dll</HintPath>
     </Reference>
     <Reference Include="DynamoServices, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.DynamoServices.2.5.0-beta6246\lib\net47\DynamoServices.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoServices.dll</HintPath>
     </Reference>
     <Reference Include="DynamoShapeManager, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DynamoShapeManager.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoShapeManager.dll</HintPath>
     </Reference>
     <Reference Include="DynamoUnits, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.ZeroTouchLibrary.2.5.0-beta6246\lib\net47\DynamoUnits.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUnits.dll</HintPath>
     </Reference>
     <Reference Include="DynamoUtilities, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\DynamoUtilities.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoUtilities.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.4.1.0.0\lib\NET40\Microsoft.Expression.Interactions.dll</HintPath>
@@ -115,12 +137,12 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="ProtoCore, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\ProtoCore.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\ProtoCore.dll</HintPath>
     </Reference>
     <Reference Include="ProtoGeometry, Version=2.5.0.5835, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.ZeroTouchLibrary.2.5.0-beta6246\lib\net47\ProtoGeometry.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\ProtoGeometry.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Private>True</Private>
@@ -133,19 +155,23 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xaml" />
-    <Reference Include="SystemTestServices, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Tests.2.5.0-beta6246\lib\net47\SystemTestServices.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SystemTestServices, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\SystemTestServices.dll</HintPath>
     </Reference>
-    <Reference Include="TestServices, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Tests.2.5.0-beta6246\lib\net47\TestServices.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="TestServices, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\TestServices.dll</HintPath>
     </Reference>
     <Reference Include="VMDataBridge, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamoVisualProgramming.Core.2.5.0-beta6246\lib\net47\VMDataBridge.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\VMDataBridge.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="WorkspaceDependencyViewExtension, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\WorkspaceDependencyViewExtension.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TuneUpTests.cs" />
@@ -153,6 +179,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TuneUp\TuneUp.csproj">
+      <Project>{6ff12d3a-025e-49a5-a773-d99ab82778a3}</Project>
+      <Name>TuneUp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
