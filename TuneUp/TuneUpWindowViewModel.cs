@@ -170,12 +170,11 @@ namespace TuneUp
 
 
             // Enable profiling
-            var currentWorkspace = (viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel);
-            currentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
+            CurrentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
             //TODO need a way to do this from an extension and not cause a run.//VM utilities?
             (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
-            (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.EngineController.EnableProfiling(true, currentWorkspace,currentWorkspace.Nodes);
-            ((viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.CurrentWorkspace as HomeWorkspaceModel).Run();
+            CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace,currentWorkspace.Nodes);
+            CurrentWorkspace.Run();
 
             profilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
