@@ -90,8 +90,10 @@
                 Width="100"
                 Height="24"
                 Margin="3"
+                IsEnabled="{Binding  Path=IsRecomputeEnabled}"
                 Click="RecomputeGraph_Click">
                 Recompute All
+               
             </Button>
         </StackPanel>
         
