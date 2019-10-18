@@ -169,11 +169,14 @@ namespace TuneUp
         {
 
 
-            // Enable profiling
+            //put the graph into manual mode as there is no guarantee that nodes will be marked dirty in topologically sorted oreder.
+            //during a reset.
             CurrentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
-            //TODO need a way to do this from an extension and not cause a run.//VM utilities?
+            //TODO need a way to do this from an extension and not cause a run.//DynamoModel interface or a more specific reset command.
             (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
+            // Enable profiling on the new engine controller after the reset.
             CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace,currentWorkspace.Nodes);
+            //run the graph now that profiling is enabled.
             CurrentWorkspace.Run();
 
             profilingEnabled = true;
