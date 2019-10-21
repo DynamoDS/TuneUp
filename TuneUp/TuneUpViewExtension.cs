@@ -13,7 +13,7 @@ namespace TuneUp
     {
         internal MenuItem TuneUpMenuItem;
         private TuneUpWindow TuneUpView;
-        private TuneUpWindowViewModel ViewModel;
+        internal TuneUpWindowViewModel ViewModel;
 
         public void Dispose()
         {

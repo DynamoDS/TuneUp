@@ -29,31 +29,37 @@ namespace TuneUpTests
             base.GetLibrariesToPreload(libraries);
         }
 
-        protected override void StartDynamo(TestSessionConfiguration testConfig)
+        internal TuneUpViewExtension GetTuneUpViewExtension()
         {
-            base.StartDynamo(testConfig);
+            DispatcherUtil.DoEvents();
+            var viewExtensions = GetViewExtensionManager().ViewExtensions;
+            var tuneUpVE = viewExtensions.Where(e => e.Name.Equals("TuneUp")).FirstOrDefault() as TuneUpViewExtension;
+            return tuneUpVE;
         }
 
         [Test, RequiresSTA]
         public void TuneUpCreatesProfilingDataForEveryNodeInWorkspace()
         {
+            // Open test graph
             var testDir = GetTestDirectory(ExecutingDirectory);
             var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
             OpenDynamoDefinition(filepath);
 
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            
             var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
             var nodes = homespace.Nodes;
 
-            DispatcherUtil.DoEvents();
-            var viewExtensions = GetViewExtensionManager().ViewExtensions;
-
-            //Model.ExtensionManager.ExtensionLoader.Load("C:\\Users\\t_mitcs\\Repos\\TuneUp\\TuneUp\\dist\\TuneUp\\extra\\TuneUp_ViewExtensionDefinition.xml");
-            var tuneUpVE = viewExtensions.Where(e => e.Name.Equals("TuneUp")).FirstOrDefault();
-
-            DispatcherUtil.DoEvents();
-            (tuneUpVE as TuneUpViewExtension).TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
-            DispatcherUtil.DoEvents();
-
+            // Assert there is a ProfiledNodeViewModel for every node in the graph
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            foreach (var node in nodes)
+            {
+                Assert.Contains(node.GUID, profiledNodes.Select(n => n.NodeModel.GUID).ToList());
+            }
         }
     }
 }
