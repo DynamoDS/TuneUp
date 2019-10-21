@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using Dynamo.Core;
 using Dynamo.Engine.Profiling;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
+using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
-using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.ComponentModel;
 
 namespace TuneUp
 {
@@ -48,8 +49,8 @@ namespace TuneUp
                 {
                     currentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
                     currentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
-                    CurrentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
-                    CurrentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
+                    currentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
+                    currentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
 
                     foreach (var node in currentWorkspace.Nodes)
                     {
@@ -66,8 +67,8 @@ namespace TuneUp
                 {
                     currentWorkspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
                     currentWorkspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
-                    CurrentWorkspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
-                    CurrentWorkspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
+                    currentWorkspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
+                    currentWorkspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
 
                     foreach (var node in currentWorkspace.Nodes)
                     {
@@ -81,6 +82,23 @@ namespace TuneUp
 
         #region PublicProperties
 
+        private bool isRecomputeEnabled = true;
+        /// <summary>
+        /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
+        /// reset of the engine and rexecution of the graph if one is still ongoing. This causes...trouble.
+        /// </summary>
+        public bool IsRecomputeEnabled
+        {
+            get => isRecomputeEnabled;
+            private set
+            {
+                if (isRecomputeEnabled != value)
+                {
+                    isRecomputeEnabled = value;
+                    RaisePropertyChanged(nameof(IsRecomputeEnabled));
+                }
+            }
+        }
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace
         /// </summary>
@@ -114,7 +132,7 @@ namespace TuneUp
         public TuneUpWindowViewModel(ViewLoadedParams p)
         {
             viewLoadedParams = p;
-            
+
             p.CurrentWorkspaceChanged += OnCurrentWorkspaceChanged;
             p.CurrentWorkspaceCleared += OnCurrentWorkspaceCleared;
 
@@ -137,7 +155,7 @@ namespace TuneUp
             {
                 return;
             }
-            
+
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
@@ -149,13 +167,22 @@ namespace TuneUp
 
         internal void ResetProfiling()
         {
-            // Disable profiling
-            CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, new List<NodeModel>());
-            
-            // Enable profiling
-            CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);
+
+
+            //put the graph into manual mode as there is no guarantee that nodes will be marked dirty in topologically sorted oreder.
+            //during a reset.
+            CurrentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
+            //TODO need a way to do this from an extension and not cause a run.//DynamoModel interface or a more specific reset command.
+            (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
+            // Enable profiling on the new engine controller after the reset.
+            CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace,currentWorkspace.Nodes);
+            //run the graph now that profiling is enabled.
+            CurrentWorkspace.Run();
+
             profilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
+
+
         }
 
         internal void EnableProfiling()
@@ -167,7 +194,7 @@ namespace TuneUp
                 profilingEnabled = true;
                 executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
             }
-            
+
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
@@ -177,6 +204,7 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
+            IsRecomputeEnabled = false;
             foreach (var node in nodeDictionary.Values)
             {
                 // Reset Node Execution Order info
@@ -197,6 +225,7 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
+            IsRecomputeEnabled = true;
             /*foreach (var node in nodeDictionary.Values)
             {
                 // Update state of any node that is still in the "Executing" state
