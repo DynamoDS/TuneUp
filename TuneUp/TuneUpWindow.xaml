@@ -184,35 +184,6 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <!-- Execution Start Events -->
-                    <DataGridTextColumn 
-                    Header=" Execution Start Events" 
-                    Binding="{Binding NumExecutionStartEvents}" 
-                    Foreground="#aaaaaa" 
-                    IsReadOnly="True" 
-                    Width="Auto">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="Margin" Value="10,0,10,0"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-
-                    <!-- Execution End Events -->
-                    <DataGridTextColumn 
-                    Header=" Execution End Events" 
-                    Binding="{Binding NumExecutionEndEvents}" 
-                    Foreground="#aaaaaa" 
-                    IsReadOnly="True" 
-                    Width="Auto">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="Margin" Value="10,0,10,0"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>

@@ -210,8 +210,6 @@ namespace TuneUp
                 // Reset Node Execution Order info
                 node.ExecutionOrderNumber = null;
                 node.WasExecutedOnLastRun = false;
-                node.NumExecutionEndEvents = 0;
-                node.NumExecutionStartEvents = 0;
 
                 // Update Node state
                 if (node.State == ProfiledNodeState.ExecutedOnCurrentRun)
@@ -226,21 +224,12 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
-            /*foreach (var node in nodeDictionary.Values)
-            {
-                // Update state of any node that is still in the "Executing" state
-                if (node.State == ProfiledNodeState.Executing)
-                {
-                    node.State = ProfiledNodeState.ExecutedOnCurrentRun;
-                }
-            }*/
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
         {
             var profiledNode = nodeDictionary[nm.GUID];
             profiledNode.State = ProfiledNodeState.Executing;
-            profiledNode.NumExecutionStartEvents++;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
@@ -259,7 +248,6 @@ namespace TuneUp
                     profiledNode.ExecutionOrderNumber = numNodesExecuted++;
                 }
             }
-            profiledNode.NumExecutionEndEvents++;
             profiledNode.WasExecutedOnLastRun = true;
             profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));

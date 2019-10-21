@@ -101,10 +101,6 @@ namespace TuneUp
         /// </summary>
         public int StateValue => (int)State;
 
-        public int NumExecutionStartEvents { get; set; }
-
-        public int NumExecutionEndEvents { get; set; }
-
         internal NodeModel NodeModel { get; set; }
 
         #endregion
