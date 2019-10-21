@@ -13,6 +13,9 @@ using SystemTestServices;
 
 using TuneUp;
 using TestServices;
+using DynamoCoreWpfTests.Utility;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace TuneUpTests
 {
@@ -26,6 +29,11 @@ namespace TuneUpTests
             base.GetLibrariesToPreload(libraries);
         }
 
+        protected override void StartDynamo(TestSessionConfiguration testConfig)
+        {
+            base.StartDynamo(testConfig);
+        }
+
         [Test, RequiresSTA]
         public void TuneUpCreatesProfilingDataForEveryNodeInWorkspace()
         {
@@ -36,10 +44,16 @@ namespace TuneUpTests
             var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
             var nodes = homespace.Nodes;
 
+            DispatcherUtil.DoEvents();
             var viewExtensions = GetViewExtensionManager().ViewExtensions;
 
             //Model.ExtensionManager.ExtensionLoader.Load("C:\\Users\\t_mitcs\\Repos\\TuneUp\\TuneUp\\dist\\TuneUp\\extra\\TuneUp_ViewExtensionDefinition.xml");
-            var tu = Model.ExtensionManager.Extensions;//.Where(e => e is TuneUpViewExtension);
+            var tuneUpVE = viewExtensions.Where(e => e.Name.Equals("TuneUp")).FirstOrDefault();
+
+            DispatcherUtil.DoEvents();
+            (tuneUpVE as TuneUpViewExtension).TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+
         }
     }
 }

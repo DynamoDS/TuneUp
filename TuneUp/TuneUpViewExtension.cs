@@ -11,7 +11,7 @@ namespace TuneUp
     /// </summary>
     public class TuneUpViewExtension : IViewExtension
     {
-        private MenuItem TuneUpMenuItem;
+        internal MenuItem TuneUpMenuItem;
         private TuneUpWindow TuneUpView;
         private TuneUpWindowViewModel ViewModel;
 
