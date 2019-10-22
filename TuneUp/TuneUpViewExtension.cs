@@ -53,10 +53,9 @@ namespace TuneUp
         {
             get
             {
-                return uniqueId.ToString() ?? (uniqueId = Guid.NewGuid()).ToString();
+                return "b318f80b-b1d0-4935-b80e-7ab1be7742b4";
             }
         }
-        private Guid? uniqueId;
 
         /// <summary>
         /// Name of this extension
