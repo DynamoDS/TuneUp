@@ -32,9 +32,8 @@ namespace TuneUpTests
         internal TuneUpViewExtension GetTuneUpViewExtension()
         {
             DispatcherUtil.DoEvents();
-            var viewExtensions = GetViewExtensionManager().ViewExtensions;
-            var tuneUpVE = viewExtensions.Where(e => e.Name.Equals("TuneUp")).FirstOrDefault() as TuneUpViewExtension;
-            return tuneUpVE;
+            var tuneUpVE = GetViewExtensionsByType(typeof(TuneUpViewExtension)).FirstOrDefault();
+            return tuneUpVE as TuneUpViewExtension;
         }
 
         [Test, RequiresSTA]
