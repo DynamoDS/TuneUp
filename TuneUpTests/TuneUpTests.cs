@@ -32,7 +32,7 @@ namespace TuneUpTests
         internal TuneUpViewExtension GetTuneUpViewExtension()
         {
             DispatcherUtil.DoEvents();
-            var tuneUpVE = GetViewExtensionsByType(typeof(TuneUpViewExtension)).FirstOrDefault();
+            var tuneUpVE = GetViewExtensionsByType<TuneUpViewExtension>().FirstOrDefault();
             return tuneUpVE as TuneUpViewExtension;
         }
 
