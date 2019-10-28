@@ -68,9 +68,6 @@ namespace TuneUp
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
-            //var c = new DynamoModel.RunCancelCommand(true, false);
-            //commandExecutive.ExecuteCommand(c, uniqueId, "TuneUp");
-            //viewModelCommandExecutive.ForceRunExpressionCommand();
         }
     }
 }
