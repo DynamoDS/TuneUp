@@ -64,5 +64,10 @@ namespace TuneUp
                 viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
             }
         }
+
+        private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
+        {
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
+        }
     }
 }

@@ -11,9 +11,9 @@ namespace TuneUp
     /// </summary>
     public class TuneUpViewExtension : IViewExtension
     {
-        private MenuItem TuneUpMenuItem;
+        internal MenuItem TuneUpMenuItem;
         private TuneUpWindow TuneUpView;
-        private TuneUpWindowViewModel ViewModel;
+        internal TuneUpWindowViewModel ViewModel;
 
         public void Dispose()
         {
@@ -21,7 +21,6 @@ namespace TuneUp
 
         public void Startup(ViewStartupParams p)
         {
-
         }
 
         public void Loaded(ViewLoadedParams p)
@@ -47,14 +46,20 @@ namespace TuneUp
         {
         }
 
+        /// <summary>
+        /// ID for the TuneUp extension
+        /// </summary>
         public string UniqueId
         {
             get
             {
-                return Guid.NewGuid().ToString();
+                return "b318f80b-b1d0-4935-b80e-7ab1be7742b4";
             }
         }
 
+        /// <summary>
+        /// Name of this extension
+        /// </summary>
         public string Name
         {
             get

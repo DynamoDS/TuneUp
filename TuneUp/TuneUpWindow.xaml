@@ -54,6 +54,19 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <!-- Group Style -->
+            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                                <ItemsPresenter/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -64,11 +77,32 @@
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <DataGrid 
-            Name="NodeAnalysisTable" 
+
+        <!-- Recompute All Button -->
+        <StackPanel 
+            Orientation="Horizontal"
+            HorizontalAlignment="Left"
+            Grid.Row="0">
+            <Button
+                Name="RecomputeGraph"
+                Width="100"
+                Height="24"
+                Margin="3"
+                IsEnabled="{Binding  Path=IsRecomputeEnabled}"
+                Click="RecomputeGraph_Click">
+                Recompute All
+               
+            </Button>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="1">
+
+            <DataGrid 
+            x:Name="NodeAnalysisTable" 
             Grid.Row="1"
-            ItemsSource="{Binding ProfiledNodes}"
+            ItemsSource="{Binding Path=ProfiledNodesCollection}"
             Style="{StaticResource DataGridStyle1}"
             GridLinesVisibility="Vertical"
             VerticalGridLinesBrush="#555555"
@@ -86,50 +120,73 @@
             HeadersVisibility="Column"
             SelectionChanged="NodeAnalysisTable_SelectionChanged">
 
-            <DataGrid.Columns>
-                <!-- Execution Order -->
-                <DataGridTextColumn 
-                    Header="Execution Order" 
-                    Binding="{Binding ExecutionOrderNumber}" 
+                <DataGrid.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock 
+                                        Text="{Binding Name}"
+                                        Foreground="#ffffff"
+                                        Margin="3"
+                                        FontSize="11"
+                                        />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </DataGrid.GroupStyle>
+                
+                <DataGrid.Columns>
+                    
+                    <!-- Execution Order -->
+                    <DataGridTextColumn 
+                    Header="#" 
+                    Binding="{Binding Path=ExecutionOrderNumber}" 
                     Foreground="#aaaaaa" 
                     IsReadOnly="True" 
-                    Width="30">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="10,0,10,0"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <!-- Node Name -->
-                <DataGridTextColumn 
+                    Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Node Name -->
+                    <DataGridTextColumn 
                     Header="Name" 
                     Binding="{Binding Name}" 
                     Foreground="#aaaaaa" 
                     IsReadOnly="True" 
                     Width="*">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="10,0,10,0"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <!-- Execution Time -->
-                <DataGridTextColumn 
-                    Header="Execution Time" 
-                    Binding="{Binding ExecutionTime}" 
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Execution Time -->
+                    <DataGridTextColumn 
+                    Header="Execution Time (ms)" 
+                    Binding="{Binding ExecutionMilliseconds}" 
                     Foreground="#aaaaaa" 
                     IsReadOnly="True" 
-                    Width="*">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="10,0,10,0"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                    Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+        
     </Grid>
 </Window>
