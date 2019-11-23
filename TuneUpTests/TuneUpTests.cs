@@ -132,5 +132,46 @@ namespace TuneUpTests
                 Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
             }
         }
+
+        [Test, RequiresSTA]
+        public void TuneUpDeterminesCorrectNodeExecutionOrder()
+        {
+            // Expected execution order
+            var executionOrderDict = new Dictionary<Guid, int>()
+            {
+                { new Guid("84851304e69f452f8cdabc1be4898880"), 1 }, // CodeBlock
+                { new Guid("929a63211eef44639173531bff38f723"), 2 }, // Point.ByCoordinates
+                { new Guid("2194fee1c7374aae9694e490854f70f8"), 3 }, // Point.ByCoordinates
+                { new Guid("1e49be233be846688122ac48d70ce961"), 4 }, // Line.ByStartPointEndPoint
+            };
+
+            // Open test graph
+            var testDir = GetTestDirectory(ExecutingDirectory);
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+
+            // Assert all node execution order numbers are null
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            foreach (var node in profiledNodes)
+            {
+                Assert.IsNull(node.ExecutionOrderNumber);
+            }
+
+            // Run graph and assert execution order numbers are correct
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+            foreach (var node in profiledNodes)
+            {
+                var expected = executionOrderDict[node.NodeModel.GUID];
+                Assert.AreEqual(expected, node.ExecutionOrderNumber);
+            }
+        }
     }
 }
