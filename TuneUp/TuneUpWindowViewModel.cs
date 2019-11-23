@@ -102,28 +102,14 @@ namespace TuneUp
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace
         /// </summary>
-        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes
-        {
-            get
-            {
-                return new ObservableCollection<ProfiledNodeViewModel>(nodeDictionary.Values);
-            }
-        }
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes { get; set; }
 
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace.
         /// Profiling data in this collection is grouped by the profiled nodes' states.
         /// </summary>
-        public ListCollectionView ProfiledNodesCollection
-        {
-            get
-            {
-                var collection = new ListCollectionView(ProfiledNodes);
-                collection.GroupDescriptions.Add(new PropertyGroupDescription("State"));
-                collection.SortDescriptions.Add(new SortDescription("StateValue", ListSortDirection.Ascending));
-                return collection;
-            }
-        }
+        public CollectionViewSource ProfiledNodesCollection { get; set; }
+
 
         #endregion
 
@@ -155,14 +141,24 @@ namespace TuneUp
             {
                 return;
             }
-
+            ProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
                 nodeDictionary[node.GUID] = profiledNode;
+                ProfiledNodes.Add(profiledNode);
             }
 
+            ProfiledNodesCollection = new CollectionViewSource();
+            ProfiledNodesCollection.Source = ProfiledNodes;
+
+            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription("State"));
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription("State", ListSortDirection.Ascending));
+            ProfiledNodesCollection.LiveSortingProperties.Add("State");
+            ProfiledNodesCollection.View.Refresh();
+
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
+            RaisePropertyChanged(nameof(ProfiledNodes));
         }
 
         internal void ResetProfiling()
@@ -224,6 +220,15 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
+            RaisePropertyChanged(nameof(ProfiledNodesCollection));
+            RaisePropertyChanged(nameof(ProfiledNodes));
+            ProfiledNodesCollection.Dispatcher.Invoke(() =>
+            {
+                ProfiledNodesCollection.SortDescriptions.Clear();
+                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription("State", ListSortDirection.Ascending));
+                ProfiledNodesCollection.View.Refresh();
+            });
+            
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
@@ -263,6 +268,7 @@ namespace TuneUp
             nodeDictionary[node.GUID] = profiledNode;
             node.NodeExecutionBegin += OnNodeExecutionBegin;
             node.NodeExecutionEnd += OnNodeExecutionEnd;
+            ProfiledNodes.Add(profiledNode);
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
@@ -272,6 +278,7 @@ namespace TuneUp
             nodeDictionary.Remove(node.GUID);
             node.NodeExecutionBegin -= OnNodeExecutionBegin;
             node.NodeExecutionEnd -= OnNodeExecutionEnd;
+            ProfiledNodes.Remove(profiledNode);
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 

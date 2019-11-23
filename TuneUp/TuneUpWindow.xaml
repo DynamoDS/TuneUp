@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TuneUp"
-             mc:Ignorable="d" 
+        xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
             Width="500" Height="100">
     
@@ -74,6 +75,14 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <CollectionViewSource Source="{Binding ProfiledNodes}" x:Key="ProfiledNodesCollection2">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="State" />
+                </CollectionViewSource.GroupDescriptions>
+                <CollectionViewSource.SortDescriptions>
+                    <componentmodel:SortDescription PropertyName="State" Direction="Descending"/>
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -102,7 +111,7 @@
             <DataGrid 
             x:Name="NodeAnalysisTable" 
             Grid.Row="1"
-            ItemsSource="{Binding Path=ProfiledNodesCollection}"
+            ItemsSource="{Binding Path=ProfiledNodesCollection.View}"
             Style="{StaticResource DataGridStyle1}"
             GridLinesVisibility="Vertical"
             VerticalGridLinesBrush="#555555"
