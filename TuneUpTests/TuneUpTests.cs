@@ -1,21 +1,25 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using NUnit.Framework;
+using System.Windows;
+using System.Windows.Controls;
 
 using Dynamo.Configuration;
 using Dynamo.Extensions;
-using Dynamo.Models;
+using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
+using Dynamo.Models;
 using Dynamo.Scheduler;
+using Dynamo.Search.SearchElements;
+using DynamoCoreWpfTests.Utility;
+
+using NUnit.Framework;
+
 using SystemTestServices;
+using TestServices;
 
 using TuneUp;
-using TestServices;
-using DynamoCoreWpfTests.Utility;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace TuneUpTests
 {
@@ -67,6 +71,65 @@ namespace TuneUpTests
             foreach (var node in profiledNodes)
             {
                 Assert.IsNotNull(node.ExecutionOrderNumber);
+            }
+        }
+
+        [Test, RequiresSTA]
+        public void TuneUpMaintainsProfiledNodeState()
+        {
+            // Open test graph
+            var testDir = GetTestDirectory(ExecutingDirectory);
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+
+            // Assert all node states are NotExecuted before graph run
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            foreach (var node in profiledNodes)
+            {
+                Assert.AreEqual(ProfiledNodeState.NotExecuted, node.State);
+            }
+
+            // Run graph and assert state is ExecutedOnCurrentRun
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+            foreach (var node in profiledNodes)
+            {
+                Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
+            }
+
+            // Mark downstream node as modified so that it gets reexecuted on the next graph run
+            var modifiedNodeID = new Guid("1e49be233be846688122ac48d70ce961");
+            var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
+            homespace.Nodes.Where(n => n.GUID == modifiedNodeID).First().MarkNodeAsModified(true);
+
+            // Run graph, and assert modified node's state is ExecutedOnCurrentRun; assert other nodes are ExecutedOnPreviousRun
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+            foreach (var node in profiledNodes)
+            {
+                if (node.NodeModel.GUID == modifiedNodeID)
+                {
+                    Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
+                }
+                else
+                {
+                    Assert.AreEqual(ProfiledNodeState.ExecutedOnPreviousRun, node.State);
+                }
+            }
+
+            // Force Reexecute and assert all node states are ExecutedOnCurrentRun
+            tuneUpVE.ViewModel.ResetProfiling();
+            DispatcherUtil.DoEvents();
+            foreach (var node in profiledNodes)
+            {
+                Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
             }
         }
     }
