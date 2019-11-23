@@ -26,6 +26,7 @@ namespace TuneUpTests
             libraries.Add("ProtoGeometry.dll");
             libraries.Add("DSCoreNodes.dll");
             libraries.Add("GeometryColor.dll");
+            libraries.Add("VMDataBridge.dll");
             base.GetLibrariesToPreload(libraries);
         }
 
@@ -49,7 +50,8 @@ namespace TuneUpTests
 
             // Open TuneUp
             tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
-            
+            DispatcherUtil.DoEvents();
+
             var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
             var nodes = homespace.Nodes;
 
@@ -58,6 +60,13 @@ namespace TuneUpTests
             foreach (var node in nodes)
             {
                 Assert.Contains(node.GUID, profiledNodes.Select(n => n.NodeModel.GUID).ToList());
+            }
+
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+            foreach (var node in profiledNodes)
+            {
+                Assert.IsNotNull(node.ExecutionOrderNumber);
             }
         }
     }
