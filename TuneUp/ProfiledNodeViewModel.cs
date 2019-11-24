@@ -91,15 +91,9 @@ namespace TuneUp
             {
                 state = value;
                 RaisePropertyChanged(nameof(State));
-                RaisePropertyChanged(nameof(StateValue));
             }
         }
         private ProfiledNodeState state;
-
-        /// <summary>
-        /// The current profiling state of this node as an integer value
-        /// </summary>
-        public int StateValue => (int)State;
 
         internal NodeModel NodeModel { get; set; }
 
