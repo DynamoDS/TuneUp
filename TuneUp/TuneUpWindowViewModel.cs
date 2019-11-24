@@ -152,9 +152,8 @@ namespace TuneUp
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
 
-            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription("State"));
-            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription("State", ListSortDirection.Ascending));
-            ProfiledNodesCollection.LiveSortingProperties.Add("State");
+            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.State)));
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
             ProfiledNodesCollection.View.Refresh();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
@@ -225,7 +224,7 @@ namespace TuneUp
             ProfiledNodesCollection.Dispatcher.Invoke(() =>
             {
                 ProfiledNodesCollection.SortDescriptions.Clear();
-                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription("State", ListSortDirection.Ascending));
+                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
                 ProfiledNodesCollection.View.Refresh();
             });
             
