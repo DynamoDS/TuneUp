@@ -141,7 +141,7 @@ namespace TuneUp
             {
                 return;
             }
-            ProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            ProfiledNodes.Clear();
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
