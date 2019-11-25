@@ -7,10 +7,8 @@ using System.Windows.Controls;
 using Dynamo.Extensions;
 using Dynamo.Models;
 using Dynamo.Utilities;
-using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using Dynamo.Graph.Nodes;
-using System.Reflection;
 
 namespace TuneUp
 {
