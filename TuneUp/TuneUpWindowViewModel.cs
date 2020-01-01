@@ -102,7 +102,7 @@ namespace TuneUp
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace
         /// </summary>
-        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes { get; set; }
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes { get; set; } = new ObservableCollection<ProfiledNodeViewModel>();
 
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace.
@@ -154,7 +154,8 @@ namespace TuneUp
 
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.State)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-            ProfiledNodesCollection.View.Refresh();
+            if (ProfiledNodesCollection.View != null)
+                ProfiledNodesCollection.View.Refresh();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
@@ -225,7 +226,8 @@ namespace TuneUp
             {
                 ProfiledNodesCollection.SortDescriptions.Clear();
                 ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-                ProfiledNodesCollection.View.Refresh();
+                if (ProfiledNodesCollection.View != null)
+                    ProfiledNodesCollection.View.Refresh();
             });
             
         }
