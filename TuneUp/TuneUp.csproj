@@ -64,17 +64,17 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamoVisualProgramming.Core">
-      <Version>2.5.0.7186</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>2.5.0.7186</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.WpfUILibrary">
-      <Version>2.5.0.7186</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
