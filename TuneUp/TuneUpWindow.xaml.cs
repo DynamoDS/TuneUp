@@ -15,17 +15,23 @@ namespace TuneUp
     /// </summary>
     public partial class TuneUpWindow : Window
     {
-        ViewLoadedParams viewLoadedParams;
+        private ViewLoadedParams viewLoadedParams;
 
-        ICommandExecutive commandExecutive;
+        private ICommandExecutive commandExecutive;
 
-        ViewModelCommandExecutive viewModelCommandExecutive;
+        private ViewModelCommandExecutive viewModelCommandExecutive;
 
         /// <summary>
         /// The unique ID for the TuneUp view extension. 
         /// Used to identify the view extension when sending recordable commands.
         /// </summary>
-        string uniqueId;
+        private string uniqueId;
+
+        /// <summary>
+        /// Since there is no API for height offset comparing to
+        /// DynamoWindow height. Define it as static for now.
+        /// </summary>
+        private static double sidebarHeightOffset = 200;
 
         /// <summary>
         /// Create the TuneUp Window
@@ -36,7 +42,9 @@ namespace TuneUp
             InitializeComponent();
             viewLoadedParams = vlp;
             vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
-            this.NodeAnalysisTable.MaxHeight = vlp.DynamoWindow.Height - 200;
+            // Initialize the height of the datagrid in order to make sure
+            // vertical scrollbar can be displayed correctly.
+            this.NodeAnalysisTable.Height = vlp.DynamoWindow.Height - sidebarHeightOffset;
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
@@ -44,14 +52,15 @@ namespace TuneUp
 
         private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
-            this.NodeAnalysisTable.MaxHeight = e.NewSize.Height-200;
+            // Update the new height of datagrid
+            this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Get NodeModel(s) that correspond to selected row(s)
             var selectedNodes = new List<NodeModel>();
-            foreach(var item in e.AddedItems)
+            foreach (var item in e.AddedItems)
             {
                 selectedNodes.Add((item as ProfiledNodeViewModel).NodeModel);
             }

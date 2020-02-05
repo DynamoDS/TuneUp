@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
             Width="500" Height="100">
-    
+
     <Grid Name="MainGrid" >
         <Grid.Resources>
             <!-- DataGrid style -->
@@ -20,6 +20,8 @@
                 <Setter Property="BorderThickness" Value="0.5" />
                 <Setter Property="BorderBrush" Value="#555555"/>
                 <Setter Property="ColumnWidth" Value="Auto"/>
+                <Setter Property="GridLinesVisibility" Value="Vertical"/>
+                <Setter Property="VerticalGridLinesBrush" Value="#555555"/>
             </Style>
             <!-- DataGridColumnHeader style -->
             <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
@@ -94,19 +96,16 @@
                 IsEnabled="{Binding  Path=IsRecomputeEnabled}"
                 Click="RecomputeGraph_Click">
                 Recompute All
-               
+
             </Button>
         </StackPanel>
-        
-        <StackPanel Grid.Row="1">
 
+        <StackPanel Grid.Row="1">
             <DataGrid 
             x:Name="NodeAnalysisTable" 
             Grid.Row="1"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"
             Style="{StaticResource DataGridStyle1}"
-            GridLinesVisibility="Vertical"
-            VerticalGridLinesBrush="#555555"
             AutoGenerateColumns="False"
             CanUserAddRows="False"
             Background="#353535"
@@ -114,8 +113,8 @@
             VerticalAlignment="Center"
             SelectionUnit="FullRow"
             SelectionMode="Single"
-            ScrollViewer.CanContentScroll="True" 
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.CanContentScroll="False" 
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             CanUserResizeColumns="True" 
             CanUserSortColumns="True"
@@ -138,9 +137,9 @@
                         </GroupStyle.HeaderTemplate>
                     </GroupStyle>
                 </DataGrid.GroupStyle>
-                
+
                 <DataGrid.Columns>
-                    
+
                     <!-- Execution Order -->
                     <DataGridTextColumn 
                     Header="#" 
@@ -155,7 +154,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    
+
                     <!-- Node Name -->
                     <DataGridTextColumn 
                     Header="Name" 
@@ -170,7 +169,7 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    
+
                     <!-- Execution Time -->
                     <DataGridTextColumn 
                     Header="Execution Time (ms)" 
@@ -189,6 +188,5 @@
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
-        
     </Grid>
 </Window>
