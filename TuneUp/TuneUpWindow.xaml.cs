@@ -41,10 +41,10 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-            vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
             // Initialize the height of the datagrid in order to make sure
             // vertical scrollbar can be displayed correctly.
             this.NodeAnalysisTable.Height = vlp.DynamoWindow.Height - sidebarHeightOffset;
+            vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
@@ -74,6 +74,11 @@ namespace TuneUp
                 // Focus on selected
                 viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
             }
+        }
+
+        internal void Dispose()
+        {
+            viewLoadedParams.DynamoWindow.SizeChanged -= DynamoWindow_SizeChanged;
         }
 
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
