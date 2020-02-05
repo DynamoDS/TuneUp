@@ -1,6 +1,5 @@
 ﻿using System;
 using Dynamo.Core;
-using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 namespace TuneUp
 {
@@ -81,7 +80,7 @@ namespace TuneUp
         /// <summary>
         /// The current profiling state of this node
         /// </summary>
-        public ProfiledNodeState State
+        internal ProfiledNodeState State
         {
             get
             {

@@ -1,14 +1,12 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Extensions;
+using Dynamo.Graph.Nodes;
 using Dynamo.Models;
 using Dynamo.Utilities;
 using Dynamo.Wpf.Extensions;
-using Dynamo.Graph.Nodes;
 
 namespace TuneUp
 {
@@ -37,10 +35,16 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-
+            vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
+            this.NodeAnalysisTable.MaxHeight = vlp.DynamoWindow.Height - 200;
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
+        }
+
+        private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
+        {
+            this.NodeAnalysisTable.MaxHeight = e.NewSize.Height-200;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -115,7 +115,7 @@
             SelectionUnit="FullRow"
             SelectionMode="Single"
             ScrollViewer.CanContentScroll="True" 
-            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             CanUserResizeColumns="True" 
             CanUserSortColumns="True"
