@@ -80,7 +80,7 @@ namespace TuneUp
         /// <summary>
         /// The current profiling state of this node
         /// </summary>
-        internal ProfiledNodeState State
+        public ProfiledNodeState State
         {
             get
             {

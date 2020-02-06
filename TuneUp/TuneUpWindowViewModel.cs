@@ -15,7 +15,7 @@ namespace TuneUp
     /// <summary>
     /// Enum of possible states of node profiling data
     /// </summary>
-    internal enum ProfiledNodeState
+    public enum ProfiledNodeState
     {
         Executing = 0,
         ExecutedOnCurrentRun = 1,
