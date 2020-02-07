@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
@@ -19,9 +20,16 @@ namespace TuneUp
     /// </summary>
     public enum ProfiledNodeState
     {
+        [Display(Name = "Executing")]
         Executing = 0,
+
+        [Display(Name = "Executed On Current Run")]
         ExecutedOnCurrentRun = 1,
+
+        [Display(Name = "Executed On Previous Run")]
         ExecutedOnPreviousRun = 2,
+
+        [Display(Name = "Not Executed")]
         NotExecuted = 3,
     }
 
@@ -230,11 +238,16 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
-            // After each evaluation, manually insert a sum column
-            var totalSpan = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+            // After each evaluation, manually insert Total execution time column
+            var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+            var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
 
-            uiContext.Send(x => ProfiledNodes.Add(
-                new ProfiledNodeViewModel(ProfiledNodeViewModel.TotaTimelString, totalSpan, ProfiledNodeState.ExecutedOnCurrentRun)), null);
+            uiContext.Send(
+                x =>
+                {
+                    ProfiledNodes.Add(new ProfiledNodeViewModel(ProfiledNodeViewModel.TotaTimelString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRun));
+                    ProfiledNodes.Add(new ProfiledNodeViewModel(ProfiledNodeViewModel.TotaTimelString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRun));
+                }, null);
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
