@@ -9,7 +9,7 @@ namespace TuneUp
 
         private string name = String.Empty;
 
-        public static string TotaTimelString = "Total Execution Time";
+        public static string ExecutionTimelString = "Execution Time";
         /// <summary>
         /// The name of this node
         /// </summary>
@@ -17,7 +17,7 @@ namespace TuneUp
         {
             get 
             {
-                if (name != TotaTimelString)
+                if (!name.Contains(ExecutionTimelString))
                     name = NodeModel?.Name;
                 return name;
             }
