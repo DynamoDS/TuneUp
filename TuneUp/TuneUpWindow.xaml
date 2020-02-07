@@ -130,7 +130,7 @@
                                         Text="{Binding Name}"
                                         Foreground="#ffffff"
                                         Margin="3"
-                                        FontSize="11"
+                                        FontSize="12"
                                         />
                                 </StackPanel>
                             </DataTemplate>

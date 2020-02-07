@@ -62,7 +62,12 @@ namespace TuneUp
             var selectedNodes = new List<NodeModel>();
             foreach (var item in e.AddedItems)
             {
-                selectedNodes.Add((item as ProfiledNodeViewModel).NodeModel);
+                // Check NodeModel valid before actual selection
+                var nodeModel = (item as ProfiledNodeViewModel).NodeModel;
+                if (nodeModel != null)
+                {
+                    selectedNodes.Add(nodeModel);
+                }
             }
 
             if (selectedNodes.Count() > 0)

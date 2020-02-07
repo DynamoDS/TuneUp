@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using Dynamo.Core;
 using Dynamo.Engine.Profiling;
@@ -36,6 +38,7 @@ namespace TuneUp
         private bool profilingEnabled;
         private HomeWorkspaceModel currentWorkspace;
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
+        private SynchronizationContext uiContext;
         internal HomeWorkspaceModel CurrentWorkspace
         {
             get
@@ -127,6 +130,7 @@ namespace TuneUp
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
                 ResetProfiledNodes();
             }
+            uiContext = SynchronizationContext.Current;
         }
 
         #endregion
@@ -201,6 +205,12 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
             IsRecomputeEnabled = false;
+            uiContext.Send(
+                x => 
+                {
+                    ProfiledNodes.Remove(ProfiledNodes.Where(n => n.Name == ProfiledNodeViewModel.TotaTimelString).FirstOrDefault());
+                }, null);
+
             foreach (var node in nodeDictionary.Values)
             {
                 // Reset Node Execution Order info
@@ -220,6 +230,12 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
+            // After each evaluation, manually insert a sum column
+            var totalSpan = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+
+            uiContext.Send(x => ProfiledNodes.Add(
+                new ProfiledNodeViewModel(ProfiledNodeViewModel.TotaTimelString, totalSpan, ProfiledNodeState.ExecutedOnCurrentRun)), null);
+
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             ProfiledNodesCollection.Dispatcher.Invoke(() =>

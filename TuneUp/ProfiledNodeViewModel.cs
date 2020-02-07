@@ -7,10 +7,22 @@ namespace TuneUp
     {
         #region Properties
 
+        private string name = String.Empty;
+
+        public static string TotaTimelString = "Total Execution Time";
         /// <summary>
         /// The name of this node
         /// </summary>
-        public string Name => NodeModel.Name;
+        public string Name
+        {
+            get 
+            {
+                if (name != TotaTimelString)
+                    name = NodeModel?.Name;
+                return name;
+            }
+            internal set { name = value; }
+        }
         
         /// <summary>
         /// The order number of this node in the most recent graph run.
@@ -107,6 +119,17 @@ namespace TuneUp
             NodeModel = node;
             State = ProfiledNodeState.NotExecuted;
         }
-        
+
+        /// <summary>
+        /// An alternative constructor which we can customize data for display
+        /// </summary>
+        /// <param name="node"></param>
+        public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
+        {
+            NodeModel = null;
+            this.Name = name;
+            this.ExecutionTime = exTimeSum;
+            State = state;
+        }
     }
 }
