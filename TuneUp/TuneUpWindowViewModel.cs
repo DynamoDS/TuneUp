@@ -183,7 +183,7 @@ namespace TuneUp
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
 
-            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.State)));
+            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
             if (ProfiledNodesCollection.View != null)
                 ProfiledNodesCollection.View.Refresh();

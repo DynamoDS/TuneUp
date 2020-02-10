@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
 namespace TuneUp
@@ -105,6 +108,22 @@ namespace TuneUp
             }
         }
         private ProfiledNodeState state;
+
+        /// <summary>
+        /// Return the display name of state enum.
+        /// Making this identical property because of datagrid binding
+        /// </summary>
+        public string StateDescription
+        {
+            get
+            {
+                return state.GetType()?
+                    .GetMember(state.ToString())?
+                    .First()?
+                    .GetCustomAttribute<DisplayAttribute>()?
+                    .Name;
+            }
+        }
 
         internal NodeModel NodeModel { get; set; }
 
