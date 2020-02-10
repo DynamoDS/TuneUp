@@ -88,7 +88,7 @@
             Orientation="Horizontal"
             HorizontalAlignment="Left"
             Grid.Row="0">
-            <Label Foreground="White">Total Run Time: </Label>
+            <Label Foreground="White">Total Graph Execution Time: </Label>
             <Label Foreground="White"
                    Name="TotalGraphExecutiontimeLabel"
                    Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
