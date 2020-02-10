@@ -9,17 +9,22 @@ namespace TuneUp
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
+        /// <summary>
+        /// Prefix string of execution time.
+        /// </summary>
+        public static string ExecutionTimelString = "Execution Time";
 
         private string name = String.Empty;
-
-        public static string ExecutionTimelString = "Execution Time";
         /// <summary>
-        /// The name of this node
+        /// The name of this profiled node. This value can be either an actual
+        /// node name or can be virtually any row you want to append to 
+        /// datagrid. See alternative constructor for more details.
         /// </summary>
         public string Name
         {
             get 
             {
+                // For virtual row, do not attempt to grab node name
                 if (!name.Contains(ExecutionTimelString))
                     name = NodeModel?.Name;
                 return name;
@@ -140,9 +145,11 @@ namespace TuneUp
         }
 
         /// <summary>
-        /// An alternative constructor which we can customize data for display
+        /// An alternative constructor which we can customize data for display in Tuneup datagrid
         /// </summary>
-        /// <param name="node"></param>
+        /// <param name="name">row display name</param>
+        /// <param name="exTimeSum">execution time in ms</param>
+        /// <param name="state">state which determine grouping</param>
         public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
         {
             NodeModel = null;

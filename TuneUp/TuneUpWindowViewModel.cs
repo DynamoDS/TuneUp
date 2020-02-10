@@ -157,6 +157,7 @@ namespace TuneUp
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
                 ResetProfiledNodes();
             }
+            // Saving UI context so later when we touch the collection, it is still performed in the same context
             uiContext = SynchronizationContext.Current;
         }
 
@@ -271,6 +272,10 @@ namespace TuneUp
             });
         }
 
+        /// <summary>
+        /// Update execution time rows. These rows are always removed and re-added after each run.
+        /// May consider instead, always updating them in the future.
+        /// </summary>
         private void UpdateExecutionTime()
         {
             // After each evaluation, manually update execution time column(s)
