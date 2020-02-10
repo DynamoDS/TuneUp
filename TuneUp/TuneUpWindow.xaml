@@ -7,7 +7,7 @@
              xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-            Width="500" Height="100">
+             Width="500" Height="100">
 
     <Grid Name="MainGrid" >
         <Grid.Resources>
@@ -88,14 +88,19 @@
             Orientation="Horizontal"
             HorizontalAlignment="Left"
             Grid.Row="0">
+            <Label Foreground="White">Total Run Time: </Label>
+            <Label Foreground="White"
+                   Name="TotalGraphExecutiontimeLabel"
+                   Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
             <Button
                 Name="RecomputeGraph"
-                Width="100"
-                Height="24"
-                Margin="3"
+                Width="Auto"
+                Height="Auto"
+                Margin="10,1,1,1"
                 IsEnabled="{Binding  Path=IsRecomputeEnabled}"
-                Click="RecomputeGraph_Click">
-                Recompute All
+                Click="RecomputeGraph_Click"
+                Padding="5,2,5,2">
+                Force Re-execute
 
             </Button>
         </StackPanel>

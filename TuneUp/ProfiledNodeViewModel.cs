@@ -12,7 +12,7 @@ namespace TuneUp
         /// <summary>
         /// Prefix string of execution time.
         /// </summary>
-        public static string ExecutionTimelString = "Execution Time";
+        public static readonly string ExecutionTimelString = "Execution Time";
 
         private string name = String.Empty;
         /// <summary>

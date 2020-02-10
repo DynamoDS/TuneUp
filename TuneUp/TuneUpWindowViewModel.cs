@@ -47,7 +47,29 @@ namespace TuneUp
         private HomeWorkspaceModel currentWorkspace;
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
         private SynchronizationContext uiContext;
-        internal HomeWorkspaceModel CurrentWorkspace
+        /// <summary>
+        /// Name of the row to display current execution time
+        /// </summary>
+        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Current Run";
+
+        /// <summary>
+        /// Name of the row to display previous execution time
+        /// </summary>
+        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Previous Run";
+
+        /// <summary>
+        /// Shortcut to current execution time row
+        /// </summary>
+        private ProfiledNodeViewModel CurrentExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == CurrentExecutionString);
+
+        /// <summary>
+        /// Shortcut to previous execution time row
+        /// </summary>
+        private ProfiledNodeViewModel PreviousExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == PreviousExecutionString);
+
+        private bool isRecomputeEnabled = true;
+
+        private HomeWorkspaceModel CurrentWorkspace
         {
             get
             {
@@ -92,11 +114,9 @@ namespace TuneUp
         #endregion
 
         #region PublicProperties
-
-        private bool isRecomputeEnabled = true;
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
-        /// reset of the engine and rexecution of the graph if one is still ongoing. This causes...trouble.
+        /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
         /// </summary>
         public bool IsRecomputeEnabled
         {
@@ -122,25 +142,19 @@ namespace TuneUp
         public CollectionViewSource ProfiledNodesCollection { get; set; }
 
         /// <summary>
-        /// Name of the row to display current execution time
+        /// Total graph execution time
         /// </summary>
-        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Current Run";
-
-        /// <summary>
-        /// Name of the row to display previous execution time
-        /// </summary>
-        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Previous Run";
-
-        /// <summary>
-        /// Shortcut to current execution time row
-        /// </summary>
-        private ProfiledNodeViewModel CurrentExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == CurrentExecutionString);
-
-        /// <summary>
-        /// Shortcut to previous execution time row
-        /// </summary>
-        private ProfiledNodeViewModel PreviousExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == PreviousExecutionString);
-
+        public string TotalGraphExecutiontime
+        {
+            get
+            {
+                if(CurrentExecutionTimeRow == null)
+                {
+                    return "N/A";
+                }
+                return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
+            }
+        }
         #endregion
 
         #region Constructors
@@ -191,6 +205,7 @@ namespace TuneUp
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
 
         internal void ResetProfiling()
@@ -228,6 +243,7 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
             IsRecomputeEnabled = false;
             uiContext.Send(
                 x =>
@@ -291,6 +307,7 @@ namespace TuneUp
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
                         PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRun));
                 }, null);
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
