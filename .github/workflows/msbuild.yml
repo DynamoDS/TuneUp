@@ -36,4 +36,5 @@ jobs:
     # look for TuneUp
     - name: Find TuneUp
       run: |
-        ls "$Env:GITHUB_WORKSPACE%\TuneUp\TuneUp\bin\Debug"
+        cd "$Env:GITHUB_WORKSPACE\TuneUp\TuneUp\bin\Debug"
+        ls
