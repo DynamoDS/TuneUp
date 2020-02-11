@@ -11,8 +11,8 @@ jobs:
       run: |
         echo "ls"
         ls
-        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin\MSBuild.exe TuneUp.sln"
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" TuneUp.sln
+        cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp.sln
     # look for TuneUp
     - name: find TuneUp
       run: |
