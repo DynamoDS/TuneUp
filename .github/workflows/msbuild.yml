@@ -20,13 +20,13 @@ jobs:
         echo "ls"
         ls
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe $Env:GITHUB_WORKSPACE\Dynamo\Dynamo.sln
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\Dynamo\src\Dynamo.All.sln
     - name: Build TuneUp with DotNET
       run: |
         echo "ls"
         ls
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
-           .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp.sln
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp\TuneUp.sln
     # look for TuneUp
     - name: find TuneUp
       run: |
