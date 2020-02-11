@@ -34,6 +34,6 @@ jobs:
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp\TuneUp.sln
     # look for TuneUp
-    - name: find TuneUp
+    - name: Find TuneUp
       run: |
-        ls "%GITHUB_WORKSPACE%\TuneUp\TuneUp\bin\Debug"
+        ls "$Env:GITHUB_WORKSPACE%\TuneUp\TuneUp\bin\Debug"
