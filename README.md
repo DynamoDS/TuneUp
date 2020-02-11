@@ -1,3 +1,5 @@
+![](https://github.com/DynamoDS/TuneUp/workflows/Tuneup-Build/badge.svg)
+
 # TuneUp
 
 TuneUp is a view extension for analyzing the performance of Dynamo graphs. TuneUp allows you to see overall graph execution time, per-node execution time, and other helpful information about what's happening under the hood, e.g. nodes run in the current execution v.s. nodes run in the previous execution (which are skipped this run for optimization/ caching)
