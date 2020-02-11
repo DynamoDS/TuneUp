@@ -5,9 +5,23 @@ jobs:
  build:
   runs-on: windows-latest
   steps:
-    - name: Checkout
+    - name: Checkout TuneUp
       uses: actions/checkout@v2
-    - name: Build DotNET
+      with:
+        path: TuneUp
+    - name: Checkout Dynamo repo
+      uses: actions/checkout@v2
+      with:
+        path: Dynamo
+        repository: DynamoDS/Dynamo
+        ref: RC2.5.0_master
+    - name: Build Dynamo with DotNET
+      run: |
+        echo "ls"
+        ls
+        cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+           .\MSBuild.exe $Env:GITHUB_WORKSPACE\Dynamo\Dynamo.sln
+    - name: Build TuneUp with DotNET
       run: |
         echo "ls"
         ls
