@@ -3,11 +3,11 @@ name: Tuneup-Build
 on: [push]
 jobs:
  build:
-runs-on: windows-latest
-steps:
-  - name: Checkout
-    uses: actions/checkout@v1
-  - name: Build DotNET
-    run: |
-      echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin\MSBuild.exe MercuryHealthCore.sln"
-      "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" TuneUp.sln
+  runs-on: windows-latest
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Build DotNET
+      run: |
+        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin\MSBuild.exe MercuryHealthCore.sln"
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" TuneUp.sln
