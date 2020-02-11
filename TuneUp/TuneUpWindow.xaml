@@ -88,21 +88,20 @@
             Orientation="Horizontal"
             HorizontalAlignment="Left"
             Grid.Row="0">
-            <Label Foreground="White">Total Graph Execution Time: </Label>
-            <Label Foreground="White"
-                   Name="TotalGraphExecutiontimeLabel"
-                   Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
             <Button
                 Name="RecomputeGraph"
                 Width="Auto"
                 Height="Auto"
-                Margin="10,1,1,1"
+                Margin="2,1,1,10"
                 IsEnabled="{Binding  Path=IsRecomputeEnabled}"
                 Click="RecomputeGraph_Click"
                 Padding="5,2,5,2">
                 Force Re-execute
-
             </Button>
+            <Label Foreground="White">Total Graph Execution Time: </Label>
+            <Label Foreground="White"
+                   Name="TotalGraphExecutiontimeLabel"
+                   Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1">
