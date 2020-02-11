@@ -10,6 +10,7 @@ jobs:
     - name: Build DotNET
       run: |
         echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin\MSBuild.exe TuneUp.sln"
+        ls
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" TuneUp.sln
     # look for TuneUp
     - name: find TuneUp
