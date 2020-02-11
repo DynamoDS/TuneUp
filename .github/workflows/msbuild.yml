@@ -1,11 +1,13 @@
+# Build Tuneup using latest VS and DotNET
 name: Tuneup-Build
 on: [push]
 jobs:
  build:
 runs-on: windows-latest
 steps:
- — uses: actions/checkout@v1
- — name: Build DotNET45
- run: |
- cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
- .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp\TuneUp.sln
+  - name: Checkout
+    uses: actions/checkout@v1
+  - name: Build DotNET
+    run: |
+      echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\bin\MSBuild.exe MercuryHealthCore.sln"
+      "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" TuneUp.sln
