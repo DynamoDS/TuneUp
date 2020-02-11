@@ -1,17 +1,36 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
 using Dynamo.Core;
-using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 namespace TuneUp
 {
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
-
         /// <summary>
-        /// The name of this node
+        /// Prefix string of execution time.
         /// </summary>
-        public string Name => NodeModel.Name;
+        public static readonly string ExecutionTimelString = "Execution Time";
+
+        private string name = String.Empty;
+        /// <summary>
+        /// The name of this profiled node. This value can be either an actual
+        /// node name or can be virtually any row you want to append to 
+        /// datagrid. See alternative constructor for more details.
+        /// </summary>
+        public string Name
+        {
+            get 
+            {
+                // For virtual row, do not attempt to grab node name
+                if (!name.Contains(ExecutionTimelString))
+                    name = NodeModel?.Name;
+                return name;
+            }
+            internal set { name = value; }
+        }
         
         /// <summary>
         /// The order number of this node in the most recent graph run.
@@ -95,6 +114,22 @@ namespace TuneUp
         }
         private ProfiledNodeState state;
 
+        /// <summary>
+        /// Return the display name of state enum.
+        /// Making this identical property because of datagrid binding
+        /// </summary>
+        public string StateDescription
+        {
+            get
+            {
+                return state.GetType()?
+                    .GetMember(state.ToString())?
+                    .First()?
+                    .GetCustomAttribute<DisplayAttribute>()?
+                    .Name;
+            }
+        }
+
         internal NodeModel NodeModel { get; set; }
 
         #endregion
@@ -108,6 +143,19 @@ namespace TuneUp
             NodeModel = node;
             State = ProfiledNodeState.NotExecuted;
         }
-        
+
+        /// <summary>
+        /// An alternative constructor which we can customize data for display in Tuneup datagrid
+        /// </summary>
+        /// <param name="name">row display name</param>
+        /// <param name="exTimeSum">execution time in ms</param>
+        /// <param name="state">state which determine grouping</param>
+        public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
+        {
+            NodeModel = null;
+            this.Name = name;
+            this.ExecutionTime = exTimeSum;
+            State = state;
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace TuneUp
 
         public void Dispose()
         {
+            TuneUpView.Dispose();
         }
 
         public void Startup(ViewStartupParams p)
@@ -42,8 +43,12 @@ namespace TuneUp
             p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
         }
 
+        /// <summary>
+        /// Tear down function.
+        /// </summary>
         public void Shutdown()
         {
+            this.Dispose();
         }
 
         /// <summary>
@@ -67,6 +72,5 @@ namespace TuneUp
                 return "TuneUp";
             }
         }
-
     }
 }

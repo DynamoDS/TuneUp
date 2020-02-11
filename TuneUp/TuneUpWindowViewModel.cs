@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using Dynamo.Core;
 using Dynamo.Engine.Profiling;
@@ -17,9 +20,16 @@ namespace TuneUp
     /// </summary>
     public enum ProfiledNodeState
     {
+        [Display(Name = "Executing")]
         Executing = 0,
+
+        [Display(Name = "Executed On Current Run")]
         ExecutedOnCurrentRun = 1,
+
+        [Display(Name = "Executed On Previous Run")]
         ExecutedOnPreviousRun = 2,
+
+        [Display(Name = "Not Executed")]
         NotExecuted = 3,
     }
 
@@ -36,7 +46,30 @@ namespace TuneUp
         private bool profilingEnabled;
         private HomeWorkspaceModel currentWorkspace;
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
-        internal HomeWorkspaceModel CurrentWorkspace
+        private SynchronizationContext uiContext;
+        /// <summary>
+        /// Name of the row to display current execution time
+        /// </summary>
+        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Current Run";
+
+        /// <summary>
+        /// Name of the row to display previous execution time
+        /// </summary>
+        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Previous Run";
+
+        /// <summary>
+        /// Shortcut to current execution time row
+        /// </summary>
+        private ProfiledNodeViewModel CurrentExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == CurrentExecutionString);
+
+        /// <summary>
+        /// Shortcut to previous execution time row
+        /// </summary>
+        private ProfiledNodeViewModel PreviousExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == PreviousExecutionString);
+
+        private bool isRecomputeEnabled = true;
+
+        private HomeWorkspaceModel CurrentWorkspace
         {
             get
             {
@@ -81,11 +114,9 @@ namespace TuneUp
         #endregion
 
         #region PublicProperties
-
-        private bool isRecomputeEnabled = true;
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
-        /// reset of the engine and rexecution of the graph if one is still ongoing. This causes...trouble.
+        /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
         /// </summary>
         public bool IsRecomputeEnabled
         {
@@ -110,7 +141,20 @@ namespace TuneUp
         /// </summary>
         public CollectionViewSource ProfiledNodesCollection { get; set; }
 
-
+        /// <summary>
+        /// Total graph execution time
+        /// </summary>
+        public string TotalGraphExecutiontime
+        {
+            get
+            {
+                if(CurrentExecutionTimeRow == null)
+                {
+                    return "N/A";
+                }
+                return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
+            }
+        }
         #endregion
 
         #region Constructors
@@ -127,6 +171,8 @@ namespace TuneUp
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
                 ResetProfiledNodes();
             }
+            // Saving UI context so later when we touch the collection, it is still performed in the same context
+            uiContext = SynchronizationContext.Current;
         }
 
         #endregion
@@ -152,33 +198,30 @@ namespace TuneUp
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
 
-            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.State)));
+            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
             if (ProfiledNodesCollection.View != null)
                 ProfiledNodesCollection.View.Refresh();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
 
         internal void ResetProfiling()
         {
-
-
             //put the graph into manual mode as there is no guarantee that nodes will be marked dirty in topologically sorted oreder.
             //during a reset.
             CurrentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
             //TODO need a way to do this from an extension and not cause a run.//DynamoModel interface or a more specific reset command.
             (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
             // Enable profiling on the new engine controller after the reset.
-            CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace,currentWorkspace.Nodes);
+            CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace, currentWorkspace.Nodes);
             //run the graph now that profiling is enabled.
             CurrentWorkspace.Run();
 
             profilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
-
-
         }
 
         internal void EnableProfiling()
@@ -200,7 +243,15 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
             IsRecomputeEnabled = false;
+            uiContext.Send(
+                x =>
+                {
+                    ProfiledNodes.Remove(CurrentExecutionTimeRow);
+                    ProfiledNodes.Remove(PreviousExecutionTimeRow);
+                }, null);
+
             foreach (var node in nodeDictionary.Values)
             {
                 // Reset Node Execution Order info
@@ -220,16 +271,43 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
+            UpdateExecutionTime();
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
+
             ProfiledNodesCollection.Dispatcher.Invoke(() =>
             {
                 ProfiledNodesCollection.SortDescriptions.Clear();
+                // Sort nodes into execution group
                 ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
+
+                // Sort nodes into execution order and make sure Total execution time is always bottom
+                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), ListSortDirection.Descending));
                 if (ProfiledNodesCollection.View != null)
                     ProfiledNodesCollection.View.Refresh();
             });
-            
+        }
+
+        /// <summary>
+        /// Update execution time rows. These rows are always removed and re-added after each run.
+        /// May consider instead, always updating them in the future.
+        /// </summary>
+        private void UpdateExecutionTime()
+        {
+            // After each evaluation, manually update execution time column(s)
+            var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+            var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+
+            // Add execution time back
+            uiContext.Send(
+                x =>
+                {
+                    ProfiledNodes.Add(new ProfiledNodeViewModel(
+                        CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRun));
+                    ProfiledNodes.Add(new ProfiledNodeViewModel(
+                        PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRun));
+                }, null);
+            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
