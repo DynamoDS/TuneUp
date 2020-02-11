@@ -14,6 +14,8 @@ Recommended build environment
 ## Testing
 
 ### Setup
+Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian newer API which only exists on newer version of Dynamo.
+
 - Download DynamoCoreRuntime 2.5.0 from https://dynamobuilds.com/. Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently. 
 - Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`
 - Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Debug\viewExtensions\`
