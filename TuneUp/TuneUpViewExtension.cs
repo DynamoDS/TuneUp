@@ -34,11 +34,19 @@ namespace TuneUp
                 MainGrid = { DataContext = ViewModel }
             };
 
-            TuneUpMenuItem = new MenuItem { Header = "Open Tune Up" };
+            TuneUpMenuItem = new MenuItem { Header = "Show TuneUp", IsCheckable = true, IsChecked = false };
             TuneUpMenuItem.Click += (sender, args) =>
             {
-                p.AddToExtensionsSideBar(this, TuneUpView);
-                ViewModel.EnableProfiling();
+                if (TuneUpMenuItem.IsChecked)
+                {
+                    p.AddToExtensionsSideBar(this, TuneUpView);
+                    ViewModel.EnableProfiling();
+                }
+                else
+                {
+                    p.CloseExtensioninInSideBar(this);
+                }
+
             };
             p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
         }

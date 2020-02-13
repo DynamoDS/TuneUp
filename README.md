@@ -16,10 +16,14 @@ Recommended build environment
 - .Net Framework 4.7 Developer Pack
 - Dynamo repository cloned and built on the same level of Tuneup repository
 
+## Known issues
+- Tuneup does not work with dyfs yet
+- Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian API which only exists on newer version of Dynamo.
+
 ## Testing
 
 ### Setup
-Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian newer API which only exists on newer version of Dynamo.
+Please check out known issues before go on testing.
 
 - Download DynamoCoreRuntime 2.5.0 from https://dynamobuilds.com/. Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently. 
 - Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`
