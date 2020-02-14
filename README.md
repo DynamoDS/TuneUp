@@ -16,13 +16,17 @@ Recommended build environment
 - .Net Framework 4.7 Developer Pack
 - Dynamo repository cloned and built on the same level of Tuneup repository
 
+## Known issues
+- Tuneup does not work with dyfs yet
+- Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian API which only exists on newer version of Dynamo.
+
 ## Testing
 
 ### Setup
-Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian newer API which only exists on newer version of Dynamo.
+Please check out known issues before go on testing.
 
-- Download DynamoCoreRuntime 2.5.0 from https://dynamobuilds.com/. Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently. 
-- Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`
+- Download DynamoCoreRuntime 2.5.0 from https://dynamobuilds.com/. Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently
+- Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`. If you are building Dynamo locally, copy all contents of Dynamo from `Dynamo/bin/AnyCPU/Debug` to `TuneUp\TuneUpTests\bin\Debug\`
 - Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Debug\viewExtensions\`
 - Open the copied `TuneUp_ViewExtensionDefinition.xml` and change the assemply path to `..\TuneUp.dll`
 - Remove `TuneUp` from your Dynamo packages folder if you have it installed from package manager (otherwise `TuneUp.dll` will get loaded twice)

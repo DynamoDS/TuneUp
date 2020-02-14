@@ -113,7 +113,7 @@ namespace TuneUpTests
                 }
             }
 
-            // Force Reexecute and assert all node states are ExecutedOnCurrentRun
+            // Force Re-execute and assert all node states are ExecutedOnCurrentRun
             tuneUpVE.ViewModel.ResetProfiling();
             DispatcherUtil.DoEvents();
             foreach (var node in profiledNodes)

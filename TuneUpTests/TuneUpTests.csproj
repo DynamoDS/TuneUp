@@ -51,19 +51,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xaml" />
-    <Reference Include="SystemTestServices, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\SystemTestServices.dll</HintPath>
-    </Reference>
-    <Reference Include="TestServices, Version=2.5.0.6450, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\TestServices.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="WorkspaceDependencyViewExtension, Version=2.5.0.6246, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\WorkspaceDependencyViewExtension.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TuneUpTests.cs" />
@@ -77,16 +65,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamoVisualProgramming.Core">
-      <Version>2.4.0.6186</Version>
+      <Version>2.5.0.7432</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>2.4.0.6186</Version>
+      <Version>2.5.0.7432</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.Tests">
-      <Version>2.4.0.6186</Version>
+      <Version>2.5.0.7432</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary">
-      <Version>2.4.0.6186</Version>
+      <Version>2.5.0.7432</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
       <Version>1.3.2</Version>
