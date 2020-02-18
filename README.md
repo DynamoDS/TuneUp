@@ -11,10 +11,17 @@ Here is a mock up of the future design:
 ![Alt text](design/images/TuneUp_Mockup_03_SortedByExecutionOrder.jpg?raw=true "TuneUp")
 
 ## Building
-Recommended build environment
+### Recommended Build Environment
 - VisualStudio 2019
 - .Net Framework 4.7 Developer Pack
 - Dynamo repository cloned and built on the same level of TuneUp repository which means you should find your Dynamo repo folder and TuneUp under the same parent folder
+
+### Result Binaries
+- Everytime 3rd party dev build TuneUp in `Debug` config, they should expect:
+    - Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishment and adoption. This would be the un-optimized version.
+    - Un-optimized package installed locally for [DynamoVersion] defined in TuneUp/TuneUp.csproj, under DynamoCore and DynamoRevit
+- Everytime 3rd party dev build TuneUp in `Release` config, they should expect:
+Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishment and adoption. This would be the optimized version.
 
 ## Known issues
 - TuneUp does not work with dyfs yet
