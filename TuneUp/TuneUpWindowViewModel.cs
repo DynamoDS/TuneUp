@@ -243,15 +243,7 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
-            RaisePropertyChanged(nameof(TotalGraphExecutiontime));
             IsRecomputeEnabled = false;
-            uiContext.Send(
-                x =>
-                {
-                    ProfiledNodes.Remove(CurrentExecutionTimeRow);
-                    ProfiledNodes.Remove(PreviousExecutionTimeRow);
-                }, null);
-
             foreach (var node in nodeDictionary.Values)
             {
                 // Reset Node Execution Order info
@@ -294,14 +286,15 @@ namespace TuneUp
         /// </summary>
         private void UpdateExecutionTime()
         {
-            // After each evaluation, manually update execution time column(s)
-            var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
-            var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
-
-            // Add execution time back
+            // Reset execution time
             uiContext.Send(
                 x =>
                 {
+                    ProfiledNodes.Remove(CurrentExecutionTimeRow);
+                    ProfiledNodes.Remove(PreviousExecutionTimeRow);
+                    // After each evaluation, manually update execution time column(s)
+                    var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+                    var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
                         CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRun));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(

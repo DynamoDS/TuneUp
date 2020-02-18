@@ -1,5 +1,5 @@
-# Build Tuneup using latest VS and DotNET
-name: Tuneup-Build
+# Build TuneUp using latest VS and DotNET
+name: TuneUp-Build
 on: [push]
 jobs:
  build:
@@ -30,7 +30,7 @@ jobs:
            .\MSBuild.exe $Env:GITHUB_WORKSPACE\Dynamo\src\Dynamo.All.sln
     - name: Build TuneUp with DotNET
       run: |
-        echo "***Building Tuneup now following Dynamo build***"
+        echo "***Building TuneUp now following Dynamo build***"
         cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe $Env:GITHUB_WORKSPACE\TuneUp\TuneUp.sln
     # look for TuneUp

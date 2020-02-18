@@ -145,7 +145,7 @@ namespace TuneUp
         }
 
         /// <summary>
-        /// An alternative constructor which we can customize data for display in Tuneup datagrid
+        /// An alternative constructor which we can customize data for display in TuneUp datagrid
         /// </summary>
         /// <param name="name">row display name</param>
         /// <param name="exTimeSum">execution time in ms</param>

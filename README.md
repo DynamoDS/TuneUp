@@ -1,4 +1,4 @@
-![](https://github.com/DynamoDS/TuneUp/workflows/Tuneup-Build/badge.svg)
+![](https://github.com/DynamoDS/TuneUp/workflows/TuneUp-Build/badge.svg)
 
 # TuneUp
 
@@ -14,11 +14,11 @@ Here is a mock up of the future design:
 Recommended build environment
 - VisualStudio 2019
 - .Net Framework 4.7 Developer Pack
-- Dynamo repository cloned and built on the same level of Tuneup repository
+- Dynamo repository cloned and built on the same level of TuneUp repository which means you should find your Dynamo repo folder and TuneUp under the same parent folder
 
 ## Known issues
-- Tuneup does not work with dyfs yet
-- Tuneup is required to work with Dynamo 2.5.0 or up because of dependency on certian API which only exists on newer version of Dynamo.
+- TuneUp does not work with dyfs yet
+- TuneUp is required to work with Dynamo 2.5.0 or up because of dependency on certian API which only exists on newer version of Dynamo.
 
 ## Testing
 
@@ -32,7 +32,7 @@ Please check out known issues before go on testing.
 - Remove `TuneUp` from your Dynamo packages folder if you have it installed from package manager (otherwise `TuneUp.dll` will get loaded twice)
 - Launch DynamoSandbox.exe make click `View-> Open Tune Up` and enjoy it while having graph runs
 
-### Running Tuneup Unit Tests
+### Running TuneUp Unit Tests
 - Install NUnit 2 Test Adapter from VisualStudio->Extensions->Manage Extensions->Online
 - Open Test Explorer from VIsualStudio->Test->Test Explorer. Now you should see a list of TuneUpTests
 - Click the target test to run or run them all
