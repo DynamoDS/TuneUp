@@ -25,6 +25,7 @@ Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publi
 
 ## Known issues
 - TuneUp does not work with dyfs yet
+- TuneUp does not work in a sementic versioning way, so APIs are not guaranteed to be backward compatible
 - TuneUp is required to work with Dynamo 2.5.0 or up because of dependency on certian API which only exists on newer version of Dynamo.
 
 ## Testing
