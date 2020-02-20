@@ -19,10 +19,10 @@ Here is a mock up of the future design:
 - Dynamo repository cloned and built on the same level of TuneUp repository which means your Dynamo repo and TuneUp repo should exist under the same parent folder.
 
 ### Result Binaries
-- Everytime one builds TuneUp in `Debug` config, they should expect:
+- After a `Debug` build of Tuneup one can expect:
     - Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the un-optimized version.
     - Un-optimized package installed locally for [DynamoVersion] defined in TuneUp/TuneUp.csproj, under DynamoCore and DynamoRevit
-- Everytime one builds TuneUp in `Release` config, they should expect:
+- After a `Release` build of Tuneup one can expect:
 Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the optimized version.
 
 ## Known issues
