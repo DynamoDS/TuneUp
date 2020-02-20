@@ -80,7 +80,7 @@ namespace TuneUp
                 // Unsubscribe from old workspace
                 if (currentWorkspace != null)
                 {
-                    UnsetLegacyWorkspaceforProfiling(currentWorkspace);
+                    UnsubscribeWorkspaceEvents(currentWorkspace);
                 }
 
                 // Subscribe to new workspace
@@ -88,7 +88,7 @@ namespace TuneUp
                 {
                     // Set new workspace
                     currentWorkspace = value;
-                    SetupWorkspaceforProfiling(currentWorkspace);
+                    SubscribeWorkspaceEvents(currentWorkspace);
                 }
             }
         }
@@ -357,10 +357,10 @@ namespace TuneUp
 
         /// <summary>
         /// When switching workspaces or closing TuneUp extension,
-        /// unset the legacy workspace for profiling
+        /// unsubscribe workspace events for profiling
         /// </summary>
-        /// <param name="workspace"></param>
-        private void UnsetLegacyWorkspaceforProfiling(HomeWorkspaceModel workspace)
+        /// <param name="workspace">target workspace</param>
+        private void UnsubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
         {
             workspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
             workspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
@@ -377,10 +377,10 @@ namespace TuneUp
 
         /// <summary>
         /// When switching workspaces or closing TuneUp extension,
-        /// setup the current workspace for profiling
+        /// ssubscribe workspace events for profiling
         /// </summary>
-        /// <param name="workspace"></param>
-        private void SetupWorkspaceforProfiling(HomeWorkspaceModel workspace)
+        /// <param name="workspace">target workspace</param>
+        private void SubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
         {
             workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
             workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
@@ -401,7 +401,7 @@ namespace TuneUp
         /// </summary>
         public void Dispose()
         {
-            UnsetLegacyWorkspaceforProfiling(CurrentWorkspace);
+            UnsubscribeWorkspaceEvents(CurrentWorkspace);
             viewLoadedParams.CurrentWorkspaceChanged -= OnCurrentWorkspaceChanged;
             viewLoadedParams.CurrentWorkspaceCleared -= OnCurrentWorkspaceCleared;
         }

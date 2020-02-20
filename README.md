@@ -2,6 +2,8 @@
 
 # TuneUp
 
+TuneUp is a `beta` version.
+
 TuneUp is a view extension for analyzing the performance of Dynamo graphs. TuneUp allows you to see overall graph execution time, per-node execution time, and other helpful information about what's happening under the hood, e.g. nodes run in the current execution v.s. nodes run in the previous execution (which were skipped during the most recent graph run for optimization/ caching).
 
 Here is a short demo of how to utilize it as of now:
@@ -17,16 +19,17 @@ Here is a mock up of the future design:
 - Dynamo repository cloned and built on the same level of TuneUp repository which means your Dynamo repo and TuneUp repo should exist under the same parent folder.
 
 ### Result Binaries
-- Everytime 3rd party dev build TuneUp in `Debug` config, they should expect:
-    - Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishment and adoption. This would be the un-optimized version.
+- Everytime one builds TuneUp in `Debug` config, they should expect:
+    - Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the un-optimized version.
     - Un-optimized package installed locally for [DynamoVersion] defined in TuneUp/TuneUp.csproj, under DynamoCore and DynamoRevit
-- Everytime 3rd party dev build TuneUp in `Release` config, they should expect:
-Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishment and adoption. This would be the optimized version.
+- Everytime one builds TuneUp in `Release` config, they should expect:
+Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the optimized version.
 
 ## Known issues
 - TuneUp does not work with .dyfs (custom nodes) yet.
-- TuneUp does not work in a sementic versioning way, so APIs are not guaranteed to be backward compatible
+- TuneUp binaries are not semantically versioned and are not intended to be built on top of as an API. Do not treat these binaries like DynamoCore.
 - TuneUp requires Dynamo 2.5 or higher for access to new extension APIs.
+- When user have TuneUp open, after switching workspace in Dynamo, the first graph run does not give execution time and nodes order.
 
 ## Testing
 
