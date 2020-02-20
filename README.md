@@ -2,6 +2,8 @@
 
 # TuneUp
 
+TuneUp is a `beta` version.
+
 TuneUp is a view extension for analyzing the performance of Dynamo graphs. TuneUp allows you to see overall graph execution time, per-node execution time, and other helpful information about what's happening under the hood, e.g. nodes run in the current execution v.s. nodes run in the previous execution (which were skipped during the most recent graph run for optimization/ caching).
 
 Here is a short demo of how to utilize it as of now:
@@ -11,14 +13,23 @@ Here is a mock up of the future design:
 ![Alt text](design/images/TuneUp_Mockup_03_SortedByExecutionOrder.jpg?raw=true "TuneUp")
 
 ## Building
-Recommended build environment
+### Recommended Build Environment
 - VisualStudio 2019
 - .Net Framework 4.7 Developer Pack
 - Dynamo repository cloned and built on the same level of TuneUp repository which means your Dynamo repo and TuneUp repo should exist under the same parent folder.
 
+### Result Binaries
+- After a `Debug` build of Tuneup one can expect:
+    - Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the un-optimized version.
+    - Un-optimized package installed locally for [DynamoVersion] defined in TuneUp/TuneUp.csproj, under DynamoCore and DynamoRevit
+- After a `Release` build of Tuneup one can expect:
+Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publishing and adoption. This would be the optimized version.
+
 ## Known issues
 - TuneUp does not work with .dyfs (custom nodes) yet.
+- TuneUp binaries are not semantically versioned and are not intended to be built on top of as an API. Do not treat these binaries like DynamoCore.
 - TuneUp requires Dynamo 2.5 or higher for access to new extension APIs.
+- When user have TuneUp open, after switching workspace in Dynamo, the first graph run does not give execution time and nodes order.
 
 ## Testing
 
