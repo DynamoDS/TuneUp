@@ -39,14 +39,16 @@ namespace TuneUp
     /// </summary>
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
-        #region InternalProperties
+        #region Internal Properties
         private ViewLoadedParams viewLoadedParams;
         private IProfilingExecutionTimeData executionTimeData;
-        private int numNodesExecuted;
-        private bool profilingEnabled;
+        private int executedNodesNum;
+        private bool isProfilingEnabled = true;
+        private bool isRecomputeEnabled = true;
         private HomeWorkspaceModel currentWorkspace;
-        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary;
+        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
+
         /// <summary>
         /// Name of the row to display current execution time
         /// </summary>
@@ -67,8 +69,6 @@ namespace TuneUp
         /// </summary>
         private ProfiledNodeViewModel PreviousExecutionTimeRow => ProfiledNodes.FirstOrDefault(n => n.Name == PreviousExecutionString);
 
-        private bool isRecomputeEnabled = true;
-
         private HomeWorkspaceModel CurrentWorkspace
         {
             get
@@ -80,40 +80,21 @@ namespace TuneUp
                 // Unsubscribe from old workspace
                 if (currentWorkspace != null)
                 {
-                    currentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
-                    currentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
-                    currentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
-                    currentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
-
-                    foreach (var node in currentWorkspace.Nodes)
-                    {
-                        node.NodeExecutionBegin -= OnNodeExecutionBegin;
-                        node.NodeExecutionEnd -= OnNodeExecutionEnd;
-                    }
+                    UnsetLegacyWorkspaceforProfiling(currentWorkspace);
                 }
 
-                // Set new workspace
-                currentWorkspace = value;
-
                 // Subscribe to new workspace
-                if (currentWorkspace != null)
+                if (value != null)
                 {
-                    currentWorkspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
-                    currentWorkspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
-                    currentWorkspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
-                    currentWorkspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
-
-                    foreach (var node in currentWorkspace.Nodes)
-                    {
-                        node.NodeExecutionBegin += OnNodeExecutionBegin;
-                        node.NodeExecutionEnd += OnNodeExecutionEnd;
-                    }
+                    // Set new workspace
+                    currentWorkspace = value;
+                    SetupWorkspaceforProfiling(currentWorkspace);
                 }
             }
         }
         #endregion
 
-        #region PublicProperties
+        #region Public Properties
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
         /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
@@ -148,7 +129,7 @@ namespace TuneUp
         {
             get
             {
-                if(CurrentExecutionTimeRow == null)
+                if (CurrentExecutionTimeRow == null)
                 {
                     return "N/A";
                 }
@@ -157,22 +138,20 @@ namespace TuneUp
         }
         #endregion
 
-        #region Constructors
+        #region Constructor
 
         public TuneUpWindowViewModel(ViewLoadedParams p)
         {
             viewLoadedParams = p;
-
+            // Saving UI context so later when we touch the collection, it is still performed in the same context
+            uiContext = SynchronizationContext.Current;
             p.CurrentWorkspaceChanged += OnCurrentWorkspaceChanged;
             p.CurrentWorkspaceCleared += OnCurrentWorkspaceCleared;
 
             if (p.CurrentWorkspaceModel is HomeWorkspaceModel)
             {
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
-                ResetProfiledNodes();
             }
-            // Saving UI context so later when we touch the collection, it is still performed in the same context
-            uiContext = SynchronizationContext.Current;
         }
 
         #endregion
@@ -181,12 +160,11 @@ namespace TuneUp
 
         internal void ResetProfiledNodes()
         {
-            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-
             if (CurrentWorkspace == null)
             {
                 return;
             }
+            nodeDictionary.Clear();
             ProfiledNodes.Clear();
             foreach (var node in CurrentWorkspace.Nodes)
             {
@@ -197,43 +175,48 @@ namespace TuneUp
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
-
+            // Sort the data by execution state
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-            if (ProfiledNodesCollection.View != null)
-                ProfiledNodesCollection.View.Refresh();
+            ProfiledNodesCollection.View?.Refresh();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
 
+        /// <summary>
+        /// The hanlder for force-recompute the graph
+        /// </summary>
         internal void ResetProfiling()
         {
-            //put the graph into manual mode as there is no guarantee that nodes will be marked dirty in topologically sorted oreder.
-            //during a reset.
+            // Put the graph into manual mode as there is no guarantee that nodes will be marked
+            // dirty in topologically sorted oreder during a reset.
             CurrentWorkspace.RunSettings.RunType = Dynamo.Models.RunType.Manual;
-            //TODO need a way to do this from an extension and not cause a run.//DynamoModel interface or a more specific reset command.
+            // TODO: need a way to do this from an extension and not cause a run.
+            // DynamoModel interface or a more specific reset command.
             (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
             // Enable profiling on the new engine controller after the reset.
             CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace, currentWorkspace.Nodes);
-            //run the graph now that profiling is enabled.
+            // run the graph now that profiling is enabled.
             CurrentWorkspace.Run();
 
-            profilingEnabled = true;
+            isProfilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
         }
 
+        /// <summary>
+        /// Enable profiling when it is disabled temporarily.
+        /// </summary>
         internal void EnableProfiling()
         {
-            if (!profilingEnabled && CurrentWorkspace != null)
+            if (!isProfilingEnabled && CurrentWorkspace != null)
             {
                 ResetProfiledNodes();
                 CurrentWorkspace.EngineController.EnableProfiling(true, CurrentWorkspace, CurrentWorkspace.Nodes);
-                profilingEnabled = true;
+                isProfilingEnabled = true;
                 executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
             }
-
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
@@ -256,7 +239,7 @@ namespace TuneUp
                     node.State = ProfiledNodeState.ExecutedOnPreviousRun;
                 }
             }
-            numNodesExecuted = 1;
+            executedNodesNum = 0;
             EnableProfiling();
         }
 
@@ -322,7 +305,7 @@ namespace TuneUp
                 }
                 if (!profiledNode.WasExecutedOnLastRun)
                 {
-                    profiledNode.ExecutionOrderNumber = numNodesExecuted++;
+                    profiledNode.ExecutionOrderNumber = executedNodesNum++;
                 }
             }
             profiledNode.WasExecutedOnLastRun = true;
@@ -332,7 +315,7 @@ namespace TuneUp
 
         #endregion
 
-        #region WorkspaceEvents
+        #region Workspace Events
 
         private void CurrentWorkspaceModel_NodeAdded(NodeModel node)
         {
@@ -356,35 +339,69 @@ namespace TuneUp
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
-            profilingEnabled = false;
+            // Profiling needs to be enabled per workspace so mark it false after switching
+            isProfilingEnabled = false;
             CurrentWorkspace = workspace as HomeWorkspaceModel;
-            ResetProfiledNodes();
         }
 
         private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
         {
-            profilingEnabled = false;
+            // Profiling needs to be enabled per workspace so mark it false after closing
+            isProfilingEnabled = false;
             CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
-            ResetProfiledNodes();
         }
 
         #endregion
 
-        #region Dispose
+        #region Dispose or setup
 
-        public void Dispose()
+        /// <summary>
+        /// When switching workspaces or closing TuneUp extension,
+        /// unset the legacy workspace for profiling
+        /// </summary>
+        /// <param name="workspace"></param>
+        private void UnsetLegacyWorkspaceforProfiling(HomeWorkspaceModel workspace)
         {
-            foreach (var node in CurrentWorkspace.Nodes)
+            workspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
+            workspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
+            workspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
+            workspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
+
+            foreach (var node in workspace.Nodes)
             {
                 node.NodeExecutionBegin -= OnNodeExecutionBegin;
                 node.NodeExecutionEnd -= OnNodeExecutionEnd;
             }
+            executedNodesNum = 0;
+        }
 
-            CurrentWorkspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
-            CurrentWorkspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
-            CurrentWorkspace.EvaluationStarted -= CurrentWorkspaceModel_EvaluationStarted;
-            CurrentWorkspace.EvaluationCompleted -= CurrentWorkspaceModel_EvaluationCompleted;
+        /// <summary>
+        /// When switching workspaces or closing TuneUp extension,
+        /// setup the current workspace for profiling
+        /// </summary>
+        /// <param name="workspace"></param>
+        private void SetupWorkspaceforProfiling(HomeWorkspaceModel workspace)
+        {
+            workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
+            workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
+            workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
+            workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
 
+            foreach (var node in workspace.Nodes)
+            {
+                node.NodeExecutionBegin += OnNodeExecutionBegin;
+                node.NodeExecutionEnd += OnNodeExecutionEnd;
+            }
+            ResetProfiledNodes();
+            executedNodesNum = 0;
+        }
+
+        /// <summary>
+        /// ViewModel dispose function
+        /// </summary>
+        public void Dispose()
+        {
+            UnsetLegacyWorkspaceforProfiling(CurrentWorkspace);
             viewLoadedParams.CurrentWorkspaceChanged -= OnCurrentWorkspaceChanged;
             viewLoadedParams.CurrentWorkspaceCleared -= OnCurrentWorkspaceCleared;
         }
