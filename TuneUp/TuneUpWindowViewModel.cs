@@ -377,7 +377,7 @@ namespace TuneUp
 
         /// <summary>
         /// When switching workspaces or closing TuneUp extension,
-        /// ssubscribe workspace events for profiling
+        /// subscribe workspace events for profiling
         /// </summary>
         /// <param name="workspace">target workspace</param>
         private void SubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
