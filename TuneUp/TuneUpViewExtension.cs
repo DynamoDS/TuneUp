@@ -31,7 +31,8 @@ namespace TuneUp
             {
                 // Set the data context for the main grid in the window.
                 NodeAnalysisTable = { DataContext = ViewModel },
-                MainGrid = { DataContext = ViewModel }
+                MainGrid = { DataContext = ViewModel },
+                Owner = p.DynamoWindow
             };
 
             TuneUpMenuItem = new MenuItem { Header = "Show TuneUp", IsCheckable = true, IsChecked = false };
