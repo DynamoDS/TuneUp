@@ -30,6 +30,7 @@ Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publi
 - TuneUp binaries are not semantically versioned and are not intended to be built on top of as an API. Do not treat these binaries like DynamoCore.
 - TuneUp requires Dynamo 2.5 or higher for access to new extension APIs.
 - When user have TuneUp open, after switching workspace in Dynamo, the first graph run does not give execution time and nodes order.
+- Although it's not an issue by itself, TuneUp profiles the execution of graphs even if not showing on the extension bar.
 - In some cases TuneUp may calculate incorrect execution times for nodes, we cannot reproduce this consistently, if you see this occur and can reproduce it please file an issue!
 
 ## Testing
