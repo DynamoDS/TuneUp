@@ -130,6 +130,20 @@ namespace TuneUp
             }
         }
 
+        private string callsiteData;
+        /// <summary>
+        /// A string representing the serialized trace data contained in this callsite.
+        /// </summary>
+        public string CallSiteData
+        {
+            get { return callsiteData; }
+            set
+            {
+                callsiteData = value;
+                RaisePropertyChanged(nameof(CallSiteData));
+            }
+        }
+
         internal NodeModel NodeModel { get; set; }
 
         #endregion

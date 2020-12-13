@@ -260,7 +260,22 @@ namespace TuneUp
                 ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), ListSortDirection.Descending));
                 if (ProfiledNodesCollection.View != null)
                     ProfiledNodesCollection.View.Refresh();
+                GetCallSiteDataForCurrentNodesAndUpdateView();
             });
+        }
+
+        internal void GetCallSiteDataForCurrentNodesAndUpdateView()
+        {
+            foreach (var item in ProfiledNodes)
+            {
+                if (item.NodeModel != null)
+                {
+                    var engine = (viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel).EngineController;
+                    var callsites = engine.LiveRunnerRuntimeCore.RuntimeData.GetCallsitesForNodes(new Guid[] { (item.NodeModel.GUID) }, engine.LiveRunnerCore.DSExecutable).FirstOrDefault();
+                    item.CallSiteData = String.Join(Environment.NewLine, callsites.Value.Select(x => x.GetTraceDataToSave()));
+                }
+
+            }
         }
 
         /// <summary>

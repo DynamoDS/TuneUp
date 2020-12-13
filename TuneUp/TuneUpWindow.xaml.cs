@@ -4,8 +4,10 @@ using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
+using Dynamo.Graph.Workspaces;
 using Dynamo.Models;
 using Dynamo.Utilities;
+using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 
 namespace TuneUp
@@ -89,6 +91,24 @@ namespace TuneUp
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
+        }
+
+        private void ClearTrace_Click(object sender, RoutedEventArgs e)
+        {
+            var engine = (viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel).EngineController;
+            var callsites = engine.LiveRunnerRuntimeCore.RuntimeData.GetCallsitesForNodes(
+                viewLoadedParams.CurrentWorkspaceModel.Nodes.Select(x => x.GUID),
+                engine.LiveRunnerCore.DSExecutable);
+
+            foreach (var kvp in callsites)
+            {
+                foreach (var callsite in kvp.Value)
+                {
+                    callsite.TraceData.Clear();
+                }
+            }
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).GetCallSiteDataForCurrentNodesAndUpdateView();
+
         }
     }
 }

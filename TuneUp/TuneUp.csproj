@@ -93,7 +93,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <DynamoVersion>2.5</DynamoVersion>
+    <DynamoVersion>2.11</DynamoVersion>
     <PackageName>TuneUp</PackageName>
     <PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
     <BinFolder>$(PackageFolder)bin\</BinFolder>
