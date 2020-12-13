@@ -98,6 +98,15 @@
                 Padding="5,2,5,2">
                 Force Re-execute
             </Button>
+            <Button
+                Name="ClearTraceButton"
+                Width="Auto"
+                Height="Auto"
+                Margin="2,1,1,10"
+                Click="ClearTrace_Click"
+                Padding="5,2,5,2">
+                Clear Trace/ElementBinding Data
+            </Button>
             <Label Foreground="White">Total Graph Execution Time: </Label>
             <Label Foreground="White"
                    Name="TotalGraphExecutiontimeLabel"
@@ -184,6 +193,22 @@
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="10,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <!-- callsite data -->
+                    <DataGridTextColumn 
+                    Header="callsite data" 
+                    Binding="{Binding CallSiteData}" 
+                    Foreground="#aaaaaa" 
+                    IsReadOnly="True" 
+                    Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock" >
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
                                 <Setter Property="Margin" Value="10,0,10,0"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
