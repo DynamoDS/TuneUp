@@ -9,22 +9,22 @@ namespace TuneUp
     /// which allows Dynamo users to analyze the performance of graphs
     /// and diagnose bottlenecks and problem areas.
     /// </summary>
-    public class TuneUpViewExtension : IViewExtension
+    public class TuneUpViewExtension : ViewExtensionBase, IViewExtension
     {
         internal MenuItem TuneUpMenuItem;
         private TuneUpWindow TuneUpView;
         internal TuneUpWindowViewModel ViewModel;
 
-        public void Dispose()
+        public override void Dispose()
         {
             TuneUpView.Dispose();
         }
 
-        public void Startup(ViewStartupParams p)
+        public override void Startup(ViewStartupParams p)
         {
         }
 
-        public void Loaded(ViewLoadedParams p)
+        public override void Loaded(ViewLoadedParams p)
         {
             ViewModel = new TuneUpWindowViewModel(p);
             TuneUpView = new TuneUpWindow(p, UniqueId)
@@ -49,7 +49,7 @@ namespace TuneUp
                 }
 
             };
-            p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
+            p.AddExtensionMenuItem(TuneUpMenuItem);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace TuneUp
         /// <summary>
         /// ID for the TuneUp extension
         /// </summary>
-        public string UniqueId
+        public override string UniqueId
         {
             get
             {
@@ -74,11 +74,19 @@ namespace TuneUp
         /// <summary>
         /// Name of this extension
         /// </summary>
-        public string Name
+        public override string Name
         {
             get
             {
                 return "TuneUp";
+            }
+        }
+
+        public override void Closed()
+        {
+            if (this.TuneUpMenuItem != null)
+            {
+                this.TuneUpMenuItem.IsChecked = false;
             }
         }
     }
