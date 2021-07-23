@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TuneUpTests</RootNamespace>
     <AssemblyName>TuneUpTests</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
@@ -65,16 +65,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamoVisualProgramming.Core">
-      <Version>2.5.0.7432</Version>
+      <Version>2.12.0.5650</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>2.5.0.7432</Version>
+      <Version>2.12.0.5650</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.Tests">
-      <Version>2.5.0.7432</Version>
+      <Version>2.12.0.5650</Version>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary">
-      <Version>2.5.0.7432</Version>
+      <Version>2.12.0.5650</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
       <Version>1.3.2</Version>
