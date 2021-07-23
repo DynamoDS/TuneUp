@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TuneUp</RootNamespace>
     <AssemblyName>TuneUp</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Dynamo\Dynamo Core\2\DynamoSandbox.exe</StartProgram>
     <FileAlignment>512</FileAlignment>
@@ -65,17 +65,17 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamoVisualProgramming.Core">
-      <Version>2.12.0.5650</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>2.12.0.5650</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DynamoVisualProgramming.WpfUILibrary">
-      <Version>2.12.0.5650</Version>
+      <Version>2.5.0.7432</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -93,7 +93,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <DynamoVersion>2.12</DynamoVersion>
+    <DynamoVersion>2.5</DynamoVersion>
     <PackageName>TuneUp</PackageName>
     <PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
     <BinFolder>$(PackageFolder)bin\</BinFolder>
