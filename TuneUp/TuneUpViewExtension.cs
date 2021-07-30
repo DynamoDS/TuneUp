@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
 
@@ -26,7 +26,9 @@ namespace TuneUp
 
         public override void Loaded(ViewLoadedParams p)
         {
+            dynamic dp = (dynamic) p;
             ViewModel = new TuneUpWindowViewModel(p);
+
             TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
@@ -47,9 +49,19 @@ namespace TuneUp
                 {
                     p.CloseExtensioninInSideBar(this);
                 }
-
             };
-            p.AddExtensionMenuItem(TuneUpMenuItem);
+
+            var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
+            var extensionsMenuItem = dynamoMenuItems.Where(item => item.Header.ToString() == "_Extensions");
+
+            if (extensionsMenuItem.Count() > 0)
+            {
+                dp.AddExtensionMenuItem(TuneUpMenuItem);
+            }
+            else
+            {
+                dp.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
+            }
         }
 
         /// <summary>
