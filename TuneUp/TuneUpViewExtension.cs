@@ -26,6 +26,7 @@ namespace TuneUp
 
         public override void Loaded(ViewLoadedParams p)
         {
+            // Use dynamic object type of ViewLoadedParams to dynamically call its methods.
             dynamic dp = (dynamic) p;
             ViewModel = new TuneUpWindowViewModel(p);
 
@@ -51,6 +52,7 @@ namespace TuneUp
                 }
             };
 
+            // Add this view extension's menu item to the Extensions tab or View tab accordingly.
             var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
             var extensionsMenuItem = dynamoMenuItems.Where(item => item.Header.ToString() == "_Extensions");
 
