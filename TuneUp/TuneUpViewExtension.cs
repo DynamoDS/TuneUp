@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
 
@@ -9,24 +9,27 @@ namespace TuneUp
     /// which allows Dynamo users to analyze the performance of graphs
     /// and diagnose bottlenecks and problem areas.
     /// </summary>
-    public class TuneUpViewExtension : IViewExtension
+    public class TuneUpViewExtension : ViewExtensionBase, IViewExtension
     {
         internal MenuItem TuneUpMenuItem;
         private TuneUpWindow TuneUpView;
         internal TuneUpWindowViewModel ViewModel;
 
-        public void Dispose()
+        public override void Dispose()
         {
             TuneUpView.Dispose();
         }
 
-        public void Startup(ViewStartupParams p)
+        public override void Startup(ViewStartupParams p)
         {
         }
 
-        public void Loaded(ViewLoadedParams p)
+        public override void Loaded(ViewLoadedParams p)
         {
+            // Use dynamic object type of ViewLoadedParams to dynamically call its methods.
+            dynamic dp = (dynamic) p;
             ViewModel = new TuneUpWindowViewModel(p);
+
             TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
@@ -47,9 +50,20 @@ namespace TuneUp
                 {
                     p.CloseExtensioninInSideBar(this);
                 }
-
             };
-            p.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
+
+            // Add this view extension's menu item to the Extensions tab or View tab accordingly.
+            var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
+            var extensionsMenuItem = dynamoMenuItems.Where(item => item.Header.ToString() == "_Extensions");
+
+            if (extensionsMenuItem.Count() > 0)
+            {
+                dp.AddExtensionMenuItem(TuneUpMenuItem);
+            }
+            else
+            {
+                dp.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
+            }
         }
 
         /// <summary>
@@ -63,7 +77,7 @@ namespace TuneUp
         /// <summary>
         /// ID for the TuneUp extension
         /// </summary>
-        public string UniqueId
+        public override string UniqueId
         {
             get
             {
@@ -74,11 +88,19 @@ namespace TuneUp
         /// <summary>
         /// Name of this extension
         /// </summary>
-        public string Name
+        public override string Name
         {
             get
             {
                 return "TuneUp";
+            }
+        }
+
+        public override void Closed()
+        {
+            if (this.TuneUpMenuItem != null)
+            {
+                this.TuneUpMenuItem.IsChecked = false;
             }
         }
     }
