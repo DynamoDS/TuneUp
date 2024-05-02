@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           path: Dynamo
+          repository: DynamoDS/Dynamo
       - name: List files
         run: Get-ChildItem -Path ${{ github.workspace }} -Recurse
       - name: Setup Nuget
@@ -25,7 +26,9 @@ jobs:
       - name: Setup msbuild
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
       - name: Install dependencies for Dynamo solution
-        run: nuget restore ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln
+        run: |
+          nuget restore ${{ github.workspace }}\Dynamo\src\Dynamo.All.sln
+          nuget restore $Env:GITHUB_WORKSPACE\Dynamo\src\Dynamo.All.sln
       - name: Install dependencies for TuneUp solution
         run: nuget restore ${{ github.workspace }}\TuneUp\TuneUp.sln
       - name: Build Dynamo solution
