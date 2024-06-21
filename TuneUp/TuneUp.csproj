@@ -70,19 +70,23 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="DynamoVisualProgramming.Core" Version="3.0.0.7186">
-	  <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-	</PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.DynamoServices" Version="3.0.0.7186">
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.WpfUILibrary" Version="3.0.0.7186">
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+	  <PackageReference Include="DynamoVisualProgramming.Core" Version="3.2.1.5366">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.Tests" Version="3.2.1.5366">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.WpfUILibrary" Version="3.2.1.5366">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary" Version="3.2.1.5366">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>

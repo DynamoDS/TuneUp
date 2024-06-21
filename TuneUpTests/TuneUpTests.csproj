@@ -72,16 +72,22 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="DynamoVisualProgramming.Core" Version="3.0.0.7186" />
-    <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>3.0.0.7186</Version>
-    </PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.Tests">
-      <Version>3.0.0.7186</Version>
-    </PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary">
-      <Version>3.0.0.7186</Version>
-    </PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.Core" Version="3.2.1.5366">
+      <ExcludeAssets>runtime</ExcludeAssets>
+	  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	</PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.Tests" Version="3.2.1.5366">
+	  <ExcludeAssets>runtime</ExcludeAssets>
+	  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	</PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.WpfUILibrary" Version="3.2.1.5366">
+	  <ExcludeAssets>runtime</ExcludeAssets>
+	  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	</PackageReference>
+    <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary" Version="3.2.1.5366">
+	  <ExcludeAssets>runtime</ExcludeAssets>
+	  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	</PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="MSTest.TestAdapter">
       <Version>1.3.2</Version>
