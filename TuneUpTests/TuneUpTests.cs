@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Graph.Workspaces;
@@ -30,7 +31,7 @@ namespace TuneUpTests
             return tuneUpVE as TuneUpViewExtension;
         }
 
-        [Test, RequiresSTA]
+        [Test, Apartment(ApartmentState.STA)]
         public void TuneUpCreatesProfilingDataForEveryNodeInWorkspace()
         {
             // Open test graph
@@ -63,7 +64,7 @@ namespace TuneUpTests
             }
         }
 
-        [Test, RequiresSTA]
+        [Test, Apartment(ApartmentState.STA)]
         public void TuneUpMaintainsProfiledNodeState()
         {
             // Open test graph
@@ -122,7 +123,7 @@ namespace TuneUpTests
             }
         }
 
-        [Test, RequiresSTA]
+        [Test, Apartment(ApartmentState.STA)]
         public void TuneUpDeterminesCorrectNodeExecutionOrder()
         {
             // Expected execution order

@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
+	<!-- Disable default inclusion of all *.cs files to avoid duplicate compile item errors. -->
 	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <TargetFramework>net8.0-windows</TargetFramework>
 	<UseWPF>true</UseWPF>
@@ -9,9 +10,11 @@
     <AssemblyName>TuneUp</AssemblyName>
     <OutputType>Library</OutputType>
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Program Files\Dynamo\Dynamo Core\2\DynamoSandbox.exe</StartProgram>
+    <StartProgram>C:\Program Files\Dynamo\Dynamo Core\3\DynamoSandbox.exe</StartProgram>
     <FileAlignment>512</FileAlignment>
+	<!-- Prevent generation of AssemblyInfo.cs to avoid duplicate attributes. -->
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<!-- Disable default inclusion of all *.xaml files to avoid duplicate page item errors. -->
 	<EnableDefaultPageItems>false</EnableDefaultPageItems>
   </PropertyGroup>
   
@@ -67,10 +70,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DynamoVisualProgramming.Core" Version="3.0.0.7186">
-      <ExcludeAssets>runtime</ExcludeAssets>
+	<PackageReference Include="DynamoVisualProgramming.Core" Version="3.0.0.7186">
+	  <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+	</PackageReference>
     <PackageReference Include="DynamoVisualProgramming.DynamoServices" Version="3.0.0.7186">
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
@@ -79,6 +82,9 @@
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
