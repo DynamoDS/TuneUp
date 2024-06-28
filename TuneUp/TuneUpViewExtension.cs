@@ -52,6 +52,10 @@ namespace TuneUp
                 }
             };
 
+            // Bind the IsChecked property to the IsTuneUpActive property
+            TuneUpMenuItem.Checked += (sender, args) => ViewModel.IsTuneUpActive = true;
+            TuneUpMenuItem.Unchecked += (sender, args) => ViewModel.IsTuneUpActive = false;
+
             // Add this view extension's menu item to the Extensions tab or View tab accordingly.
             var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
             // TODO: Investigate why TuneUpMenuItem is not added to the specified MenuItem

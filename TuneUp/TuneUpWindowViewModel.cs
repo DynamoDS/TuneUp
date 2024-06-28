@@ -48,6 +48,7 @@ namespace TuneUp
         private HomeWorkspaceModel currentWorkspace;
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
+        private bool isTuneUpActive = false;
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -88,13 +89,35 @@ namespace TuneUp
                 {
                     // Set new workspace
                     currentWorkspace = value;
-                    SubscribeWorkspaceEvents(currentWorkspace);
+                    if (isTuneUpActive)
+                    {
+                        SubscribeWorkspaceEvents(currentWorkspace);
+                    }
+                    
                 }
             }
         }
         #endregion
 
         #region Public Properties
+        public bool IsTuneUpActive
+        {
+            get => isTuneUpActive;
+            set
+            {
+                if (isTuneUpActive != value)
+                {
+                    isTuneUpActive = value;
+                    RaisePropertyChanged(nameof(IsTuneUpActive));
+
+                    if (value == true)
+                    {
+                        SubscribeWorkspaceEvents(currentWorkspace);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
         /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
@@ -382,15 +405,18 @@ namespace TuneUp
         /// <param name="workspace">target workspace</param>
         private void SubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
         {
-            workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
-            workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
-            workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
-            workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
-
-            foreach (var node in workspace.Nodes)
+            if (isTuneUpActive)
             {
-                node.NodeExecutionBegin += OnNodeExecutionBegin;
-                node.NodeExecutionEnd += OnNodeExecutionEnd;
+                workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
+                workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
+                workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
+                workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
+
+                foreach (var node in workspace.Nodes)
+                {
+                    node.NodeExecutionBegin += OnNodeExecutionBegin;
+                    node.NodeExecutionEnd += OnNodeExecutionEnd;
+                }
             }
             ResetProfiledNodes();
             executedNodesNum = 0;
