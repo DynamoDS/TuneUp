@@ -79,7 +79,7 @@ namespace TuneUp
             set
             {
                 // Unsubscribe from old workspace
-                if (currentWorkspace != null)
+                if (currentWorkspace != null && isTuneUpActive)
                 {
                     UnsubscribeWorkspaceEvents(currentWorkspace);
                 }
@@ -93,7 +93,6 @@ namespace TuneUp
                     {
                         SubscribeWorkspaceEvents(currentWorkspace);
                     }
-                    
                 }
             }
         }
@@ -110,10 +109,8 @@ namespace TuneUp
                     isTuneUpActive = value;
                     RaisePropertyChanged(nameof(IsTuneUpActive));
 
-                    if (value == true)
-                    {
-                        SubscribeWorkspaceEvents(currentWorkspace);
-                    }
+                    if (value == true) SubscribeWorkspaceEvents(currentWorkspace);
+                    else UnsubscribeWorkspaceEvents(currentWorkspace);
                 }
             }
         }
@@ -372,18 +369,18 @@ namespace TuneUp
             // Profiling needs to be enabled per workspace so mark it false after closing
             isProfilingEnabled = false;
             CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
-        }
+    }
 
-        #endregion
+    #endregion
 
-        #region Dispose or setup
+    #region Dispose or setup
 
-        /// <summary>
-        /// When switching workspaces or closing TuneUp extension,
-        /// unsubscribe workspace events for profiling
-        /// </summary>
-        /// <param name="workspace">target workspace</param>
-        private void UnsubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
+    /// <summary>
+    /// When switching workspaces or closing TuneUp extension,
+    /// unsubscribe workspace events for profiling
+    /// </summary>
+    /// <param name="workspace">target workspace</param>
+    private void UnsubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
         {
             workspace.NodeAdded -= CurrentWorkspaceModel_NodeAdded;
             workspace.NodeRemoved -= CurrentWorkspaceModel_NodeRemoved;
@@ -405,18 +402,15 @@ namespace TuneUp
         /// <param name="workspace">target workspace</param>
         private void SubscribeWorkspaceEvents(HomeWorkspaceModel workspace)
         {
-            if (isTuneUpActive)
-            {
-                workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
-                workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
-                workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
-                workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
+            workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
+            workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
+            workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
+            workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
 
-                foreach (var node in workspace.Nodes)
-                {
-                    node.NodeExecutionBegin += OnNodeExecutionBegin;
-                    node.NodeExecutionEnd += OnNodeExecutionEnd;
-                }
+            foreach (var node in workspace.Nodes)
+            {
+                node.NodeExecutionBegin += OnNodeExecutionBegin;
+                node.NodeExecutionEnd += OnNodeExecutionEnd;
             }
             ResetProfiledNodes();
             executedNodesNum = 0;
