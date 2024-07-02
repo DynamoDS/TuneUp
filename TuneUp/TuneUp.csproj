@@ -1,23 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Default properties for the project -->
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6FF12D3A-025E-49A5-A773-D99AB82778A3}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <RootNamespace>TuneUp</RootNamespace>
     <AssemblyName>TuneUp</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputType>Library</OutputType>
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Program Files\Dynamo\Dynamo Core\2\DynamoSandbox.exe</StartProgram>
-    <FileAlignment>512</FileAlignment>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <TargetFrameworkProfile />
+	<StartProgram>C:\Program Files\Dynamo\Dynamo Core\3.2\DynamoSandbox.exe</StartProgram>
+	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <!-- Properties specific to Debug configuration -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,7 +19,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <!-- Properties specific to Release configuration -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,6 +28,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <!-- References to other assemblies -->
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -48,62 +43,61 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
+  <!-- Source code files to be compiled -->
   <ItemGroup>
     <Compile Include="ProfiledNodeViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TuneUpViewExtension.cs" />
     <Compile Include="TuneUpWindowViewModel.cs" />
     <Compile Include="TuneUpWindow.xaml.cs">
       <DependentUpon>TuneUpWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <!-- XAML files to be compiled -->
   <ItemGroup>
     <Page Include="TuneUpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="DynamoVisualProgramming.Core">
-      <Version>2.12.0.5650</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.DynamoServices">
-      <Version>2.12.0.5650</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="DynamoVisualProgramming.WpfUILibrary">
-      <Version>2.12.0.5650</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.Core" Version="$(DynamoPackageVersion)">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.Tests" Version="$(DynamoPackageVersion)">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.WpfUILibrary" Version="$(DynamoPackageVersion)">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="DynamoVisualProgramming.ZeroTouchLibrary" Version="$(DynamoPackageVersion)">
+		  <ExcludeAssets>runtime</ExcludeAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>	
   </ItemGroup>
   <ItemGroup>
     <None Include="manifests\pkg.json" />
     <None Include="manifests\TuneUp_ViewExtensionDefinition.xml" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <!-- Including Custom Properties, PreBuildEvent, and Import -->
   <PropertyGroup>
-    <DynamoVersion>2.12</DynamoVersion>
+    <DynamoVersion>3.2</DynamoVersion>
     <PackageName>TuneUp</PackageName>
     <PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
     <BinFolder>$(PackageFolder)bin\</BinFolder>
     <ExtraFolder>$(PackageFolder)extra\</ExtraFolder>
     <DyfFolder>$(PackageFolder)dyf\</DyfFolder>
   </PropertyGroup>
+  <!-- Pre-build events -->
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <!-- Post-build events to handle package deployment -->
   <Target Name="AfterBuild">
     <ItemGroup>
       <Dlls Include="$(OutDir)TuneUp.dll" />
@@ -116,10 +110,11 @@
     <Copy SourceFiles="@(Xmls)" DestinationFolder="$(BinFolder)" />
     <Copy SourceFiles="@(ViewExtensionDefs)" DestinationFolder="$(ExtraFolder)" />
     <Copy SourceFiles="@(PackageJson)" DestinationFolder="$(PackageFolder)" />
-    <MakeDir Directories="$(ExtraFolder)" Condition="!Exists($(ExtraFolder))"/>
-    <MakeDir Directories="$(DyfFolder)" Condition="!Exists($(DyfFolder))"/>
+    <MakeDir Directories="$(ExtraFolder)" Condition="!Exists($(ExtraFolder))" />
+    <MakeDir Directories="$(DyfFolder)" Condition="!Exists($(DyfFolder))" />
     <CallTarget Condition="'$(Configuration)' == 'Debug'" Targets="PackageDeploy" />
   </Target>
+  <!-- Target for package deployment -->
   <Target Name="PackageDeploy">
     <ItemGroup>
       <SourcePackage Include="$(PackageFolder)**\*" />
@@ -135,7 +130,7 @@
     <Message Importance="high" Text="Dynamo Revit Package Folder = $(DynamoRevit)" />
     <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoCore))" DestinationFolder="$(DynamoCore)\$(PackageName)\%(RecursiveDir)" />
     <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoRevit))" DestinationFolder="$(DynamoRevit)\$(PackageName)\%(RecursiveDir)" />
-    <MakeDir Directories="$(PackageExtraFolder)" Condition="!Exists($(PackageExtraFolder))"/>
-    <MakeDir Directories="$(PackageDyfFolder)" Condition="!Exists($(PackageDyfFolder))"/>
+    <MakeDir Directories="$(PackageExtraFolder)" Condition="!Exists($(PackageExtraFolder))" />
+    <MakeDir Directories="$(PackageDyfFolder)" Condition="!Exists($(PackageDyfFolder))" />
   </Target>
 </Project>
