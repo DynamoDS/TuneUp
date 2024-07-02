@@ -44,13 +44,18 @@ namespace TuneUp
                 if (TuneUpMenuItem.IsChecked)
                 {
                     p.AddToExtensionsSideBar(this, TuneUpView);
-                    ViewModel.EnableProfiling();
+                    ViewModel.SwitchToManualMode();
+                    ViewModel.EnableProfiling();                    
                 }
                 else
                 {
                     p.CloseExtensioninInSideBar(this);
                 }
             };
+
+            // Bind the IsChecked property to the IsTuneUpActive property
+            TuneUpMenuItem.Checked += (sender, args) => ViewModel.IsTuneUpChecked = true;
+            TuneUpMenuItem.Unchecked += (sender, args) => ViewModel.IsTuneUpChecked = false;
 
             // Add this view extension's menu item to the Extensions tab or View tab accordingly.
             var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
