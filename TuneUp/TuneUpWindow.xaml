@@ -123,7 +123,9 @@
             CanUserResizeColumns="True" 
             CanUserSortColumns="True"
             HeadersVisibility="Column"
-            SelectionChanged="NodeAnalysisTable_SelectionChanged">
+            SelectionChanged="NodeAnalysisTable_SelectionChanged"
+            PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+            MouseLeave="NodeAnalysisTable_MouseLeave" >
 
                 <DataGrid.GroupStyle>
                     <GroupStyle>
