@@ -50,6 +50,7 @@ namespace TuneUp
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
+        private Dictionary<NodeModel, DateTime> nodeStartTimes = new Dictionary<NodeModel, DateTime>();
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -260,6 +261,15 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
+        internal void DisableProfiling()
+        {
+            if (isProfilingEnabled && CurrentWorkspace != null)
+            {
+                CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
+                isProfilingEnabled = false;
+            }
+        }
+
         #endregion
 
         #region ExecutionEvents
@@ -290,7 +300,7 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
 
-            ProfiledNodesCollection.Dispatcher.Invoke(() =>
+            ProfiledNodesCollection.Dispatcher.InvokeAsync(() =>
             {
                 ProfiledNodesCollection.SortDescriptions.Clear();
                 // Sort nodes into execution group
@@ -328,6 +338,11 @@ namespace TuneUp
 
         internal void OnNodeExecutionBegin(NodeModel nm)
         {
+            //var profiledNode = nodeDictionary[nm.GUID];
+            //profiledNode.State = ProfiledNodeState.Executing;
+            //RaisePropertyChanged(nameof(ProfiledNodesCollection));
+
+            nodeStartTimes[nm] = DateTime.Now;
             var profiledNode = nodeDictionary[nm.GUID];
             profiledNode.State = ProfiledNodeState.Executing;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
@@ -335,22 +350,22 @@ namespace TuneUp
 
         internal void OnNodeExecutionEnd(NodeModel nm)
         {
+            if (!nodeStartTimes.TryGetValue(nm, out var startTime))
+                return;
+
+            var executionTime = (DateTime.Now - startTime).TotalMilliseconds;
             var profiledNode = nodeDictionary[nm.GUID];
-            if (executionTimeData != null)
+            profiledNode.ExecutionTime = TimeSpan.FromMilliseconds(executionTime);
+
+            if (!profiledNode.WasExecutedOnLastRun)
             {
-                var executionTime = executionTimeData.NodeExecutionTime(nm);
-                if (executionTime != null)
-                {
-                    profiledNode.ExecutionTime = (TimeSpan)executionTime;
-                }
-                if (!profiledNode.WasExecutedOnLastRun)
-                {
-                    profiledNode.ExecutionOrderNumber = executedNodesNum++;
-                }
+                profiledNode.ExecutionOrderNumber = executedNodesNum++;
             }
+
             profiledNode.WasExecutedOnLastRun = true;
             profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
+            nodeStartTimes.Remove(nm);
         }
 
         #endregion

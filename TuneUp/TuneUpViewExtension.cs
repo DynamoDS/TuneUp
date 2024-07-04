@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
 
@@ -45,11 +46,16 @@ namespace TuneUp
                 {
                     p.AddToExtensionsSideBar(this, TuneUpView);
                     ViewModel.SwitchToManualMode();
-                    ViewModel.EnableProfiling();                    
+                    ViewModel.EnableProfiling();
+                    //// Set environmental variable when TuneUp is enabled
+                    //Environment.SetEnvironmentVariable("TUNEUP_ACTIVE", "true", EnvironmentVariableTarget.Process);
                 }
                 else
                 {
                     p.CloseExtensioninInSideBar(this);
+                    ViewModel.DisableProfiling();
+                    //// Setup environmental variable when TuneUp is disabled
+                    //Environment.SetEnvironmentVariable("TUNEUP_ACTIVE", "false", EnvironmentVariableTarget.Process);
                 }
             };
 
@@ -110,6 +116,8 @@ namespace TuneUp
             if (this.TuneUpMenuItem != null)
             {
                 this.TuneUpMenuItem.IsChecked = false;
+                //// Clear the environmental variable when TuneUp is closed
+                //Environment.SetEnvironmentVariable("TUNEUP_ACTIVE", "false", EnvironmentVariableTarget.Process);
             }
         }
     }
