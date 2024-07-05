@@ -1,0 +1,38 @@
+version: 0.0.1
+env:
+  - JENKINS_NODE_WIN: "DynamoWinBuild"
+  - SLACK_QUANTUM_BUILD_CHANNEL : "#dynamo-jenkinsbuild"
+  - SLACK_QUANTUM_BUILD_CREDENTIAL_ID : "slack-notify-token"
+  - MAIL_QUANTUM_BUILD_RECIPIENT : "dynamo.dev@autodesk.com"
+
+check_changelog_updated_on_pr: false
+pipeline_os: "Windows"
+force_slack_notification : true
+language: csharp
+
+schedule :
+  cron_schedule : once_a_week
+
+build:
+  -
+    scripts:
+      - "dotnet build --configuration Release .\\TuneUp.sln"
+
+ci_test:
+  tests:    
+    -
+      scripts:
+        - "dotnet test --no-build --configuration Release .\\TuneUp.sln --filter \"TestCategory!=Failure\" --logger:junit"   
+  test_report_dir: ".\\tests\\TestResults"
+  test_report_pattern:
+    format: "junit"
+    pattern: "*.xml"
+
+soc2:
+  harmony:
+    allow_branches:
+      - master
+    hidden_email_list: dynamo_ws_access
+    fail_on_audit_failure: false
+    third_party_lib_paths:
+      - package_output
