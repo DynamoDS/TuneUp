@@ -5,6 +5,10 @@ env:
   - SLACK_QUANTUM_BUILD_CREDENTIAL_ID : "slack-notify-token"
   - MAIL_QUANTUM_BUILD_RECIPIENT : "dynamo.dev@autodesk.com"
 
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 check_changelog_updated_on_pr: false
 pipeline_os: "Windows"
 force_slack_notification : true
