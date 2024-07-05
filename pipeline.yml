@@ -1,8 +1,3 @@
-name: Test_pipeline
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-
 version: 0.0.1
 env:
   - JENKINS_NODE_WIN: "DynamoWinBuild"
@@ -21,7 +16,7 @@ schedule :
 build:
   -
     scripts:
-      - "dotnet build --configuration Release .\\TuneUp.sln"
+      - "dotnet msbuild .\\TuneUp.sln"
 
 ci_test:
   tests:    
