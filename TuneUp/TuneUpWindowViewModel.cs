@@ -40,8 +40,6 @@ namespace TuneUp
     /// </summary>
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
-        private Stopwatch swatch = Stopwatch.StartNew();
-
         #region Internal Properties
 
         private ViewLoadedParams viewLoadedParams;
@@ -53,8 +51,8 @@ namespace TuneUp
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
-
-        private Dictionary<Guid, Stopwatch> nodeStopwatches = new Dictionary<Guid, Stopwatch>();
+        private ListSortDirection sortDirection;
+        private string sortingOrder;
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -99,6 +97,7 @@ namespace TuneUp
                 }
             }
         }
+
         #endregion
 
         #region Public Properties
@@ -171,6 +170,45 @@ namespace TuneUp
 
 
         }
+
+        /// <summary>
+        /// Gets or sets the sorting order and toggles the sort direction.
+        /// </summary>
+        public string SortingOrder
+        {
+            get => sortingOrder;
+            set
+            {
+                if (sortingOrder != value)
+                {
+                    sortingOrder = value;
+                    SortDirection = ListSortDirection.Ascending;
+                }
+                else
+                {
+                    SortDirection = SortDirection == ListSortDirection.Ascending
+                        ? ListSortDirection.Descending : ListSortDirection.Ascending;
+                }
+                //RaisePropertyChanged(nameof(SortingOrder));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the sort direction and raises property change notification if the value changes.
+        /// </summary>
+        public ListSortDirection SortDirection
+        {
+            get => sortDirection;
+            set
+            {
+                if (sortDirection != value)
+                {
+                    sortDirection = value;
+                    //RaisePropertyChanged(nameof(SortDirection));
+                }
+            }   
+        }
+
         #endregion
 
         #region Constructor
@@ -188,6 +226,7 @@ namespace TuneUp
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
             }
         }
+
         #endregion
 
         #region ProfilingMethods
@@ -198,9 +237,6 @@ namespace TuneUp
         /// </summary>
         internal void ResetProfiledNodes()
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            sw.Start();
-
             if (CurrentWorkspace == null) return;
 
             // Use temporary collections to minimize UI updates
@@ -229,17 +265,9 @@ namespace TuneUp
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
 
-            // Sort the data by execution state
-            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
-            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-            ProfiledNodesCollection.View?.Refresh();
-
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
-
-            sw.Stop();
-            Debug.WriteLine($"ResetProfiledNodes took {sw.Elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>
@@ -301,8 +329,6 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
-            swatch.Start();
-
             IsRecomputeEnabled = false;
             foreach (var node in nodeDictionary.Values)
             {
@@ -334,13 +360,15 @@ namespace TuneUp
                 ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
 
                 // Sort nodes into execution order and make sure Total execution time is always bottom
-                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), ListSortDirection.Descending));
-                if (ProfiledNodesCollection.View != null)
-                    ProfiledNodesCollection.View.Refresh();
+                var sortDecription = sortingOrder switch
+                {
+                    "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
+                    "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
+                    _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
+                };
+                ProfiledNodesCollection.SortDescriptions.Add(sortDecription);
+                ProfiledNodesCollection.View.Refresh();
             });
-
-            swatch.Stop();
-            Debug.WriteLine($"All took {swatch.Elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>

@@ -102,5 +102,31 @@ namespace TuneUp
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
+
+        /// <summary>
+        /// Handles the sorting event for the NodeAnalysisTable DataGrid.
+        /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
+        /// </summary>
+        private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            var column = e.Column;
+            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+
+            if (viewModel != null)
+            {
+                switch (column.Header.ToString())
+                {
+                    case "#":
+                        viewModel.SortingOrder = "number";
+                        break;
+                    case "Name":
+                        viewModel.SortingOrder = "name";
+                        break;
+                    case "Execution Time (ms)":
+                        viewModel.SortingOrder = "time";
+                        break;
+                }
+            }
+        }
     }
 }
