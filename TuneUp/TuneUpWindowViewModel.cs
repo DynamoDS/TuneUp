@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
@@ -39,6 +40,8 @@ namespace TuneUp
     /// </summary>
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
+        private Stopwatch swatch = Stopwatch.StartNew();
+
         #region Internal Properties
 
         private ViewLoadedParams viewLoadedParams;
@@ -50,7 +53,8 @@ namespace TuneUp
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
-        private Dictionary<NodeModel, DateTime> nodeStartTimes = new Dictionary<NodeModel, DateTime>();
+
+        private Dictionary<Guid, Stopwatch> nodeStopwatches = new Dictionary<Guid, Stopwatch>();
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -98,7 +102,7 @@ namespace TuneUp
         #endregion
 
         #region Public Properties
-        
+
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
         /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
@@ -164,6 +168,8 @@ namespace TuneUp
                 }
                 return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
             }
+
+
         }
         #endregion
 
@@ -192,21 +198,37 @@ namespace TuneUp
         /// </summary>
         internal void ResetProfiledNodes()
         {
-            if (CurrentWorkspace == null)
-            {
-                return;
-            }
-            nodeDictionary.Clear();
-            ProfiledNodes.Clear();
+            Stopwatch sw = Stopwatch.StartNew();
+            sw.Start();
+
+            if (CurrentWorkspace == null) return;
+
+            // Use temporary collections to minimize UI updates
+            var newProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            var newNodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
+                newNodeDictionary[node.GUID] = profiledNode;
+                ProfiledNodes.Add(profiledNode);
+            }
+
+            // Assign the new collection
+            ProfiledNodes = newProfiledNodes;
+            nodeDictionary = newNodeDictionary;
+
+            foreach (var node in CurrentWorkspace.Nodes)
+            {
+                var profiledNode = new ProfiledNodeViewModel(node);
+
                 nodeDictionary[node.GUID] = profiledNode;
                 ProfiledNodes.Add(profiledNode);
             }
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
+
             // Sort the data by execution state
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
@@ -215,6 +237,9 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
+
+            sw.Stop();
+            Debug.WriteLine($"ResetProfiledNodes took {sw.Elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>
@@ -276,6 +301,8 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationStarted(object sender, EventArgs e)
         {
+            swatch.Start();
+
             IsRecomputeEnabled = false;
             foreach (var node in nodeDictionary.Values)
             {
@@ -290,7 +317,7 @@ namespace TuneUp
                 }
             }
             executedNodesNum = 0;
-            EnableProfiling();
+            EnableProfiling();            
         }
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
@@ -311,6 +338,9 @@ namespace TuneUp
                 if (ProfiledNodesCollection.View != null)
                     ProfiledNodesCollection.View.Refresh();
             });
+
+            swatch.Stop();
+            Debug.WriteLine($"All took {swatch.Elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>
@@ -338,34 +368,35 @@ namespace TuneUp
 
         internal void OnNodeExecutionBegin(NodeModel nm)
         {
-            //var profiledNode = nodeDictionary[nm.GUID];
-            //profiledNode.State = ProfiledNodeState.Executing;
-            //RaisePropertyChanged(nameof(ProfiledNodesCollection));
-
-            nodeStartTimes[nm] = DateTime.Now;
             var profiledNode = nodeDictionary[nm.GUID];
+
+            profiledNode.Stopwatch.Start();
             profiledNode.State = ProfiledNodeState.Executing;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         internal void OnNodeExecutionEnd(NodeModel nm)
         {
-            if (!nodeStartTimes.TryGetValue(nm, out var startTime))
-                return;
-
-            var executionTime = (DateTime.Now - startTime).TotalMilliseconds;
             var profiledNode = nodeDictionary[nm.GUID];
-            profiledNode.ExecutionTime = TimeSpan.FromMilliseconds(executionTime);
 
-            if (!profiledNode.WasExecutedOnLastRun)
+            profiledNode.Stopwatch.Stop();
+            var executionTime = profiledNode.Stopwatch.Elapsed;
+
+
+            if (executionTime > TimeSpan.Zero)
             {
-                profiledNode.ExecutionOrderNumber = executedNodesNum++;
+                profiledNode.ExecutionTime = executionTime;
+
+                if (!profiledNode.WasExecutedOnLastRun)
+                {
+                    profiledNode.ExecutionOrderNumber = executedNodesNum++;
+                }
             }
 
+            profiledNode.Stopwatch.Reset();
             profiledNode.WasExecutedOnLastRun = true;
             profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
-            nodeStartTimes.Remove(nm);
         }
 
         #endregion
@@ -394,9 +425,14 @@ namespace TuneUp
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
+            //var startTime = DateTime.Now;
+
             // Profiling needs to be enabled per workspace so mark it false after switching
             isProfilingEnabled = false;
             CurrentWorkspace = workspace as HomeWorkspaceModel;
+
+            //var elapsed = DateTime.Now - startTime;
+            //Debug.WriteLine($"OnCurrentWorkspaceChanged took {elapsed.TotalMilliseconds} ms");
         }
 
         private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
@@ -420,6 +456,8 @@ namespace TuneUp
         {
             if (workspace == null) return;
 
+            //var startTime = DateTime.Now;
+
             // Subscribe from workspace events 
             if (subscribe)
             {
@@ -433,7 +471,7 @@ namespace TuneUp
                     node.NodeExecutionBegin += OnNodeExecutionBegin;
                     node.NodeExecutionEnd += OnNodeExecutionEnd;
                 }
-                ResetProfiledNodes();                
+                ResetProfiledNodes();
             }
             // Unsubscribe to workspace events
             else
@@ -448,8 +486,11 @@ namespace TuneUp
                     node.NodeExecutionBegin -= OnNodeExecutionBegin;
                     node.NodeExecutionEnd -= OnNodeExecutionEnd;
                 }
-            }            
+            }
             executedNodesNum = 0;
+
+            //var elapsed = DateTime.Now - startTime;
+            //Debug.WriteLine($"ManageWorkspaceEvents took {elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>

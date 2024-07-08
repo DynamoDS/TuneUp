@@ -1,9 +1,20 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Threading;
+using System.Windows.Data;
+using Dynamo.Engine.Profiling;
+using Dynamo.Graph.Workspaces;
+using Dynamo.ViewModels;
+using Dynamo.Wpf.Extensions;
+
 namespace TuneUp
 {
     public class ProfiledNodeViewModel : NotificationObject
@@ -130,6 +141,11 @@ namespace TuneUp
             }
         }
 
+        /// <summary>
+        /// The Stopwatch to measure execution time of this node
+        /// </summary>
+        public Stopwatch Stopwatch { get; set; }
+
         internal NodeModel NodeModel { get; set; }
 
         #endregion
@@ -142,6 +158,7 @@ namespace TuneUp
         {
             NodeModel = node;
             State = ProfiledNodeState.NotExecuted;
+            Stopwatch = new Stopwatch();
         }
 
         /// <summary>
@@ -156,6 +173,7 @@ namespace TuneUp
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
+            Stopwatch = new Stopwatch();
         }
     }
 }

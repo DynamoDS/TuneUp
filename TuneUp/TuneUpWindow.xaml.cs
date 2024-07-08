@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,12 +54,19 @@ namespace TuneUp
 
         private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
+            var startTime1 = DateTime.Now;
+
             // Update the new height of datagrid
             this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
+
+            var elapsed1 = DateTime.Now - startTime1;
+            Debug.WriteLine($"DynamoWindow_SizeChanged took {elapsed1.TotalMilliseconds} ms");
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var startTime1 = DateTime.Now;
+
             // Get NodeModel(s) that correspond to selected row(s)
             var selectedNodes = new List<NodeModel>();
             foreach (var item in e.AddedItems)
@@ -79,6 +88,9 @@ namespace TuneUp
                 // Focus on selected
                 viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
             }
+
+            var elapsed1 = DateTime.Now - startTime1;
+            Debug.WriteLine($"NodeAnalysisTable_SelectionChanged took {elapsed1.TotalMilliseconds} ms");
         }
 
         internal void Dispose()
