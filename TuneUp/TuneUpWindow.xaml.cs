@@ -126,6 +126,9 @@ namespace TuneUp
                         viewModel.SortingOrder = "time";
                         break;
                 }
+                // Apply custom sorting to ensure total times are at the bottom
+                viewModel.ApplySorting();
+                e.Handled = true;
             }
         }
     }

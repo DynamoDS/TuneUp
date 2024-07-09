@@ -27,11 +27,17 @@ namespace TuneUp
         [Display(Name = "Executed On Current Run")]
         ExecutedOnCurrentRun = 1,
 
+        [Display(Name = "Executed On Current Run")]
+        ExecutedOnCurrentRunTotal = 2,
+
         [Display(Name = "Executed On Previous Run")]
-        ExecutedOnPreviousRun = 2,
+        ExecutedOnPreviousRun = 3,
+
+        [Display(Name = "Executed On Previous Run")]
+        ExecutedOnPreviousRunTotal = 4,
 
         [Display(Name = "Not Executed")]
-        NotExecuted = 3,
+        NotExecuted = 5,
     }
 
     /// <summary>
@@ -189,7 +195,6 @@ namespace TuneUp
                     SortDirection = SortDirection == ListSortDirection.Ascending
                         ? ListSortDirection.Descending : ListSortDirection.Ascending;
                 }
-                //RaisePropertyChanged(nameof(SortingOrder));
             }
         }
 
@@ -204,7 +209,6 @@ namespace TuneUp
                 if (sortDirection != value)
                 {
                     sortDirection = value;
-                    //RaisePropertyChanged(nameof(SortDirection));
                 }
             }   
         }
@@ -264,6 +268,11 @@ namespace TuneUp
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
+
+            // Sort the data by execution state
+            ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
+            ProfiledNodesCollection.View?.Refresh();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
@@ -355,18 +364,7 @@ namespace TuneUp
 
             ProfiledNodesCollection.Dispatcher.InvokeAsync(() =>
             {
-                ProfiledNodesCollection.SortDescriptions.Clear();
-                // Sort nodes into execution group
-                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-
-                // Sort nodes into execution order and make sure Total execution time is always bottom
-                var sortDecription = sortingOrder switch
-                {
-                    "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
-                    "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
-                    _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
-                };
-                ProfiledNodesCollection.SortDescriptions.Add(sortDecription);
+                ApplySorting();
                 ProfiledNodesCollection.View.Refresh();
             });
         }
@@ -383,15 +381,37 @@ namespace TuneUp
                 {
                     ProfiledNodes.Remove(CurrentExecutionTimeRow);
                     ProfiledNodes.Remove(PreviousExecutionTimeRow);
+
                     // After each evaluation, manually update execution time column(s)
                     var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
                     var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
-                        CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRun));
+                        CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRunTotal));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
-                        PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRun));
+                        PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRunTotal));
                 }, null);
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
+        }
+
+        /// <summary>
+        /// Applies the sorting logic to the ProfiledNodesCollection.
+        /// </summary>
+        public void ApplySorting()
+        {
+            ProfiledNodesCollection.SortDescriptions.Clear();
+
+            // Sort nodes into execution group
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
+
+            // Sort nodes into execution order and make sure Total execution time is always bottom
+            var sortDescription = sortingOrder switch
+            {
+                "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
+                "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
+                _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
+            };
+            ProfiledNodesCollection.SortDescriptions.Add(sortDescription);
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
@@ -453,14 +473,9 @@ namespace TuneUp
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
-            //var startTime = DateTime.Now;
-
             // Profiling needs to be enabled per workspace so mark it false after switching
             isProfilingEnabled = false;
             CurrentWorkspace = workspace as HomeWorkspaceModel;
-
-            //var elapsed = DateTime.Now - startTime;
-            //Debug.WriteLine($"OnCurrentWorkspaceChanged took {elapsed.TotalMilliseconds} ms");
         }
 
         private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
