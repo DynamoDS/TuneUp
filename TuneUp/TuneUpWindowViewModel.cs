@@ -173,8 +173,6 @@ namespace TuneUp
                 }
                 return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
             }
-
-
         }
 
         /// <summary>
@@ -246,13 +244,6 @@ namespace TuneUp
             // Use temporary collections to minimize UI updates
             var newProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
             var newNodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-
-            foreach (var node in CurrentWorkspace.Nodes)
-            {
-                var profiledNode = new ProfiledNodeViewModel(node);
-                newNodeDictionary[node.GUID] = profiledNode;
-                ProfiledNodes.Add(profiledNode);
-            }
 
             // Assign the new collection
             ProfiledNodes = newProfiledNodes;
@@ -417,19 +408,15 @@ namespace TuneUp
         internal void OnNodeExecutionBegin(NodeModel nm)
         {
             var profiledNode = nodeDictionary[nm.GUID];
-
             profiledNode.Stopwatch.Start();
             profiledNode.State = ProfiledNodeState.Executing;
-            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         internal void OnNodeExecutionEnd(NodeModel nm)
         {
             var profiledNode = nodeDictionary[nm.GUID];
-
             profiledNode.Stopwatch.Stop();
             var executionTime = profiledNode.Stopwatch.Elapsed;
-
 
             if (executionTime > TimeSpan.Zero)
             {
@@ -444,7 +431,6 @@ namespace TuneUp
             profiledNode.Stopwatch.Reset();
             profiledNode.WasExecutedOnLastRun = true;
             profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
-            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         #endregion
