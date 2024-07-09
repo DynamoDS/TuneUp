@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
@@ -252,14 +251,12 @@ namespace TuneUp
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
-
                 nodeDictionary[node.GUID] = profiledNode;
                 ProfiledNodes.Add(profiledNode);
             }
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
-
             // Sort the data by execution state
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
@@ -343,7 +340,7 @@ namespace TuneUp
                 }
             }
             executedNodesNum = 0;
-            EnableProfiling();            
+            EnableProfiling();
         }
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
@@ -372,11 +369,9 @@ namespace TuneUp
                 {
                     ProfiledNodes.Remove(CurrentExecutionTimeRow);
                     ProfiledNodes.Remove(PreviousExecutionTimeRow);
-
                     // After each evaluation, manually update execution time column(s)
                     var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
                     var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
-
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
                         CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRunTotal));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
@@ -485,8 +480,6 @@ namespace TuneUp
         {
             if (workspace == null) return;
 
-            //var startTime = DateTime.Now;
-
             // Subscribe from workspace events 
             if (subscribe)
             {
@@ -517,9 +510,6 @@ namespace TuneUp
                 }
             }
             executedNodesNum = 0;
-
-            //var elapsed = DateTime.Now - startTime;
-            //Debug.WriteLine($"ManageWorkspaceEvents took {elapsed.TotalMilliseconds} ms");
         }
 
         /// <summary>

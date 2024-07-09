@@ -5,15 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading;
-using System.Windows.Data;
-using Dynamo.Engine.Profiling;
-using Dynamo.Graph.Workspaces;
-using Dynamo.ViewModels;
-using Dynamo.Wpf.Extensions;
 
 namespace TuneUp
 {
@@ -173,7 +164,6 @@ namespace TuneUp
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
-            Stopwatch = new Stopwatch();
         }
     }
 }
