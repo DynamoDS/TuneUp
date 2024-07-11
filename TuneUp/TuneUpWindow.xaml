@@ -96,7 +96,17 @@
                 IsEnabled="{Binding  Path=IsRecomputeEnabled}"
                 Click="RecomputeGraph_Click"
                 Padding="5,2,5,2">
-                Force Re-execute
+                Run All
+            </Button>
+            <Button
+                Name="ExportTimes"
+                Width="Auto"
+                Height="Auto"
+                Margin="2,1,1,10"
+                Padding="5,2,5,2"
+                IsEnabled="{Binding  Path=IsRecomputeEnabled}"
+                Click="ExportTimes_Click">
+                Export
             </Button>
             <Label Foreground="White">Total Graph Execution Time: </Label>
             <Label Foreground="White"
