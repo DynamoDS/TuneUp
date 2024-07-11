@@ -26,11 +26,17 @@ namespace TuneUp
         [Display(Name = "Executed On Current Run")]
         ExecutedOnCurrentRun = 1,
 
+        [Display(Name = "Executed On Current Run")]
+        ExecutedOnCurrentRunTotal = 2,
+
         [Display(Name = "Executed On Previous Run")]
-        ExecutedOnPreviousRun = 2,
+        ExecutedOnPreviousRun = 3,
+
+        [Display(Name = "Executed On Previous Run")]
+        ExecutedOnPreviousRunTotal = 4,
 
         [Display(Name = "Not Executed")]
-        NotExecuted = 3,
+        NotExecuted = 5,
     }
 
     /// <summary>
@@ -50,6 +56,9 @@ namespace TuneUp
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
+        private ListSortDirection sortDirection;
+        private string sortingOrder;
+
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -94,10 +103,48 @@ namespace TuneUp
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the sorting order and toggles the sort direction.
+        /// </summary>
+        public string SortingOrder
+        {
+            get => sortingOrder;
+            set
+            {
+                if (sortingOrder != value)
+                {
+                    sortingOrder = value;
+                    SortDirection = ListSortDirection.Ascending;
+                }
+                else
+                {
+                    SortDirection = SortDirection == ListSortDirection.Ascending
+                        ? ListSortDirection.Descending
+                        : ListSortDirection.Ascending;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the sort direction and raises property change notification if the value changes.
+        /// </summary>
+        public ListSortDirection SortDirection
+        {
+            get => sortDirection;
+            set
+            {
+                if (sortDirection != value)
+                {
+                    sortDirection = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Public Properties
-        
+
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
         /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
@@ -292,14 +339,8 @@ namespace TuneUp
 
             ProfiledNodesCollection.Dispatcher.Invoke(() =>
             {
-                ProfiledNodesCollection.SortDescriptions.Clear();
-                // Sort nodes into execution group
-                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
-
-                // Sort nodes into execution order and make sure Total execution time is always bottom
-                ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), ListSortDirection.Descending));
-                if (ProfiledNodesCollection.View != null)
-                    ProfiledNodesCollection.View.Refresh();
+                ApplySorting();
+                ProfiledNodesCollection.View.Refresh();
             });
         }
 
@@ -319,11 +360,31 @@ namespace TuneUp
                     var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
                     var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
-                        CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRun));
+                        CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRunTotal));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
-                        PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRun));
+                        PreviousExecutionString, totalSpanUnexecuted, ProfiledNodeState.ExecutedOnPreviousRunTotal));
                 }, null);
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
+        }
+
+        /// <summary>
+        /// Applies the sorting logic to the ProfiledNodesCollection.
+        /// </summary>
+        public void ApplySorting()
+        {
+            ProfiledNodesCollection.SortDescriptions.Clear();
+
+            // Sort nodes into execution group
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
+
+            // Sort nodes into execution order and make sure Total execution time is always bottom
+            var sortDescription = sortingOrder switch
+            {
+                "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
+                "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
+                _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
+            };
+            ProfiledNodesCollection.SortDescriptions.Add(sortDescription);
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
