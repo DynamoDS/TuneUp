@@ -39,6 +39,52 @@ namespace TuneUp
     /// </summary>
     public class TuneUpWindowViewModel : NotificationObject, IDisposable
     {
+        private bool showHotspotsEnabled;
+        private int hotspotMinValue;
+        private int hotspotMaxValue;
+        public bool ShowHotspotsEnabled
+        {
+            get => showHotspotsEnabled;
+            set
+            {
+                showHotspotsEnabled = value;
+                RaisePropertyChanged(nameof(ShowHotspotsEnabled));
+            }
+        }
+        public int HotspotMinValue
+        {
+            get => hotspotMinValue;
+            set
+            {
+                if (hotspotMinValue != value)
+                {
+                    hotspotMinValue = value;
+                    RaisePropertyChanged(nameof(HotspotMinValue));
+                    UpdateNodeBackgrounds();
+                }
+            }
+        }
+        public int HotspotMaxValue
+        {
+            get => hotspotMaxValue;
+            set
+            {
+                if (hotspotMaxValue != value)
+                {
+                    hotspotMaxValue = value;
+                    RaisePropertyChanged(nameof(HotspotMaxValue));
+                    UpdateNodeBackgrounds();
+                }
+            }
+        }
+        private void UpdateNodeBackgrounds()
+        {
+            foreach (var node in nodeDictionary.Values)
+            {
+                node.UpdateHotspotValues(HotspotMinValue, HotspotMaxValue);
+            }
+        }
+
         #region Internal Properties
 
         private ViewLoadedParams viewLoadedParams;
@@ -97,7 +143,7 @@ namespace TuneUp
         #endregion
 
         #region Public Properties
-        
+
         /// <summary>
         /// Is the recomputeAll button enabled in the UI. Users should not be able to force a 
         /// reset of the engine and re-execution of the graph if one is still ongoing. This causes...trouble.
@@ -418,7 +464,7 @@ namespace TuneUp
                     node.NodeExecutionBegin += OnNodeExecutionBegin;
                     node.NodeExecutionEnd += OnNodeExecutionEnd;
                 }
-                ResetProfiledNodes();                
+                ResetProfiledNodes();
             }
             // Unsubscribe to workspace events
             else
@@ -433,7 +479,7 @@ namespace TuneUp
                     node.NodeExecutionBegin -= OnNodeExecutionBegin;
                     node.NodeExecutionEnd -= OnNodeExecutionEnd;
                 }
-            }            
+            }
             executedNodesNum = 0;
         }
 

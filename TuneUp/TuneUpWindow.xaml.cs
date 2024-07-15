@@ -1,12 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Media;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 using Dynamo.Models;
 using Dynamo.Utilities;
 using Dynamo.Wpf.Extensions;
+using System.Text.RegularExpressions;
+using System.Windows.Input;
+using System.Globalization;
+using CoreNodeModels.Input;
 
 namespace TuneUp
 {
@@ -73,7 +82,7 @@ namespace TuneUp
             if (selectedNodes.Count() > 0)
             {
                 // Select
-                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
+                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), Dynamo.Utilities.ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
                 // Focus on selected
@@ -90,5 +99,34 @@ namespace TuneUp
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
+
+        private void HotspotToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            viewModel.ShowHotspotsEnabled = (sender as ToggleButton).IsChecked == true;
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
     }
+
+    #region Converters
+
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (bool)value ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    #endregion
 }

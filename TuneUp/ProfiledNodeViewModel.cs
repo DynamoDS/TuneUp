@@ -2,12 +2,67 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Media;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
 namespace TuneUp
 {
     public class ProfiledNodeViewModel : NotificationObject
     {
+        internal SolidColorBrush hotspotMinValueBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B7D78C"));
+        internal SolidColorBrush hotspotMaxValueBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EB5555"));
+        internal SolidColorBrush defaultRowBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+
+        private int hotspotMinValue;
+        private int hotspotMaxValue;
+        public int HotspotMinValue
+        {
+            get => hotspotMinValue;
+            set
+            {
+                if (hotspotMinValue != value)
+                {
+                    hotspotMinValue = value;
+                    RaisePropertyChanged(nameof(HotspotMinValue));
+                    RaisePropertyChanged(nameof(RowBackground));
+                }
+            }
+        }
+        public int HotspotMaxValue
+        {
+            get => hotspotMaxValue;
+            set
+            {
+                if (hotspotMaxValue != value)
+                {
+                    hotspotMaxValue = value;
+                    RaisePropertyChanged(nameof(HotspotMaxValue));
+                    RaisePropertyChanged(nameof(RowBackground));
+                }
+            }
+        }
+        public Brush RowBackground
+        {
+            get
+            {
+                if (ExecutionMilliseconds < HotspotMinValue && HotspotMinValue > 0 && State != ProfiledNodeState.NotExecuted)
+                {
+                    return hotspotMinValueBrush;
+                }
+                if (ExecutionMilliseconds > HotspotMaxValue && HotspotMaxValue > 0 && State != ProfiledNodeState.NotExecuted)
+                {
+                    return hotspotMaxValueBrush;
+                }
+                return defaultRowBrush;
+            }
+        }
+        public void UpdateHotspotValues(int minVal, int maxVal)
+        {
+            HotspotMinValue = minVal;
+            HotspotMaxValue = maxVal;
+        }
+
+
         #region Properties
         /// <summary>
         /// Prefix string of execution time.
@@ -22,7 +77,7 @@ namespace TuneUp
         /// </summary>
         public string Name
         {
-            get 
+            get
             {
                 // For virtual row, do not attempt to grab node name
                 if (!name.Contains(ExecutionTimelString))
@@ -31,7 +86,7 @@ namespace TuneUp
             }
             internal set { name = value; }
         }
-        
+
         /// <summary>
         /// The order number of this node in the most recent graph run.
         /// Returns null if the node was not executed during the most recent graph run.
@@ -65,6 +120,8 @@ namespace TuneUp
                 executionTime = value;
                 RaisePropertyChanged(nameof(ExecutionTime));
                 RaisePropertyChanged(nameof(ExecutionMilliseconds));
+                // IP ADDED
+                RaisePropertyChanged(nameof(RowBackground));
             }
         }
         private TimeSpan executionTime;
@@ -74,10 +131,13 @@ namespace TuneUp
         /// </summary>
         public int ExecutionMilliseconds
         {
-            get
-            {
-                return (int)Math.Round(ExecutionTime.TotalMilliseconds);
-            }
+            get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
+            //set
+            //{
+            //    executionMilliseconds = value;
+            //    RaisePropertyChanged(nameof(ExecutionMilliseconds));
+            //    RaisePropertyChanged(nameof(RowBackground));
+            //}
         }
 
         /// <summary>
