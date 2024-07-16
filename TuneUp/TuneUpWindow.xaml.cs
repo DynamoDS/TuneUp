@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -115,6 +116,34 @@ namespace TuneUp
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
+        }
+
+        /// <summary>
+        /// Handles the sorting event for the NodeAnalysisTable DataGrid.
+        /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
+        /// </summary>
+        private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            if (viewModel != null)
+            {
+                viewModel.SortingOrder = e.Column.Header switch
+                {
+                    "#" => "number",
+                    "Name" => "name",
+                    "Execution Time (ms)" => "time",
+                    _ => viewModel.SortingOrder
+                };
+
+                // Set the sorting direction of the datagrid column
+                e.Column.SortDirection = viewModel.SortDirection == ListSortDirection.Descending
+                    ? ListSortDirection.Descending
+                    : ListSortDirection.Ascending;
+
+                // Apply custom sorting to ensure total times are at the bottom
+                viewModel.ApplySorting();
+                e.Handled = true;
+            }
         }
 
         private void ExportTimes_Click(object sender, RoutedEventArgs e)

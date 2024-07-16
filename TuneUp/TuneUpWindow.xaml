@@ -4,11 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TuneUp"
+             xmlns:ui="clr-namespace:Dynamo.UI;assembly=DynamoCoreWpf"
              xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Width="500" Height="100">
-
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoColorsAndBrushesDictionaryUri}" />
+                <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoModernDictionaryUri}" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Name="MainGrid" >
         <Grid.Resources>
             <!-- DataGrid style -->
@@ -27,11 +35,59 @@
             <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
                 <Setter Property="Height" Value="20"/>
                 <Setter Property="Background" Value="#333333"/>
-                <Setter Property="Foreground" Value="#999999"/>
-                <Setter Property="FontSize" Value="10" />
-                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}"/>
+                <Setter Property="FontSize" Value="10"/>
+                <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="BorderBrush" Value="#555555"/>
-                <Setter Property="Margin" Value="10,0,10,0"/>
+                <Setter Property="Margin" Value="5,0,10,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter x:Name="HeaderContent"
+                                                  Grid.Column="1"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="11,0,0,0"/>
+                                <Path x:Name="SortArrow"
+                                      Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+                                      Grid.Column="0"
+                                      Margin="0,0,4,0"
+                                      Stretch="Fill"
+                                      Width="7" Height="6"
+                                      Fill="#999999"                                      
+                                      VerticalAlignment="Center"
+                                      RenderTransformOrigin="0.5,0.5"
+                                      Visibility="Collapsed"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="SortDirection" Value="Ascending">
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="SortArrow" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="180"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                                <Trigger Property="SortDirection" Value="Descending">
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="SortArrow" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="0"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
             <!-- DataGridRow style -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
@@ -70,6 +126,13 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!-- TextBlock style for DataGrid columns -->
+            <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="10,0,10,0"/>
+            </Style>
             <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -82,7 +145,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
         <!-- Recompute All Button -->
         <StackPanel 
             Orientation="Horizontal"
@@ -108,12 +170,12 @@
                 Click="ExportTimes_Click">
                 Export
             </Button>
-            <Label Foreground="White">Total Graph Execution Time: </Label>
-            <Label Foreground="White"
+            <Label Foreground="{StaticResource NodeNameForeground}">Total Graph Execution Time:</Label>
+            <Label Foreground="{StaticResource NodeNameForeground}"
+                   FontFamily="{StaticResource ArtifaktElementRegular}"
                    Name="TotalGraphExecutiontimeLabel"
                    Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
         </StackPanel>
-
         <StackPanel Grid.Row="1">
             <DataGrid 
             x:Name="NodeAnalysisTable" 
@@ -122,7 +184,7 @@
             Style="{StaticResource DataGridStyle1}"
             AutoGenerateColumns="False"
             CanUserAddRows="False"
-            Background="#353535"
+            Background="#353535"    
             FontSize="11"
             VerticalAlignment="Center"
             SelectionUnit="FullRow"
@@ -136,7 +198,6 @@
             SelectionChanged="NodeAnalysisTable_SelectionChanged"
             PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
             MouseLeave="NodeAnalysisTable_MouseLeave" >
-
                 <DataGrid.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.HeaderTemplate>
@@ -144,7 +205,8 @@
                                 <StackPanel>
                                     <TextBlock 
                                         Text="{Binding Name}"
-                                        Foreground="#ffffff"
+                                        Foreground="{StaticResource NodeNameForeground}"
+                                        FontFamily="{StaticResource ArtifaktElementRegular}" 
                                         Margin="3"
                                         FontSize="12"
                                         />
@@ -153,15 +215,14 @@
                         </GroupStyle.HeaderTemplate>
                     </GroupStyle>
                 </DataGrid.GroupStyle>
-
                 <DataGrid.Columns>
-
                     <!-- Execution Order -->
                     <DataGridTextColumn 
                     Header="#" 
                     Binding="{Binding Path=ExecutionOrderNumber}" 
-                    Foreground="#aaaaaa" 
-                    IsReadOnly="True" 
+                    Foreground="{StaticResource MemberButtonText}"
+                    FontFamily="{StaticResource ArtifaktElementRegular}" 
+                    IsReadOnly="True"
                     Width="Auto">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
@@ -170,12 +231,12 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-
                     <!-- Node Name -->
                     <DataGridTextColumn 
                     Header="Name" 
                     Binding="{Binding Name}" 
-                    Foreground="#aaaaaa" 
+                    Foreground="{StaticResource MemberButtonText}"
+                    FontFamily="{StaticResource ArtifaktElementRegular}"
                     IsReadOnly="True" 
                     Width="*">
                         <DataGridTextColumn.ElementStyle>
@@ -185,12 +246,12 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-
                     <!-- Execution Time -->
                     <DataGridTextColumn 
                     Header="Execution Time (ms)" 
                     Binding="{Binding ExecutionMilliseconds}" 
-                    Foreground="#aaaaaa" 
+                    Foreground="{StaticResource MemberButtonText}"
+                    FontFamily="{StaticResource ArtifaktElementRegular}"
                     IsReadOnly="True" 
                     Width="Auto">
                         <DataGridTextColumn.ElementStyle>
@@ -200,7 +261,6 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
