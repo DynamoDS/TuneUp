@@ -116,5 +116,10 @@ namespace TuneUp
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
+
+        private void ExportTimes_Click(object sender, RoutedEventArgs e)
+        {
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
+        }
     }
 }
