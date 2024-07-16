@@ -158,7 +158,17 @@
                 IsEnabled="{Binding  Path=IsRecomputeEnabled}"
                 Click="RecomputeGraph_Click"
                 Padding="5,2,5,2">
-                Force Re-execute
+                Run All
+            </Button>
+            <Button
+                Name="ExportTimes"
+                Width="Auto"
+                Height="Auto"
+                Margin="2,1,1,10"
+                Padding="5,2,5,2"
+                IsEnabled="{Binding  Path=IsRecomputeEnabled}"
+                Click="ExportTimes_Click">
+                Export
             </Button>
             <Label Foreground="{StaticResource NodeNameForeground}">Total Graph Execution Time:</Label>
             <Label Foreground="{StaticResource NodeNameForeground}"
@@ -186,7 +196,8 @@
             CanUserSortColumns="True"
             HeadersVisibility="Column"
             SelectionChanged="NodeAnalysisTable_SelectionChanged"
-            Sorting="NodeAnalysisTable_Sorting" >
+            PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+            MouseLeave="NodeAnalysisTable_MouseLeave" >
                 <DataGrid.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.HeaderTemplate>
