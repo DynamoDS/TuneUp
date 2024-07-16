@@ -29,6 +29,12 @@ namespace TuneUp
         private string uniqueId;
 
         /// <summary>
+        /// A flag indicating whether the current selection change in the DataGrid 
+        /// is initiated by the user (true) or programmatically (false).
+        /// </summary>
+        private bool isUserInitiatedSelection = false;
+
+        /// <summary>
         /// Since there is no API for height offset comparing to
         /// DynamoWindow height. Define it as static for now.
         /// </summary>
@@ -59,6 +65,8 @@ namespace TuneUp
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!isUserInitiatedSelection) return;
+
             // Get NodeModel(s) that correspond to selected row(s)
             var selectedNodes = new List<NodeModel>();
             foreach (var item in e.AddedItems)
@@ -82,6 +90,24 @@ namespace TuneUp
             }
         }
 
+        /// <summary>
+        /// Handles the PreviewMouseDown event for the NodeAnalysisTable DataGrid.
+        /// Sets a flag to indicate that the selection change is user-initiated.
+        /// </summary>
+        private void NodeAnalysisTable_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            isUserInitiatedSelection = true;
+        }
+
+        /// <summary>
+        /// Handles the MouseLeave event for the NodeAnalysisTable DataGrid.
+        /// Resets the flag to indicate that the selection change is no longer user-initiated.
+        /// </summary>
+        private void NodeAnalysisTable_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            isUserInitiatedSelection = false;
+        }
+
         internal void Dispose()
         {
             viewLoadedParams.DynamoWindow.SizeChanged -= DynamoWindow_SizeChanged;
@@ -92,33 +118,9 @@ namespace TuneUp
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
 
-        /// <summary>
-        /// Handles the sorting event for the NodeAnalysisTable DataGrid.
-        /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
-        /// </summary>
-        private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
+        private void ExportTimes_Click(object sender, RoutedEventArgs e)
         {
-            var column = e.Column;
-            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
-
-            if (viewModel != null)
-            {
-                switch (column.Header.ToString())
-                {
-                    case "#":
-                        viewModel.SortingOrder = "number";
-                        break;
-                    case "Name":
-                        viewModel.SortingOrder = "name";
-                        break;
-                    case "Execution Time (ms)":
-                        viewModel.SortingOrder = "time";
-                        break;
-                }
-                // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplySorting();
-                e.Handled = true;
-            }
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
     }
 }

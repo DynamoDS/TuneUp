@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
@@ -12,6 +13,7 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
+using Microsoft.Win32;
 
 namespace TuneUp
 {
@@ -520,6 +522,33 @@ namespace TuneUp
             ManageWorkspaceEvents(CurrentWorkspace, false);
             viewLoadedParams.CurrentWorkspaceChanged -= OnCurrentWorkspaceChanged;
             viewLoadedParams.CurrentWorkspaceCleared -= OnCurrentWorkspaceCleared;
+        }
+
+        #endregion
+
+        #region Export Node times
+
+        /// <summary>
+        /// Exports the ProfiledNodesCollection to a CSV file.
+        /// </summary>
+        public void ExportToCsv()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //saveFileDialog.RestoreDirectory = false;
+            saveFileDialog.Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                using (var writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    writer.WriteLine("Execution Order,Name,Execution Time (ms)");
+
+                    foreach (ProfiledNodeViewModel node in ProfiledNodesCollection.View.Cast<ProfiledNodeViewModel>())
+                    {
+                        writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
+                    }
+                }
+            }
         }
 
         #endregion
