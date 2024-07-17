@@ -135,7 +135,7 @@ namespace TuneUp
         /// <summary>
         /// The Stopwatch to measure execution time of this node
         /// </summary>
-        public Stopwatch Stopwatch { get; set; }
+        internal Stopwatch Stopwatch { get; set; }
 
         internal NodeModel NodeModel { get; set; }
 
