@@ -105,6 +105,43 @@ namespace TuneUp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the sorting order and toggles the sort direction.
+        /// </summary>
+        public string SortingOrder
+        {
+            get => sortingOrder;
+            set
+            {
+                if (sortingOrder != value)
+                {
+                    sortingOrder = value;
+                    SortDirection = ListSortDirection.Ascending;
+                }
+                else
+                {
+                    SortDirection = SortDirection == ListSortDirection.Ascending
+                        ? ListSortDirection.Descending
+                        : ListSortDirection.Ascending;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the sort direction and raises property change notification if the value changes.
+        /// </summary>
+        public ListSortDirection SortDirection
+        {
+            get => sortDirection;
+            set
+            {
+                if (sortDirection != value)
+                {
+                    sortDirection = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Public Properties
