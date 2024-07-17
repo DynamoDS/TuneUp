@@ -61,7 +61,6 @@ namespace TuneUp
         private ListSortDirection sortDirection;
         private string sortingOrder;
 
-
         /// <summary>
         /// Name of the row to display current execution time
         /// </summary>
@@ -213,6 +212,7 @@ namespace TuneUp
                 return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
             }
         }
+
         #endregion
 
         #region Constructor
@@ -230,6 +230,7 @@ namespace TuneUp
                 CurrentWorkspace = p.CurrentWorkspaceModel as HomeWorkspaceModel;
             }
         }
+
         #endregion
 
         #region ProfilingMethods
@@ -240,12 +241,16 @@ namespace TuneUp
         /// </summary>
         internal void ResetProfiledNodes()
         {
-            if (CurrentWorkspace == null)
-            {
-                return;
-            }
-            nodeDictionary.Clear();
-            ProfiledNodes.Clear();
+            if (CurrentWorkspace == null) return;
+
+            // Use temporary collections to minimize UI updates
+            var newProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            var newNodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+
+            // Assign the new collection
+            ProfiledNodes = newProfiledNodes;
+            nodeDictionary = newNodeDictionary;
+
             foreach (var node in CurrentWorkspace.Nodes)
             {
                 var profiledNode = new ProfiledNodeViewModel(node);
@@ -309,6 +314,15 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
+        internal void DisableProfiling()
+        {
+            if (isProfilingEnabled && CurrentWorkspace != null)
+            {
+                CurrentWorkspace.EngineController.EnableProfiling(false, CurrentWorkspace, CurrentWorkspace.Nodes);
+                isProfilingEnabled = false;
+            }
+        }
+
         #endregion
 
         #region ExecutionEvents
@@ -339,7 +353,7 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
 
-            ProfiledNodesCollection.Dispatcher.Invoke(() =>
+            ProfiledNodesCollection.Dispatcher.InvokeAsync(() =>
             {
                 ApplySorting();
                 ProfiledNodesCollection.View.Refresh();
@@ -392,28 +406,29 @@ namespace TuneUp
         internal void OnNodeExecutionBegin(NodeModel nm)
         {
             var profiledNode = nodeDictionary[nm.GUID];
+            profiledNode.Stopwatch.Start();
             profiledNode.State = ProfiledNodeState.Executing;
-            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         internal void OnNodeExecutionEnd(NodeModel nm)
         {
             var profiledNode = nodeDictionary[nm.GUID];
-            if (executionTimeData != null)
+            profiledNode.Stopwatch.Stop();
+            var executionTime = profiledNode.Stopwatch.Elapsed;
+
+            if (executionTime > TimeSpan.Zero)
             {
-                var executionTime = executionTimeData.NodeExecutionTime(nm);
-                if (executionTime != null)
-                {
-                    profiledNode.ExecutionTime = (TimeSpan)executionTime;
-                }
+                profiledNode.ExecutionTime = executionTime;
+
                 if (!profiledNode.WasExecutedOnLastRun)
                 {
                     profiledNode.ExecutionOrderNumber = executedNodesNum++;
                 }
             }
+
+            profiledNode.Stopwatch.Reset();
             profiledNode.WasExecutedOnLastRun = true;
             profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
-            RaisePropertyChanged(nameof(ProfiledNodesCollection));
         }
 
         #endregion
@@ -481,7 +496,7 @@ namespace TuneUp
                     node.NodeExecutionBegin += OnNodeExecutionBegin;
                     node.NodeExecutionEnd += OnNodeExecutionEnd;
                 }
-                ResetProfiledNodes();                
+                ResetProfiledNodes();
             }
             // Unsubscribe to workspace events
             else
@@ -496,7 +511,7 @@ namespace TuneUp
                     node.NodeExecutionBegin -= OnNodeExecutionBegin;
                     node.NodeExecutionEnd -= OnNodeExecutionEnd;
                 }
-            }            
+            }
             executedNodesNum = 0;
         }
 
