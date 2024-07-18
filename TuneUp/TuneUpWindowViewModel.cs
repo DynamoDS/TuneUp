@@ -15,6 +15,7 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.Win32;
 
 namespace TuneUp
@@ -268,6 +269,7 @@ namespace TuneUp
                 {
                     IsGroup = true,
                     //GroupGUID = group.GUID
+                    GroupName = group.AnnotationText
                 };
 
                 nodeDictionary[group.GUID] = groupProfiledNode;
@@ -282,7 +284,8 @@ namespace TuneUp
                     {
                         var profiledNode = new ProfiledNodeViewModel(nodeModel)
                         {
-                            GroupGUID = group.GUID
+                            GroupGUID = group.GUID,
+                            GroupName = group.AnnotationText
                         };
 
                         nodeDictionary[node.GUID] = profiledNode;
@@ -458,14 +461,14 @@ namespace TuneUp
                     {
                         if (groupedNodesDictionary.TryGetValue(node.GroupGUID, out var nodesInGroup))
                         {
-                            groupNode.ExecutionTime = TimeSpan.Zero; // reset the Execution Time
+                            groupNode.GroupExecutionTime = TimeSpan.Zero; // reset the Execution Time
                             int groupExecutionCounter = 1;
 
                             foreach (var groupedNode in nodesInGroup)
                             {
                                 if (processedNodes.Add(groupedNode))  // Adds to HashSet and checks if it was added
                                 {
-                                    groupNode.ExecutionTime += groupedNode.ExecutionTime;  // Aggregate group execution time
+                                    groupNode.GroupExecutionTime += groupedNode.ExecutionTime;  // Aggregate group execution time
 
                                     // Update group state if any node in the group was executed on current run
                                     if (groupedNode.State == ProfiledNodeState.ExecutedOnCurrentRun)
@@ -479,6 +482,7 @@ namespace TuneUp
                                     groupExecutionCounter++;
                                 }
                             }
+                            groupNode.ExecutionTime = groupNode.GroupExecutionTime;
                             mainExecutionCounter++;
                         }
                     }
@@ -487,8 +491,18 @@ namespace TuneUp
                 else if (!node.IsGroup && processedNodes.Add(node) && !node.Name.Contains(ProfiledNodeViewModel.ExecutionTimelString))
                 {
                     node.ExecutionOrderNumber = mainExecutionCounter++;
+                    node.GroupExecutionTime = node.ExecutionTime;
                 }
             }
+
+            //// iterate again to align GroupExecutionTimes
+            //foreach (var node in processedNodes)
+            //{
+            //    var relatedGroup = nodeDictionary[node.GroupGUID];
+            //    if (relatedGroup != null)
+            //    { node.GroupExecutionTime = relatedGroup.GroupExecutionTime; }
+            //}
+
             RaisePropertyChanged(nameof(ProfiledNodes));
         }
 
@@ -523,10 +537,12 @@ namespace TuneUp
             switch (sortingOrder)
             {
                 case "time":
-                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupExecutionTime), sortDirection));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroup), ListSortDirection.Descending));
                     break;
                 case "name":
-                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupName), sortDirection));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroup), ListSortDirection.Descending));
                     break;
                 case "number":
                     ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection));

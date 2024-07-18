@@ -88,6 +88,21 @@ namespace TuneUp
         }
         private TimeSpan executionTime;
 
+        public TimeSpan GroupExecutionTime
+        {
+            get
+            {
+                return groupExecutionTime;
+            }
+            set
+            {
+                executionTime = value;
+                RaisePropertyChanged(nameof(GroupExecutionTime));
+                RaisePropertyChanged(nameof(ExecutionMilliseconds));
+            }
+        }
+        private TimeSpan groupExecutionTime;
+
         /// <summary>
         /// The most recent execution time of this node in milliseconds
         /// </summary>
@@ -154,6 +169,17 @@ namespace TuneUp
             }
         }
         private bool isGroup;
+
+        public string GroupName
+        {
+            get => groupName;
+            set
+            {
+                groupName = value;
+                RaisePropertyChanged(nameof(GroupName));
+            }
+        }
+        private string groupName;
 
         public SolidColorBrush GroupBackgroundBrush
         {
