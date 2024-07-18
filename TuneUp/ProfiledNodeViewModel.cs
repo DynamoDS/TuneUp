@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Media;
 using Dynamo.Core;
 using Dynamo.Graph.Nodes;
 
@@ -16,6 +17,8 @@ namespace TuneUp
         /// </summary>
         public static readonly string ExecutionTimelString = "Execution Time";
 
+        public static readonly string GroupNodePrefix = "Group:";
+
         private string name = String.Empty;
         /// <summary>
         /// The name of this profiled node. This value can be either an actual
@@ -27,7 +30,7 @@ namespace TuneUp
             get 
             {
                 // For virtual row, do not attempt to grab node name
-                if (!name.Contains(ExecutionTimelString))
+                if (!name.Contains(ExecutionTimelString) && !name.StartsWith(GroupNodePrefix))
                     name = NodeModel?.Name;
                 return name;
             }
@@ -51,6 +54,20 @@ namespace TuneUp
             }
         }
         private int? executionOrderNumber;
+
+        public int? ExecutionGroupOrderNumber
+        {
+            get
+            {
+                return executionGroupOrderNumber;
+            }
+            set
+            {
+                executionGroupOrderNumber = value;
+                RaisePropertyChanged(nameof(ExecutionGroupOrderNumber));
+            }
+        }
+        private int? executionGroupOrderNumber;
 
 
         /// <summary>
@@ -116,6 +133,43 @@ namespace TuneUp
         }
         private ProfiledNodeState state;
 
+        public Guid GroupGUID
+        {
+            get => groupGIUD;
+            set
+            {
+                groupGIUD = value;
+                RaisePropertyChanged(nameof(GroupGUID));
+            }
+        }
+        private Guid groupGIUD;
+
+        public bool IsGroup
+        {
+            get => isGroup;
+            set
+            {
+                isGroup = value;
+                RaisePropertyChanged(nameof(IsGroup));
+            }
+        }
+        private bool isGroup;
+
+        public SolidColorBrush GroupBackgroundBrush
+        {
+            get => groupBackgroundBrush;
+            set
+            {
+                if (value != null)
+                {
+                    groupBackgroundBrush = value;
+                    RaisePropertyChanged(nameof(GroupBackgroundBrush));
+                }
+            }
+        }
+        private SolidColorBrush groupBackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+
+
         /// <summary>
         /// Return the display name of state enum.
         /// Making this identical property because of datagrid binding
@@ -164,6 +218,15 @@ namespace TuneUp
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
+        }
+
+        // Constructor for ProfiledAnnotationNodes
+        public ProfiledNodeViewModel(string name, SolidColorBrush backgroundBrush)
+        {
+            NodeModel = null;
+            this.Name = name;
+            State = ProfiledNodeState.NotExecuted;
+            GroupBackgroundBrush = backgroundBrush;
         }
     }
 }

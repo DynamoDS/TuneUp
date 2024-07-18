@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 using Dynamo.Models;
@@ -152,4 +155,45 @@ namespace TuneUp
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
     }
+
+    #region Converters
+
+    public class ParentToMarginConverter : IValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            //return value > 0 ? new System.Windows.Thickness(30, 0, 0, 0) : new System.Windows.Thickness(0, 0, 0, 0);
+
+            if (value is int intValue && intValue != 0)
+            {
+                return new System.Windows.Thickness(30, 0, 0, 0);
+            }
+            return new System.Windows.Thickness(0, 0, 0, 0);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class IsGroupToBrushConverter : IValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool boolValue = (bool)value;
+            return boolValue ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
+using System.Windows.Media;
 using Dynamo.Core;
 using Dynamo.Engine.Profiling;
 using Dynamo.Graph.Nodes;
@@ -60,6 +62,7 @@ namespace TuneUp
         private bool isTuneUpChecked = false;
         private ListSortDirection sortDirection;
         private string sortingOrder;
+        private Dictionary<Guid, List<ProfiledNodeViewModel>> groupedNodesDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -246,22 +249,65 @@ namespace TuneUp
             // Use temporary collections to minimize UI updates
             var newProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
             var newNodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+            var newGroupedNodesDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
 
             // Assign the new collection
             ProfiledNodes = newProfiledNodes;
             nodeDictionary = newNodeDictionary;
+            groupedNodesDictionary = newGroupedNodesDictionary;
 
+            // List to hold grouped nodes
+            var nodesInGroups = new HashSet<NodeModel>();
+
+            // Process groups and their nodes
+            foreach (var group in CurrentWorkspace.Annotations)
+            {
+                var groupProfiledNode = new ProfiledNodeViewModel(
+                    $"{ProfiledNodeViewModel.GroupNodePrefix}{group.AnnotationText}",
+                    new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background)))
+                {
+                    IsGroup = true,
+                    GroupGUID = group.GUID
+                };
+
+                nodeDictionary[group.GUID] = groupProfiledNode;
+                ProfiledNodes.Add(groupProfiledNode);
+
+                var groupNodes = new List<ProfiledNodeViewModel>();
+                groupedNodesDictionary[group.GUID] = groupNodes;
+
+                foreach (var node in group.Nodes)
+                {
+                    if (node is NodeModel nodeModel && nodesInGroups.Add(nodeModel))
+                    {
+                        var profiledNode = new ProfiledNodeViewModel(nodeModel)
+                        {
+                            GroupGUID = group.GUID
+                        };
+
+                        nodeDictionary[node.GUID] = profiledNode;
+                        ProfiledNodes.Add(profiledNode);
+                        groupNodes.Add(profiledNode);
+                    }
+                }
+            }
+
+            // Process standalone nodes
             foreach (var node in CurrentWorkspace.Nodes)
             {
-                var profiledNode = new ProfiledNodeViewModel(node);
-                nodeDictionary[node.GUID] = profiledNode;
-                ProfiledNodes.Add(profiledNode);
+                if (!nodesInGroups.Contains(node))
+                {
+                    var profiledNode = new ProfiledNodeViewModel(node);
+                    nodeDictionary[node.GUID] = profiledNode;
+                    ProfiledNodes.Add(profiledNode);
+                }
             }
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
             // Sort the data by execution state
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
+            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupGUID), ListSortDirection.Ascending));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
             ProfiledNodesCollection.View?.Refresh();
 
@@ -349,6 +395,7 @@ namespace TuneUp
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
             IsRecomputeEnabled = true;
+            CalculateGroupNodes();
             UpdateExecutionTime();
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
@@ -382,6 +429,77 @@ namespace TuneUp
                 }, null);
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
         }
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Calculates and assigns execution order numbers for profiled nodes.
+        /// Aggregates execution times and updates states for nodes within groups.
+        /// Ensures nodes are processed only once and maintains the sorted order of nodes.
+        /// </summary>
+        private void CalculateGroupNodes()
+        {
+            int mainExecutionCounter = 1;
+            var processedNodes = new HashSet<ProfiledNodeViewModel>();
+            var sortedProfiledNodes = ProfiledNodes.OrderBy(node => node.ExecutionOrderNumber).ToList();
+
+            foreach (var node in sortedProfiledNodes)
+            {
+                // if the node is from a group and not yet processed
+                if (!node.IsGroup && node.GroupGUID != Guid.Empty && !processedNodes.Contains(node))
+                {
+                    if (nodeDictionary.TryGetValue(node.GroupGUID, out var groupNode))
+                    {
+                        if (groupedNodesDictionary.TryGetValue(node.GroupGUID, out var nodesInGroup))
+                        {
+
+                            int groupExecutionCounter = 1;
+
+                            foreach (var groupedNode in nodesInGroup)
+                            {
+                                if (processedNodes.Add(groupedNode))  // Adds to HashSet and checks if it was added
+                                {
+                                    groupNode.ExecutionTime += groupedNode.ExecutionTime;  // Aggregate group execution time
+
+                                    // Update group state if any node in the group was executed on current run
+                                    if (groupedNode.State == ProfiledNodeState.ExecutedOnCurrentRun)
+                                    {
+                                        groupNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
+                                    }
+
+                                    groupNode.ExecutionOrderNumber = mainExecutionCounter;
+                                    groupedNode.ExecutionOrderNumber = mainExecutionCounter;
+                                    groupedNode.ExecutionGroupOrderNumber = groupExecutionCounter;
+                                    groupExecutionCounter++;
+                                }
+                            }
+                            mainExecutionCounter++;
+                        }
+                    }
+                }
+                // if the node is not from a group
+                else if (!node.IsGroup && processedNodes.Add(node) && !node.Name.Contains(ProfiledNodeViewModel.ExecutionTimelString))
+                {
+                    node.ExecutionOrderNumber = mainExecutionCounter++;
+                }
+            }
+            RaisePropertyChanged(nameof(ProfiledNodes));
+        }
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// Applies the sorting logic to the ProfiledNodesCollection.
