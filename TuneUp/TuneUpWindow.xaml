@@ -20,6 +20,7 @@
             </ResourceDictionary.MergedDictionaries>
             <local:ParentToMarginConverter x:Key="ParentToMarginConverter" />
             <local:IsGroupToBrushConverter x:Key="IsGroupToBrushConverter" />
+            <local:GuidToVisibilityConverter x:Key="GuidToVisibilityConverter"/>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Name="MainGrid">
@@ -206,7 +207,8 @@
                 SelectionChanged="NodeAnalysisTable_SelectionChanged"
                 SelectionMode="Single"
                 SelectionUnit="FullRow"
-                Style="{StaticResource DataGridStyle1}">
+                Style="{StaticResource DataGridStyle1}"
+                Sorting="NodeAnalysisTable_Sorting">
                 <DataGrid.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.HeaderTemplate>
@@ -228,20 +230,31 @@
                     <DataGridTextColumn
                         Width="Auto"
                         Binding="{Binding Path=ExecutionOrderNumber}"
-                        FontFamily="{StaticResource ArtifaktElementRegular}"
-                        Foreground="{StaticResource MemberButtonText}"
                         Header="#"
                         IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center" />
                                 <Setter Property="Margin" Value="10,0,10,0" />
+                                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
+                                <Setter Property="Visibility" Value="{Binding GroupGUID, Converter={StaticResource GuidToVisibilityConverter}}" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    
+                    <!--<DataGridTemplateColumn Width="*" Header="#">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    Text="{Binding ExecutionOrderNumber}"
+                                    VerticalAlignment="Center"
+                                    Margin="10,0,10,0"
+                                    Foreground="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"
+                                    Visibility="{Binding GroupGUID, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>-->
                     <!--  Node Name  -->
-                    <!--<DataGridTextColumn
+                    <DataGridTextColumn
                         Width="*"
                         Binding="{Binding Name}"
                         FontFamily="{StaticResource ArtifaktElementRegular}"
@@ -254,19 +267,31 @@
                                 <Setter Property="Margin" Value="10,0,10,0" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>-->
-                    <DataGridTemplateColumn Width="*" Header="Name">
+                    </DataGridTextColumn>                    
+                    <!--<DataGridTemplateColumn Width="*" Header="Name">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock
-                                    Margin="{Binding ExecutionGroupOrderNumber, Converter={StaticResource ParentToMarginConverter}}"
+                                    Text="{Binding Name}"
                                     VerticalAlignment="Center"
-                                    Foreground="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"
-                                    Text="{Binding Name}" />
+                                    Margin="{Binding ExecutionGroupOrderNumber, Converter={StaticResource ParentToMarginConverter}}"                                    
+                                    Foreground="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    </DataGridTemplateColumn>-->
+                    
                     <!--  Execution Time  -->
+                    <!--<DataGridTemplateColumn Width="Auto" Header="Execution Time (ms)">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    Text="{Binding ExecutionMilliseconds}"
+                                    VerticalAlignment="Center"
+                                    Margin="10,0,10,0"
+                                    Foreground="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>-->
                     <DataGridTextColumn
                         Width="Auto"
                         Binding="{Binding ExecutionMilliseconds}"

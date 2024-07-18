@@ -61,7 +61,7 @@ namespace TuneUp
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
         private ListSortDirection sortDirection;
-        private string sortingOrder;
+        private string sortingOrder = "number";
         private Dictionary<Guid, List<ProfiledNodeViewModel>> groupedNodesDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace TuneUp
                     new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background)))
                 {
                     IsGroup = true,
-                    GroupGUID = group.GUID
+                    //GroupGUID = group.GUID
                 };
 
                 nodeDictionary[group.GUID] = groupProfiledNode;
@@ -420,8 +420,8 @@ namespace TuneUp
                     ProfiledNodes.Remove(CurrentExecutionTimeRow);
                     ProfiledNodes.Remove(PreviousExecutionTimeRow);
                     // After each evaluation, manually update execution time column(s)
-                    var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
-                    var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Sum(r => r.ExecutionTime.Ticks));
+                    var totalSpanExecuted = new TimeSpan(ProfiledNodes.Where(n => n.WasExecutedOnLastRun).Where(n => !n.IsGroup).Sum(r => r.ExecutionTime.Ticks));
+                    var totalSpanUnexecuted = new TimeSpan(ProfiledNodes.Where(n => !n.WasExecutedOnLastRun).Where(n => !n.IsGroup).Sum(r => r.ExecutionTime.Ticks));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
                         CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRunTotal));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
@@ -458,7 +458,7 @@ namespace TuneUp
                     {
                         if (groupedNodesDictionary.TryGetValue(node.GroupGUID, out var nodesInGroup))
                         {
-
+                            groupNode.ExecutionTime = TimeSpan.Zero; // reset the Execution Time
                             int groupExecutionCounter = 1;
 
                             foreach (var groupedNode in nodesInGroup)
@@ -512,13 +512,28 @@ namespace TuneUp
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
 
             // Sort nodes into execution order and make sure Total execution time is always bottom
-            var sortDescription = sortingOrder switch
+            //var sortDescription = sortingOrder switch
+            //{
+            //    "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
+            //    "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
+            //    _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
+            //};
+            //ProfiledNodesCollection.SortDescriptions.Add(sortDescription);
+
+            switch (sortingOrder)
             {
-                "time" => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection),
-                "name" => new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection),
-                _ => new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection),
-            };
-            ProfiledNodesCollection.SortDescriptions.Add(sortDescription);
+                case "time":
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection));
+                    break;
+                case "name":
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection));
+                    break;
+                case "number":
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionOrderNumber), sortDirection));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroup), ListSortDirection.Descending));
+                    ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionGroupOrderNumber), sortDirection));
+                    break;
+            }
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)

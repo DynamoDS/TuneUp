@@ -128,26 +128,64 @@ namespace TuneUp
         /// </summary>
         private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
-            if (viewModel != null)
+            //var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            //if (viewModel != null)
+            //{
+            //    viewModel.SortingOrder = e.Column.Header switch
+            //    {
+            //        "#" => "number",
+            //        "Name" => "name",
+            //        "Execution Time (ms)" => "time",
+            //        _ => viewModel.SortingOrder
+            //    };
+
+            //    // Set the sorting direction of the datagrid column
+            //    e.Column.SortDirection = viewModel.SortDirection == ListSortDirection.Descending
+            //        ? ListSortDirection.Descending
+            //        : ListSortDirection.Ascending;
+
+            //    // Apply custom sorting to ensure total times are at the bottom
+            //    viewModel.ApplySorting();
+            //    e.Handled = true;
+            //}
+
+            var dataView = CollectionViewSource.GetDefaultView(NodeAnalysisTable.ItemsSource);
+            ListSortDirection direction;
+
+            // Determine the new sort direction
+            if (e.Column.SortDirection == null || e.Column.SortDirection == ListSortDirection.Descending)
             {
-                viewModel.SortingOrder = e.Column.Header switch
-                {
-                    "#" => "number",
-                    "Name" => "name",
-                    "Execution Time (ms)" => "time",
-                    _ => viewModel.SortingOrder
-                };
-
-                // Set the sorting direction of the datagrid column
-                e.Column.SortDirection = viewModel.SortDirection == ListSortDirection.Descending
-                    ? ListSortDirection.Descending
-                    : ListSortDirection.Ascending;
-
-                // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplySorting();
-                e.Handled = true;
+                direction = ListSortDirection.Ascending;
             }
+            else
+            {
+                direction = ListSortDirection.Descending;
+            }
+
+            // Clear previous sort descriptions
+            dataView.SortDescriptions.Clear();
+
+            // Apply new sort description based on the column being sorted
+            if (e.Column.Header.ToString() == "Execution Time (ms)")
+            {
+                dataView.SortDescriptions.Add(new SortDescription("ExecutionMilliseconds", direction));
+            }
+            else if (e.Column.Header.ToString() == "Name")
+            {
+                dataView.SortDescriptions.Add(new SortDescription("Name", direction));
+            }
+            else if (e.Column.Header.ToString() == "#")
+            {
+                dataView.SortDescriptions.Add(new SortDescription("ExecutionOrderNumber", direction));
+            }
+
+            // Refresh the view to apply the sort
+            dataView.Refresh();
+            e.Column.SortDirection = direction;
+
+            // Mark the event as handled
+            e.Handled = true;
+
         }
 
         private void ExportTimes_Click(object sender, RoutedEventArgs e)
@@ -158,15 +196,14 @@ namespace TuneUp
 
     #region Converters
 
+
+    // TODO: Rename Converters!
     public class ParentToMarginConverter : IValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-
-            //return value > 0 ? new System.Windows.Thickness(30, 0, 0, 0) : new System.Windows.Thickness(0, 0, 0, 0);
-
             if (value is int intValue && intValue != 0)
             {
                 return new System.Windows.Thickness(30, 0, 0, 0);
@@ -187,6 +224,25 @@ namespace TuneUp
         {
             bool boolValue = (bool)value;
             return boolValue ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class GuidToVisibilityConverter : IValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Guid guidValue && guidValue != DefaultGuid)
+            {
+                return Visibility.Collapsed;
+            }
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
