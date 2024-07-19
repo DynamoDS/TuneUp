@@ -17,7 +17,7 @@ namespace TuneUp
         /// </summary>
         public static readonly string ExecutionTimelString = "Execution Time";
 
-        public static readonly string GroupNodePrefix = "Group:";
+        public static readonly string GroupNodePrefix = "Group: ";
 
         private string name = String.Empty;
         /// <summary>
@@ -55,19 +55,19 @@ namespace TuneUp
         }
         private int? executionOrderNumber;
 
-        public int? ExecutionGroupOrderNumber
+        public int? GroupExecutionOrderNumber
         {
             get
             {
-                return executionGroupOrderNumber;
+                return groupExecutionOrderNumber;
             }
             set
             {
-                executionGroupOrderNumber = value;
-                RaisePropertyChanged(nameof(ExecutionGroupOrderNumber));
+                groupExecutionOrderNumber = value;
+                RaisePropertyChanged(nameof(GroupExecutionOrderNumber));
             }
         }
-        private int? executionGroupOrderNumber;
+        private int? groupExecutionOrderNumber;
 
 
         /// <summary>
@@ -96,9 +96,8 @@ namespace TuneUp
             }
             set
             {
-                executionTime = value;
+                groupExecutionTime = value;
                 RaisePropertyChanged(nameof(GroupExecutionTime));
-                RaisePropertyChanged(nameof(ExecutionMilliseconds));
             }
         }
         private TimeSpan groupExecutionTime;
@@ -181,19 +180,19 @@ namespace TuneUp
         }
         private string groupName;
 
-        public SolidColorBrush GroupBackgroundBrush
+        public SolidColorBrush GroupNodeBackgroundBrush
         {
-            get => groupBackgroundBrush;
+            get => groupNodeBackgroundBrush;
             set
             {
                 if (value != null)
                 {
-                    groupBackgroundBrush = value;
-                    RaisePropertyChanged(nameof(GroupBackgroundBrush));
+                    groupNodeBackgroundBrush = value;
+                    RaisePropertyChanged(nameof(GroupNodeBackgroundBrush));
                 }
             }
         }
-        private SolidColorBrush groupBackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+        private SolidColorBrush groupNodeBackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
 
 
         /// <summary>
@@ -252,7 +251,9 @@ namespace TuneUp
             NodeModel = null;
             this.Name = name;
             State = ProfiledNodeState.NotExecuted;
-            GroupBackgroundBrush = backgroundBrush;
+            GroupNodeBackgroundBrush = backgroundBrush;
+            State = state;
+            IsGroup = true;
         }
     }
 }

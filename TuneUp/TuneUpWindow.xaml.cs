@@ -145,47 +145,9 @@ namespace TuneUp
                     : ListSortDirection.Ascending;
 
                 // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplySorting();
+                viewModel.ApplyCustomSorting();
                 e.Handled = true;
             }
-
-            //var dataView = CollectionViewSource.GetDefaultView(NodeAnalysisTable.ItemsSource);
-            //ListSortDirection direction;
-
-            //// Determine the new sort direction
-            //if (e.Column.SortDirection == null || e.Column.SortDirection == ListSortDirection.Descending)
-            //{
-            //    direction = ListSortDirection.Ascending;
-            //}
-            //else
-            //{
-            //    direction = ListSortDirection.Descending;
-            //}
-
-            //// Clear previous sort descriptions
-            //dataView.SortDescriptions.Clear();
-
-            //// Apply new sort description based on the column being sorted
-            //if (e.Column.Header.ToString() == "Execution Time (ms)")
-            //{
-            //    dataView.SortDescriptions.Add(new SortDescription("ExecutionMilliseconds", direction));
-            //}
-            //else if (e.Column.Header.ToString() == "Name")
-            //{
-            //    dataView.SortDescriptions.Add(new SortDescription("Name", direction));
-            //}
-            //else if (e.Column.Header.ToString() == "#")
-            //{
-            //    dataView.SortDescriptions.Add(new SortDescription("ExecutionOrderNumber", direction));
-            //}
-
-            //// Refresh the view to apply the sort
-            //dataView.Refresh();
-            //e.Column.SortDirection = direction;
-
-            //// Mark the event as handled
-            //e.Handled = true;
-
         }
 
         private void ExportTimes_Click(object sender, RoutedEventArgs e)
@@ -198,32 +160,41 @@ namespace TuneUp
 
 
     // TODO: Rename Converters!
-    public class ParentToMarginConverter : IValueConverter
+
+    public class ParentToMarginMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int intValue && intValue != 0)
+            if (values.Length == 2 &&
+                values[0] is bool isGroup &&
+                values[1] is Guid groupGuid)
             {
+                if (isGroup || groupGuid == DefaultGuid)
+                {
+                    return new System.Windows.Thickness(0, 0, 0, 0);
+                }
                 return new System.Windows.Thickness(30, 0, 0, 0);
             }
-            return new System.Windows.Thickness(0, 0, 0, 0);
+            return new System.Windows.Thickness(30, 0, 0, 0);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
+
     public class IsGroupToBrushConverter : IValueConverter
     {
-        private static readonly Guid DefaultGuid = Guid.Empty;
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool boolValue = (bool)value;
-            return boolValue ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+            if (value is bool isGroup)
+            {
+                return isGroup ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+            }
+            return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -232,20 +203,26 @@ namespace TuneUp
         }
     }
 
-    public class GuidToVisibilityConverter : IValueConverter
+    public class ParentToVisibilityMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Guid guidValue && guidValue != DefaultGuid)
+            if (values.Length == 2 &&
+                values[0] is bool isGroup &&
+                values[1] is Guid groupGuid)
             {
+                if (isGroup || groupGuid == DefaultGuid)
+                {
+                    return Visibility.Visible;
+                }
                 return Visibility.Collapsed;
             }
-            return Visibility.Visible;
+            return Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
