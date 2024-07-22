@@ -18,10 +18,9 @@
                 <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoColorsAndBrushesDictionaryUri}" />
                 <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoModernDictionaryUri}" />
             </ResourceDictionary.MergedDictionaries>
-            <local:ParentToMarginMultiConverter  x:Key="ParentToMarginMultiConverter" />
-            <local:ParentToVisibilityMultiConverter  x:Key="ParentToVisibilityMultiConverter" />
+            <local:IsGroupToMarginMultiConverter  x:Key="IsGroupToMarginMultiConverter" />
+            <local:IsGroupToVisibilityMultiConverter  x:Key="IsGroupToVisibilityMultiConverter" />
             <local:IsGroupToBrushConverter x:Key="IsGroupToBrushConverter" />
-            <!--<local:GuidToVisibilityConverter x:Key="GuidToVisibilityConverter"/>-->
         </ResourceDictionary>
     </Window.Resources>
     <Grid Name="MainGrid">
@@ -101,7 +100,7 @@
             </Style>
             <!--  DataGridRow style  -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
-                <Setter Property="Background" Value="{Binding GroupNodeBackgroundBrush}" />
+                <Setter Property="Background" Value="{Binding BackgroundBrush}" />
                 <Setter Property="BorderThickness" Value="0.45" />
                 <Setter Property="BorderBrush" Value="#555555" />
                 <Style.Triggers>
@@ -238,10 +237,9 @@
                                 <Setter Property="VerticalAlignment" Value="Center" />
                                 <Setter Property="Margin" Value="10,0,10,0" />
                                 <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
-                                <!--<Setter Property="Visibility" Value="{Binding GroupGUID, Converter={StaticResource GuidToVisibilityConverter}}" />-->
                                 <Setter Property="Visibility">
                                     <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ParentToVisibilityMultiConverter}">
+                                        <MultiBinding Converter="{StaticResource IsGroupToVisibilityMultiConverter}">
                                             <Binding Path="IsGroup" />
                                             <Binding Path="GroupGUID" />
                                         </MultiBinding>
@@ -260,10 +258,9 @@
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center" />
                                 <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
-                                <!--<Setter Property="Margin" Value="{Binding IsGroup, Converter={StaticResource ParentToMarginConverter}}"/>-->
                                 <Setter Property="Margin">
                                     <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ParentToMarginMultiConverter}">
+                                        <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
                                             <Binding Path="IsGroup" />
                                             <Binding Path="GroupGUID" />
                                         </MultiBinding>

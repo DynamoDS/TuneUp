@@ -58,11 +58,11 @@ namespace TuneUp
         private bool isRecomputeEnabled = true;
         private HomeWorkspaceModel currentWorkspace;
         private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+        private Dictionary<Guid, List<ProfiledNodeViewModel>> groupDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
         private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
         private ListSortDirection sortDirection;
         private string sortingOrder = "number";
-        private Dictionary<Guid, List<ProfiledNodeViewModel>> groupDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -249,37 +249,25 @@ namespace TuneUp
             // Use temporary collections to minimize UI updates
             var newProfiledNodes = new ObservableCollection<ProfiledNodeViewModel>();
             var newNodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-            var newGroupedNodesDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
+            var newGroupDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
 
             // Assign the new collection
             ProfiledNodes = newProfiledNodes;
             nodeDictionary = newNodeDictionary;
-            groupDictionary = newGroupedNodesDictionary;
-
-            // List to hold grouped nodes
-            var nodesInGroups = new HashSet<NodeModel>();
+            groupDictionary = newGroupDictionary;
 
             // Process groups and their nodes
             foreach (var group in CurrentWorkspace.Annotations)
             {
-                // Create profiledNode for each annotationModel
-                var profiledGroup = new ProfiledNodeViewModel(
-                    $"{ProfiledNodeViewModel.GroupNodePrefix}{group.AnnotationText}",
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background)))
-                {
-                    GroupName = group.AnnotationText,
-                    GroupGUID = group.GUID
-                };
-
-                // Record the profiledGroupNode in nodeDictionary
+                var profiledGroup = new ProfiledNodeViewModel(group);
                 nodeDictionary[group.GUID] = profiledGroup;
                 ProfiledNodes.Add(profiledGroup);
                 groupDictionary[group.GUID] = new List<ProfiledNodeViewModel>();
 
-                // Create profiledNode for each node in the annotationModel
+                // Create profiledNode for each node in the group
                 foreach (var node in group.Nodes)
                 {
-                    if (node is NodeModel nodeModel && nodesInGroups.Add(nodeModel))
+                    if (node is NodeModel nodeModel)
                     {
                         var profiledNode = new ProfiledNodeViewModel(nodeModel)
                         {
@@ -288,6 +276,10 @@ namespace TuneUp
                         };
 
                         // Record the profiledNode in nodeDictionary
+                        //if (!nodeDictionary.ContainsKey(node.GUID))                     //!!!!!!!!!!!!!!!!
+                        //{
+                        //    nodeDictionary[node.GUID] = profiledNode;
+                        //}
                         nodeDictionary[node.GUID] = profiledNode;
                         ProfiledNodes.Add(profiledNode);
                         groupDictionary[group.GUID].Add(profiledNode);
@@ -297,23 +289,26 @@ namespace TuneUp
             // Create profiledNode for each of the standalone nodes
             foreach (var node in CurrentWorkspace.Nodes)
             {
-                if (!nodesInGroups.Contains(node))
+                if (!nodeDictionary.ContainsKey(node.GUID))
                 {
-                    var profiledNode = new ProfiledNodeViewModel(node);
+                    var profiledNode = new ProfiledNodeViewModel(node)
+                    {
+                        GroupName = node.Name
+                    };
                     nodeDictionary[node.GUID] = profiledNode;
                     ProfiledNodes.Add(profiledNode);
-
-                    profiledNode.GroupName = node.Name;
                 }
             }
 
             ProfiledNodesCollection = new CollectionViewSource();
             ProfiledNodesCollection.Source = ProfiledNodes;
-            // Sort the data by execution state and then groupName to ensure nodes fall under groups
             ProfiledNodesCollection.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ProfiledNodeViewModel.StateDescription)));
+
+            // Sort the data by execution state and then groupName to ensure nodes fall under groups
             ApplyDefaultSorting();
             ProfiledNodesCollection.View?.Refresh();
 
+            // Notify property changes
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
@@ -441,73 +436,60 @@ namespace TuneUp
         private void CalculateGroupNodes()
         {
             int groupExecutionCounter = 1;
-            string updatedGroupName = string.Empty;
+            bool groupIsRenamed = false;
             var processedNodes = new HashSet<ProfiledNodeViewModel>();
             var sortedProfiledNodes = ProfiledNodes.OrderBy(node => node.ExecutionOrderNumber).ToList();
 
             foreach (var profiledNode in sortedProfiledNodes)
             {
-                // If the node is from a group and not yet processed
+                // Process nodes that belong to a group and have not been processed yet
                 if (!profiledNode.IsGroup && profiledNode.GroupGUID != Guid.Empty && !processedNodes.Contains(profiledNode))
                 {
-                    if (nodeDictionary.TryGetValue(profiledNode.GroupGUID, out var profiledGroup))
+                    if (nodeDictionary.TryGetValue(profiledNode.GroupGUID, out var profiledGroup) &&
+                        groupDictionary.TryGetValue(profiledNode.GroupGUID, out var nodesInGroup))
                     {
-                        if (groupDictionary.TryGetValue(profiledNode.GroupGUID, out var nodesInGroup))
+                        profiledGroup.State = profiledNode.State;
+                        profiledGroup.GroupExecutionTime = TimeSpan.Zero; // Reset execution time
+
+                        // Check if the group has been renamed
+                        var groupModel = CurrentWorkspace.Annotations.FirstOrDefault(g => g.GUID == profiledGroup.GroupGUID);
+                        if (groupModel != null && profiledGroup.GroupName != groupModel.AnnotationText)
                         {
-                            profiledGroup.GroupExecutionTime = TimeSpan.Zero; // reset the Execution Time
+                            groupIsRenamed = true;
+                            profiledGroup.GroupName = groupModel.AnnotationText;
+                            profiledGroup.Name = $"{ProfiledNodeViewModel.GroupNodePrefix}{groupModel.AnnotationText}";
+                        }
 
-                            // Check if the group has been renamed
-                            var groupModel = CurrentWorkspace.Annotations.FirstOrDefault(g => g.GUID == profiledGroup.GroupGUID);
-                            if (groupModel != null)
+                        // Iterate through the nodes in the group
+                        foreach (var node in nodesInGroup)
+                        {
+                            if (processedNodes.Add(node)) // Adds to HashSet and checks if it was added
                             {
-                                if (profiledGroup.GroupName != groupModel.AnnotationText)
-                                {
-                                    updatedGroupName = groupModel.AnnotationText;
-                                    profiledGroup.GroupName = updatedGroupName;
-                                    profiledGroup.Name = ProfiledNodeViewModel.GroupNodePrefix + updatedGroupName;
-                                }                                
+                                // Update group state, execution order, and execution time
+                                profiledGroup.GroupExecutionTime += node.ExecutionTime;
+                                node.GroupExecutionOrderNumber = groupExecutionCounter;
+                                if (groupIsRenamed) node.GroupName = profiledGroup.GroupName;
                             }
+                        }
+                        profiledGroup.ExecutionOrderNumber = groupExecutionCounter;
+                        profiledGroup.GroupExecutionOrderNumber = groupExecutionCounter++;
+                        profiledGroup.ExecutionTime = profiledGroup.GroupExecutionTime;
 
-                            // Iterate through the nodes in the group
-                            foreach (var node in nodesInGroup)
-                            {
-                                if (processedNodes.Add(node))  // Adds to HashSet and checks if it was added
-                                {
-                                    // Update group state, groupExecutionOrder and executionTime of the group
-                                    profiledGroup.GroupExecutionTime += node.ExecutionTime;
-                                    node.GroupExecutionOrderNumber = groupExecutionCounter;
-
-                                    if (node.State == ProfiledNodeState.ExecutedOnCurrentRun)
-                                    {
-                                        profiledGroup.State = ProfiledNodeState.ExecutedOnCurrentRun;
-                                    }
-                                    if (updatedGroupName != string.Empty)
-                                    {
-                                        profiledGroup.GroupName = updatedGroupName;
-                                    }
-                                }
-                            }
-                            profiledGroup.ExecutionOrderNumber = groupExecutionCounter;  // Displayed by dataGrid
-                            profiledGroup.GroupExecutionOrderNumber = groupExecutionCounter;
-                            groupExecutionCounter++;
-                            profiledGroup.ExecutionTime = profiledGroup.GroupExecutionTime;  // Displayed by dataGrid
-
-                            // Update the total groupExecutionTime for the purposes of sorting
-                            foreach (var node in nodesInGroup)
-                            {
-                                node.GroupExecutionTime = profiledGroup.GroupExecutionTime;
-                            }
+                        // Update the total groupExecutionTime for the purposes of sorting
+                        foreach (var node in nodesInGroup)
+                        {
+                            node.GroupExecutionTime = profiledGroup.GroupExecutionTime;
                         }
                     }
                 }
-                // If the node is not in a group
+                // Process standalone nodes
                 else if (!profiledNode.IsGroup && processedNodes.Add(profiledNode) && !profiledNode.Name.Contains(ProfiledNodeViewModel.ExecutionTimelString))
                 {
                     profiledNode.ExecutionOrderNumber = groupExecutionCounter;
                     profiledNode.GroupExecutionOrderNumber = groupExecutionCounter++;
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
-            }
+            }            
             RaisePropertyChanged(nameof(ProfiledNodes));
         }
 
@@ -544,7 +526,6 @@ namespace TuneUp
         {
             ProfiledNodesCollection.SortDescriptions.Clear();
             // Sort nodes into execution group
-            ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.State), ListSortDirection.Ascending));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupName), ListSortDirection.Ascending));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroup), ListSortDirection.Descending));
             ProfiledNodesCollection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.Name), ListSortDirection.Ascending));
@@ -604,25 +585,32 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_GroupAdded(AnnotationModel group)
         {
-            var profiledGroup = new ProfiledNodeViewModel(
-                    $"{ProfiledNodeViewModel.GroupNodePrefix}{group.AnnotationText}",
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background)))
-            {
-              GroupName = group.AnnotationText,
-              GroupGUID = group.GUID
-            };
+            var profiledGroup = new ProfiledNodeViewModel(group);
             nodeDictionary[group.GUID] = profiledGroup;
             ProfiledNodes.Add(profiledGroup);
             groupDictionary[group.GUID] = new List<ProfiledNodeViewModel>();
 
             foreach (var node in group.Nodes)
             {
-                var profiledNode = nodeDictionary[node.GUID] as ProfiledNodeViewModel;
-                profiledNode.GroupGUID = group.GUID;
-                profiledNode.GroupName = group.AnnotationText;
-                profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
+                if (node is NodeModel nodeModel)
+                {
+                    ProfiledNodeViewModel profiledNode;
+                    if (nodeDictionary.TryGetValue(node.GUID, out profiledNode))
+                    {
+                        profiledGroup.State = profiledNode.State;
+                    }
+                    else
+                    {
+                        profiledNode = new ProfiledNodeViewModel(node as NodeModel);
+                        nodeDictionary[node.GUID] = profiledNode;
+                        ProfiledNodes.Add(profiledNode);
+                    }
+                    profiledNode.GroupGUID = group.GUID;
+                    profiledNode.GroupName = group.AnnotationText;
+                    profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
 
-                groupDictionary[group.GUID].Add(profiledNode);
+                    groupDictionary[group.GUID].Add(profiledNode);
+                }                
             }
             // Executes for each group when a graph with groups is open while TuneUp is enabled
             // Ensures that group nodes are sorted properly and do not appear at the bottom of the DataGrid
@@ -634,19 +622,28 @@ namespace TuneUp
         private void CurrentWorkspaceModel_GroupRemoved(AnnotationModel group)
         {
             var groupGUID = group.GUID;
-            var profiledGroup = nodeDictionary[groupGUID] as ProfiledNodeViewModel;
-            nodeDictionary.Remove(groupGUID);
-            ProfiledNodes.Remove(profiledGroup);
 
-            var groupedNodes = groupDictionary[groupGUID];
-            foreach (var profiledNode in groupedNodes)
+            // Remove the group from nodeDictionary and ProfiledNodes
+            if (nodeDictionary.TryGetValue(groupGUID, out var profiledGroup))
             {
-                profiledNode.GroupGUID = Guid.Empty;
-                profiledNode.GroupName = string.Empty;
-                profiledNode.GroupExecutionOrderNumber = 0;
-                profiledNode.GroupExecutionTime = TimeSpan.Zero;
+                nodeDictionary.Remove(groupGUID);
+                ProfiledNodes.Remove(profiledGroup);
             }
-            groupDictionary.Remove(groupGUID);
+
+            // Reset grouped nodes' properties and remove them from groupDictionary
+    if (groupDictionary.TryGetValue(groupGUID, out var groupedNodes))
+    {
+        foreach (var profiledNode in groupedNodes)
+        {
+            profiledNode.GroupGUID = Guid.Empty;
+            profiledNode.GroupName = string.Empty;
+            profiledNode.GroupExecutionOrderNumber = 0;
+            profiledNode.GroupExecutionTime = TimeSpan.Zero;
+        }
+        groupDictionary.Remove(groupGUID);
+    }
+
+    // Notify property changes
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
         }

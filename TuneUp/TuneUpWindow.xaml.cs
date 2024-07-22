@@ -158,26 +158,19 @@ namespace TuneUp
 
     #region Converters
 
-
-    // TODO: Rename Converters!
-
-    public class ParentToMarginMultiConverter : IMultiValueConverter
+    public class IsGroupToMarginMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length == 2 &&
-                values[0] is bool isGroup &&
-                values[1] is Guid groupGuid)
+            values[0] is bool isGroup &&
+            values[1] is Guid groupGuid && groupGuid != DefaultGuid)
             {
-                if (isGroup || groupGuid == DefaultGuid)
-                {
-                    return new System.Windows.Thickness(0, 0, 0, 0);
-                }
-                return new System.Windows.Thickness(30, 0, 0, 0);
+                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(30, 0, 0, 0);
             }
-            return new System.Windows.Thickness(30, 0, 0, 0);
+            return new System.Windows.Thickness(0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -188,13 +181,12 @@ namespace TuneUp
 
     public class IsGroupToBrushConverter : IValueConverter
     {
+        private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isGroup)
-            {
-                return isGroup ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
-            }
-            return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -203,7 +195,7 @@ namespace TuneUp
         }
     }
 
-    public class ParentToVisibilityMultiConverter : IMultiValueConverter
+    public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
 
