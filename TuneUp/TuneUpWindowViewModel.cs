@@ -302,7 +302,6 @@ namespace TuneUp
             ApplyDefaultSorting();
             ProfiledNodesCollection.View?.Refresh();
 
-            // Notify property changes
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
             RaisePropertyChanged(nameof(TotalGraphExecutiontime));
@@ -483,8 +482,7 @@ namespace TuneUp
                     profiledNode.GroupExecutionOrderNumber = groupExecutionCounter++;
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
-            }            
-            //RaisePropertyChanged(nameof(ProfiledNodes));
+            }
         }
 
         /// <summary>
@@ -681,7 +679,6 @@ namespace TuneUp
                 workspace.EvaluationCompleted += CurrentWorkspaceModel_EvaluationCompleted;
                 workspace.AnnotationAdded += CurrentWorkspaceModel_GroupAdded;
                 workspace.AnnotationRemoved += CurrentWorkspaceModel_GroupRemoved;
-
 
                 foreach (var node in workspace.Nodes)
                 {

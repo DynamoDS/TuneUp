@@ -251,7 +251,6 @@ namespace TuneUp
         public ProfiledNodeViewModel(AnnotationModel group)
         {
             NodeModel = null;
-            AnnotationModel = group;
             Name = $"{GroupNodePrefix}{group.AnnotationText}";
             GroupName = group.AnnotationText;
             GroupGUID = group.GUID;
