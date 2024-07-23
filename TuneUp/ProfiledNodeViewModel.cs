@@ -216,7 +216,6 @@ namespace TuneUp
         internal Stopwatch Stopwatch { get; set; }
 
         internal NodeModel NodeModel { get; set; }
-        internal AnnotationModel AnnotationModel { get; set; }
 
         #endregion
 
