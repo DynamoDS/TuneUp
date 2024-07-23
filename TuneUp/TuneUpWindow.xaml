@@ -101,14 +101,14 @@
             <!--  DataGridRow style  -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
                 <Setter Property="Background" Value="{Binding BackgroundBrush}" />
-                <Setter Property="BorderThickness" Value="0.45" />
+                <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="#555555" />
                 <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#555555" />
-                    </Trigger>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#555555" />
+                        <Setter Property="Background" Value="#434343" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="{StaticResource MainBackgroundColor}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -135,12 +135,19 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <!--  TextBlock style for DataGrid columns  -->
+            <!-- TextBlock style for DataGrid columns -->
             <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource MemberButtonText}" />
-                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Margin" Value="10,0,10,0" />
+                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
             <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
                 <Style.Triggers>
@@ -233,10 +240,7 @@
                         Header="#"
                         IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="Margin" Value="10,0,10,0" />
-                                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
                                 <Setter Property="Visibility">
                                     <Setter.Value>
                                         <MultiBinding Converter="{StaticResource IsGroupToVisibilityMultiConverter}">
@@ -255,9 +259,7 @@
                         Header="Name"
                         IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
                                 <Setter Property="Margin">
                                     <Setter.Value>
                                         <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
@@ -268,7 +270,7 @@
                                 </Setter>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn> 
+                    </DataGridTextColumn>
                     <!--  Execution Time  -->
                     <DataGridTextColumn
                         Width="Auto"
@@ -276,11 +278,7 @@
                         Header="Execution Time (ms)"
                         IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}" />
-                                <Setter Property="Margin" Value="10,0,10,0" />
-                            </Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}" />
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                 </DataGrid.Columns>

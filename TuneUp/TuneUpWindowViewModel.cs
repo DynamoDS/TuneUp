@@ -274,12 +274,6 @@ namespace TuneUp
                             GroupGUID = group.GUID,
                             GroupName = group.AnnotationText
                         };
-
-                        // Record the profiledNode in nodeDictionary
-                        //if (!nodeDictionary.ContainsKey(node.GUID))                     //!!!!!!!!!!!!!!!!
-                        //{
-                        //    nodeDictionary[node.GUID] = profiledNode;
-                        //}
                         nodeDictionary[node.GUID] = profiledNode;
                         ProfiledNodes.Add(profiledNode);
                         groupDictionary[group.GUID].Add(profiledNode);
@@ -490,7 +484,7 @@ namespace TuneUp
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
             }            
-            RaisePropertyChanged(nameof(ProfiledNodes));
+            //RaisePropertyChanged(nameof(ProfiledNodes));
         }
 
         /// <summary>
@@ -631,19 +625,21 @@ namespace TuneUp
             }
 
             // Reset grouped nodes' properties and remove them from groupDictionary
-    if (groupDictionary.TryGetValue(groupGUID, out var groupedNodes))
-    {
-        foreach (var profiledNode in groupedNodes)
-        {
-            profiledNode.GroupGUID = Guid.Empty;
-            profiledNode.GroupName = string.Empty;
-            profiledNode.GroupExecutionOrderNumber = 0;
-            profiledNode.GroupExecutionTime = TimeSpan.Zero;
-        }
-        groupDictionary.Remove(groupGUID);
-    }
-
-    // Notify property changes
+            if (groupDictionary.TryGetValue(groupGUID, out var groupedNodes))
+            {
+                foreach (var profiledNode in groupedNodes)
+                {
+                    profiledNode.GroupGUID = Guid.Empty;
+                    profiledNode.GroupName = string.Empty;
+                    // Immediately after the group is removed, the node's execution order should not
+                    // be displayed, but the nodes will remain in the same location in the DataGrid.
+                    // The execution order will update correctly on the next graph execution.
+                    profiledNode.ExecutionOrderNumber = null;
+                    profiledNode.GroupExecutionTime = TimeSpan.Zero;
+                }
+                groupDictionary.Remove(groupGUID);
+            }
+            
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
         }
