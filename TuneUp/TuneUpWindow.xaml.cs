@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 using Dynamo.Models;
@@ -142,7 +145,7 @@ namespace TuneUp
                     : ListSortDirection.Ascending;
 
                 // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplySorting();
+                viewModel.ApplyCustomSorting();
                 e.Handled = true;
             }
         }
@@ -152,4 +155,70 @@ namespace TuneUp
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
     }
+
+    #region Converters
+
+    public class IsGroupToMarginMultiConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+            values[0] is bool isGroup &&
+            values[1] is Guid groupGuid && groupGuid != DefaultGuid)
+            {
+                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(30, 0, 0, 0);
+            }
+            return new System.Windows.Thickness(0);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToBrushConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+                values[0] is bool isGroup &&
+                values[1] is Guid groupGuid)
+            {
+                if (isGroup || groupGuid == DefaultGuid)
+                {
+                    return Visibility.Visible;
+                }
+                return Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }

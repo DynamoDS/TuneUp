@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Media;
 using Dynamo.Core;
+using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 
 namespace TuneUp
@@ -16,6 +18,8 @@ namespace TuneUp
         /// </summary>
         public static readonly string ExecutionTimelString = "Execution Time";
 
+        public static readonly string GroupNodePrefix = "Group: ";
+
         private string name = String.Empty;
         /// <summary>
         /// The name of this profiled node. This value can be either an actual
@@ -27,7 +31,7 @@ namespace TuneUp
             get 
             {
                 // For virtual row, do not attempt to grab node name
-                if (!name.Contains(ExecutionTimelString))
+                if (!name.Contains(ExecutionTimelString) && !name.StartsWith(GroupNodePrefix))
                     name = NodeModel?.Name;
                 return name;
             }
@@ -40,10 +44,7 @@ namespace TuneUp
         /// </summary>
         public int? ExecutionOrderNumber
         {
-            get
-            {
-                return executionOrderNumber;
-            }
+            get => executionOrderNumber;
             set
             {
                 executionOrderNumber = value;
@@ -52,16 +53,27 @@ namespace TuneUp
         }
         private int? executionOrderNumber;
 
+        /// <summary>
+        /// The order number of this group in the most recent graph run.
+        /// This number is assigned to each node within the group.
+        /// </summary>
+        public int? GroupExecutionOrderNumber
+        {
+            get => groupExecutionOrderNumber;
+            set
+            {
+                groupExecutionOrderNumber = value;
+                RaisePropertyChanged(nameof(GroupExecutionOrderNumber));
+            }
+        }
+        private int? groupExecutionOrderNumber;
 
         /// <summary>
         /// The most recent execution time of this node
         /// </summary>
         public TimeSpan ExecutionTime
         {
-            get
-            {
-                return executionTime;
-            }
+            get => executionTime;
             set
             {
                 executionTime = value;
@@ -72,14 +84,25 @@ namespace TuneUp
         private TimeSpan executionTime;
 
         /// <summary>
+        /// The total execution time of all node in the group.
+        /// </summary>
+        public TimeSpan GroupExecutionTime
+        {
+            get => groupExecutionTime;
+            set
+            {
+                groupExecutionTime = value;
+                RaisePropertyChanged(nameof(GroupExecutionTime));
+            }
+        }
+        private TimeSpan groupExecutionTime;
+
+        /// <summary>
         /// The most recent execution time of this node in milliseconds
         /// </summary>
         public int ExecutionMilliseconds
         {
-            get
-            {
-                return (int)Math.Round(ExecutionTime.TotalMilliseconds);
-            }
+            get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
         }
 
         /// <summary>
@@ -87,10 +110,7 @@ namespace TuneUp
         /// </summary>
         public bool WasExecutedOnLastRun
         {
-            get
-            {
-                return wasExecutedOnLastRun;
-            }
+            get => wasExecutedOnLastRun;
             set
             {
                 wasExecutedOnLastRun = value;
@@ -104,10 +124,7 @@ namespace TuneUp
         /// </summary>
         public ProfiledNodeState State
         {
-            get
-            {
-                return state;
-            }
+            get => state;
             set
             {
                 state = value;
@@ -115,6 +132,67 @@ namespace TuneUp
             }
         }
         private ProfiledNodeState state;
+
+        /// <summary>
+        /// The GUID of the group to which this node belongs
+        /// </summary>
+        public Guid GroupGUID
+        {
+            get => groupGIUD;
+            set
+            {
+                groupGIUD = value;
+                RaisePropertyChanged(nameof(GroupGUID));
+            }
+        }
+        private Guid groupGIUD;
+
+        /// <summary>
+        /// The name of the group to which this node belongs
+        /// This property is also applied to individual nodes and is used when sorting by name
+        /// </summary>
+        public string GroupName
+        {
+            get => groupName;
+            set
+            {
+                groupName = value;
+                RaisePropertyChanged(nameof(GroupName));
+            }
+        }
+        private string groupName;
+
+        /// <summary>
+        /// Indicates if this node is a group
+        /// </summary>
+        public bool IsGroup
+        {
+            get => isGroup;
+            set
+            {
+                isGroup = value;
+                RaisePropertyChanged(nameof(IsGroup));
+            }
+        }
+        private bool isGroup;
+
+        /// <summary>
+        /// The background brush for this node
+        /// If this node represents a group, it inherits the background color from the associated AnnotationModel
+        /// </summary>
+        public SolidColorBrush BackgroundBrush
+        {
+            get => backgroundBrush;
+            set
+            {
+                if (value != null)
+                {
+                    backgroundBrush = value;
+                    RaisePropertyChanged(nameof(BackgroundBrush));
+                }
+            }
+        }
+        private SolidColorBrush backgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
 
         /// <summary>
         /// Return the display name of state enum.
@@ -164,6 +242,21 @@ namespace TuneUp
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
+        }
+
+        /// <summary>
+        /// An alternative constructor to represent an annotation model as a group node.
+        /// </summary>
+        /// <param name="group">the annotation model</param>
+        public ProfiledNodeViewModel(AnnotationModel group)
+        {
+            NodeModel = null;
+            Name = $"{GroupNodePrefix}{group.AnnotationText}";
+            GroupName = group.AnnotationText;
+            GroupGUID = group.GUID;
+            BackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background));
+            IsGroup = true;
+            State = ProfiledNodeState.NotExecuted;
         }
     }
 }
