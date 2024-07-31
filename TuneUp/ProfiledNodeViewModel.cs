@@ -28,7 +28,7 @@ namespace TuneUp
         /// </summary>
         public string Name
         {
-            get 
+            get
             {
                 // For virtual row, do not attempt to grab node name
                 if (!name.Contains(ExecutionTimelString) && !name.StartsWith(GroupNodePrefix))
@@ -37,7 +37,7 @@ namespace TuneUp
             }
             internal set { name = value; }
         }
-        
+
         /// <summary>
         /// The order number of this node in the most recent graph run.
         /// Returns null if the node was not executed during the most recent graph run.
@@ -132,6 +132,20 @@ namespace TuneUp
             }
         }
         private ProfiledNodeState state;
+
+        /// <summary>
+        /// The current hotspot state based on execution time and configured hotspot values
+        /// </summary>
+        public ProfiledNodeHotspotState HotspotState
+        {
+            get => hotspotState;
+            set
+            {
+                hotspotState = value;
+                RaisePropertyChanged(nameof(HotspotState));
+            }
+        }
+        private ProfiledNodeHotspotState hotspotState;
 
         /// <summary>
         /// The GUID of the group to which this node belongs

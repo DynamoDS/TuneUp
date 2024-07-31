@@ -17,7 +17,8 @@
             </ResourceDictionary.MergedDictionaries>
             <local:IsGroupToMarginMultiConverter  x:Key="IsGroupToMarginMultiConverter" />
             <local:IsGroupToVisibilityMultiConverter  x:Key="IsGroupToVisibilityMultiConverter" />
-            <local:IsGroupToBrushConverter x:Key="IsGroupToBrushConverter" />
+            <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <local:IsGroupToBrushMultiConverter  x:Key="IsGroupToBrushMultiConverter" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid Name="MainGrid" >
@@ -133,7 +134,14 @@
             <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="10,0,10,0"/>
-                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource IsGroupToBrushMultiConverter}">
+                            <Binding Path="IsGroup"/>
+                            <Binding Path="HotspotState"/>
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
                         <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
@@ -150,8 +158,27 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <!-- TextBox Style -->
+            <Style x:Key="NumberBoxStyle" TargetType="TextBox">
+                <Setter Property="Height" Value="20" />
+                <Setter Property="MinWidth" Value="25" />
+                <Setter Property="Margin" Value="2,0,0,0" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Background" Value="{StaticResource PreferencesWindowBackgroundColor}" />
+                <Setter Property="BorderThickness" Value="0,0,0,2" />
+                <Setter Property="FontWeight" Value="Regular" />
+                <Setter Property="Foreground" Value="{StaticResource PreferencesWindowFontColor}" />
+                <Setter Property="Visibility" Value="{Binding Path=ShowHotspotsEnabled, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <EventSetter Event="PreviewTextInput" Handler="NumberValidationTextBox" />
+            </Style>
+            <!-- Label Style -->
+            <Style x:Key="SettingsLabelStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}"/>
+                <Setter Property="Foreground" Value="{StaticResource NodeNameForeground}"/>
+            </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -186,10 +213,43 @@
                Name="TotalGraphExecutiontimeLabel"
                Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
         </StackPanel>
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1"
+            HorizontalAlignment="Left"
+            Orientation="Horizontal">
+            <ToggleButton
+                Grid.Column="0"
+                Width="40"
+                Height="20"
+                Margin="2,0,0,0"
+                VerticalAlignment="Center"
+                IsEnabled="True"
+                Style="{StaticResource EllipseToggleButton1}"
+                Checked="HotspotToggleButton_Checked"
+                Unchecked="HotspotToggleButton_Checked"/>
+            <Label
+                Content="Show Node Hotspots"
+                Style="{StaticResource SettingsLabelStyle}"/>
+            <TextBox
+                x:Name="MinValueNumberBox"
+                Style="{StaticResource NumberBoxStyle}"
+                Text="{Binding Path=HotspotMinValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label
+                Style="{StaticResource SettingsLabelStyle}"
+                Content="Min value"
+                Visibility="{Binding Path=ShowHotspotsEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <TextBox
+                x:Name="MaxValueNumberBox"
+                Style="{StaticResource NumberBoxStyle}"
+                Text="{Binding Path=HotspotMaxValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label
+                Style="{StaticResource SettingsLabelStyle}"
+                Content="Max value"
+                Visibility="{Binding Path=ShowHotspotsEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2">
             <DataGrid
             x:Name="NodeAnalysisTable"
-            Grid.Row="1"                
+            Grid.Row="2"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
             Style="{StaticResource DataGridStyle1}"
             AutoGenerateColumns="False"

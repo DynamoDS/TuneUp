@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
@@ -86,7 +89,7 @@ namespace TuneUp
             if (selectedNodes.Count() > 0)
             {
                 // Select
-                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
+                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), Dynamo.Utilities.ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
                 // Focus on selected
@@ -154,9 +157,34 @@ namespace TuneUp
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
+
+        private void HotspotToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            viewModel.ShowHotspotsEnabled = (sender as ToggleButton).IsChecked == true;
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
     }
 
     #region Converters
+
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (bool)value ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
 
     public class IsGroupToMarginMultiConverter : IMultiValueConverter
     {
@@ -179,17 +207,25 @@ namespace TuneUp
         }
     }
 
-    public class IsGroupToBrushConverter : IValueConverter
+    public class IsGroupToBrushMultiConverter : IMultiValueConverter
     {
         private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
         private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+        private static readonly SolidColorBrush MinHotspotBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B7D78C"));
+        private static readonly SolidColorBrush MaxHotspotBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EB5555"));
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
+            if (values.Length == 2 && values[0] is bool isGroup && values[1] is ProfiledNodeHotspotState hotspotState)
+            {
+                if (isGroup) return GroupBrush;
+                else if (hotspotState == ProfiledNodeHotspotState.Low) return MinHotspotBrush;
+                else if (hotspotState == ProfiledNodeHotspotState.High) return MaxHotspotBrush;
+            }
+            return DefaultBrush;
         }
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

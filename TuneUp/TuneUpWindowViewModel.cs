@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Data;
-using System.Windows.Media;
 using Dynamo.Core;
 using Dynamo.Engine.Profiling;
 using Dynamo.Graph.Annotations;
@@ -44,6 +43,21 @@ namespace TuneUp
     }
 
     /// <summary>
+    /// Enum of possible states of node depending on execution time and hotspot values
+    /// </summary>
+    public enum ProfiledNodeHotspotState
+    {
+        [Display(Name = "Mid")]
+        Mid = 0,
+
+        [Display(Name = "Low")]
+        Low = 1,
+
+        [Display(Name = "High")]
+        High = 2
+    }
+
+    /// <summary>
     /// ViewModel for TuneUp. 
     /// Handles profiling setup, workspace events, execution events, etc.
     /// </summary>
@@ -63,6 +77,9 @@ namespace TuneUp
         private bool isTuneUpChecked = false;
         private ListSortDirection sortDirection;
         private string sortingOrder = "number";
+        private bool showHotspotsEnabled;
+        private int hotspotMinValue;
+        private int hotspotMaxValue;
 
         /// <summary>
         /// Name of the row to display current execution time
@@ -191,6 +208,54 @@ namespace TuneUp
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether hotspot highlighting is enabled.
+        /// </summary>
+        public bool ShowHotspotsEnabled
+        {
+            get => showHotspotsEnabled;
+            set
+            {
+                showHotspotsEnabled = value;
+                SetNodeHotspotState();
+                RaisePropertyChanged(nameof(ShowHotspotsEnabled));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the minimum value for hotspot highlighting.
+        /// </summary>
+        public int HotspotMinValue
+        {
+            get => hotspotMinValue;
+            set
+            {
+                if (hotspotMinValue != value)
+                {
+                    hotspotMinValue = value;
+                    RaisePropertyChanged(nameof(HotspotMinValue));
+                    SetNodeHotspotState();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum value for hotspot highlighting.
+        /// </summary>
+        public int HotspotMaxValue
+        {
+            get => hotspotMaxValue;
+            set
+            {
+                if (hotspotMaxValue != value)
+                {
+                    hotspotMaxValue = value;
+                    RaisePropertyChanged(nameof(HotspotMaxValue));
+                    SetNodeHotspotState();
+                }
+            }
+        }
+
+        /// <summary>
         /// Collection of profiling data for nodes in the current workspace
         /// </summary>
         public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes { get; set; } = new ObservableCollection<ProfiledNodeViewModel>();
@@ -215,7 +280,7 @@ namespace TuneUp
                 return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
             }
         }
-
+        
         #endregion
 
         #region Constructor
@@ -486,6 +551,34 @@ namespace TuneUp
         }
 
         /// <summary>
+        /// Updates the hotspot state of all nodes based on execution time and configured hotspot values.
+        /// </summary>
+        private void SetNodeHotspotState()
+        {
+            foreach (var node in nodeDictionary.Values)
+            {
+                if (node.State == ProfiledNodeState.NotExecuted || !ShowHotspotsEnabled)
+                {
+                    node.HotspotState = ProfiledNodeHotspotState.Mid;
+                    continue;
+                }
+
+                if (node.ExecutionMilliseconds <= HotspotMinValue)
+                {
+                    node.HotspotState = ProfiledNodeHotspotState.Low;
+                }
+                else if (node.ExecutionMilliseconds >= HotspotMaxValue)
+                {
+                    node.HotspotState = ProfiledNodeHotspotState.High;
+                }
+                else
+                {
+                    node.HotspotState = ProfiledNodeHotspotState.Mid;
+                }
+            }
+        }
+
+        /// <summary>
         /// Applies the sorting logic to the ProfiledNodesCollection.
         /// </summary>
         public void ApplyCustomSorting()
@@ -602,7 +695,7 @@ namespace TuneUp
                     profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
 
                     groupDictionary[group.GUID].Add(profiledNode);
-                }                
+                }
             }
             // Executes for each group when a graph with groups is open while TuneUp is enabled
             // Ensures that group nodes are sorted properly and do not appear at the bottom of the DataGrid
