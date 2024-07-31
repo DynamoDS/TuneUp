@@ -249,7 +249,7 @@
         <StackPanel Grid.Row="2">
             <DataGrid
             x:Name="NodeAnalysisTable"
-            Grid.Row="2"                
+            Grid.Row="2"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
             Style="{StaticResource DataGridStyle1}"
             AutoGenerateColumns="False"

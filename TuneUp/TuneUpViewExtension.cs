@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
 
@@ -45,11 +46,12 @@ namespace TuneUp
                 {
                     p.AddToExtensionsSideBar(this, TuneUpView);
                     ViewModel.SwitchToManualMode();
-                    ViewModel.EnableProfiling();                    
+                    ViewModel.EnableProfiling();
                 }
                 else
                 {
                     p.CloseExtensioninInSideBar(this);
+                    ViewModel.DisableProfiling();
                 }
             };
 
@@ -110,6 +112,10 @@ namespace TuneUp
             if (this.TuneUpMenuItem != null)
             {
                 this.TuneUpMenuItem.IsChecked = false;
+
+                // Reset DataGrid sorting order & direction
+                ViewModel.SortingOrder = "number";
+                ViewModel.SortDirection = System.ComponentModel.ListSortDirection.Ascending;
             }
         }
     }

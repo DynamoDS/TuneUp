@@ -216,7 +216,7 @@ namespace TuneUp
             set
             {
                 showHotspotsEnabled = value;
-                SetNodeHotspotStae();
+                SetNodeHotspotState();
                 RaisePropertyChanged(nameof(ShowHotspotsEnabled));
             }
         }
@@ -233,7 +233,7 @@ namespace TuneUp
                 {
                     hotspotMinValue = value;
                     RaisePropertyChanged(nameof(HotspotMinValue));
-                    SetNodeHotspotStae();
+                    SetNodeHotspotState();
                 }
             }
         }
@@ -250,7 +250,7 @@ namespace TuneUp
                 {
                     hotspotMaxValue = value;
                     RaisePropertyChanged(nameof(HotspotMaxValue));
-                    SetNodeHotspotStae();
+                    SetNodeHotspotState();
                 }
             }
         }
@@ -280,8 +280,7 @@ namespace TuneUp
                 return (PreviousExecutionTimeRow?.ExecutionMilliseconds + CurrentExecutionTimeRow?.ExecutionMilliseconds).ToString() + "ms";
             }
         }
-
-
+        
         #endregion
 
         #region Constructor
@@ -554,7 +553,7 @@ namespace TuneUp
         /// <summary>
         /// Updates the hotspot state of all nodes based on execution time and configured hotspot values.
         /// </summary>
-        private void SetNodeHotspotStae()
+        private void SetNodeHotspotState()
         {
             foreach (var node in nodeDictionary.Values)
             {
@@ -731,7 +730,7 @@ namespace TuneUp
                 }
                 groupDictionary.Remove(groupGUID);
             }
-
+            
             RaisePropertyChanged(nameof(ProfiledNodesCollection));
             RaisePropertyChanged(nameof(ProfiledNodes));
         }
