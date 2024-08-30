@@ -27,19 +27,19 @@ namespace TuneUp
         [Display(Name = "Executing")]
         Executing = 0,
 
-        [Display(Name = "Executed On Current Run")]
+        [Display(Name = "Latest")]
         ExecutedOnCurrentRun = 1,
 
-        [Display(Name = "Executed On Current Run")]
+        [Display(Name = "Latest")]
         ExecutedOnCurrentRunTotal = 2,
 
-        [Display(Name = "Executed On Previous Run")]
+        [Display(Name = "Previous run")]
         ExecutedOnPreviousRun = 3,
 
-        [Display(Name = "Executed On Previous Run")]
+        [Display(Name = "Previous run")]
         ExecutedOnPreviousRunTotal = 4,
 
-        [Display(Name = "Not Executed")]
+        [Display(Name = "Not executed")]
         NotExecuted = 5,
     }
 

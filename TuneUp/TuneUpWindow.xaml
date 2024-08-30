@@ -151,13 +151,85 @@
                 </Style.Triggers>
             </Style>
         </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="175" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /> <!-- run times & Show Groups button-->
+            <RowDefinition Height="Auto" /> <!-- Run All button-->
+            <RowDefinition Height="Auto" /> <!-- data grid-->
+            <RowDefinition Height="Auto" /> <!-- export button-->
+            <!-- export button-->
         </Grid.RowDefinitions>
-        <!-- Recompute All Button -->
+            
+            
+        <!-- Execution Times -->
         <StackPanel
-        Grid.Row="0"
+            Grid.Row="0" Grid.Column="0"
+            HorizontalAlignment="Left"
+            Orientation="Vertical">
+            <Label Foreground="{StaticResource NodeNameForeground}">Graph execution time (ms)</Label>
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                <Label Foreground="{StaticResource NodeNameForeground}">Latest</Label>
+                <Label Foreground="{StaticResource NodeNameForeground}"
+                       FontFamily="{StaticResource ArtifaktElementRegular}"                       
+                       Name="LatestExecutionTime"
+                       Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                <Label Foreground="{StaticResource NodeNameForeground}">Previous</Label>
+                <Label Foreground="{StaticResource NodeNameForeground}"
+                       FontFamily="{StaticResource ArtifaktElementRegular}"
+                       Name="PreviousExecutionTime"
+                       Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                <Label Foreground="{StaticResource NodeNameForeground}">Total</Label>
+                <Label Foreground="{StaticResource NodeNameForeground}"
+                       FontFamily="{StaticResource ArtifaktElementRegular}"
+                       Name="TotalExecutionTime"
+                       Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+            </StackPanel>
+        </StackPanel>
+        
+        
+        <!-- Show Groups Button -->
+        <StackPanel
+            Name="ShowGroupAndHelp"
+            Grid.Row="0" Grid.Column="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Orientation="Horizontal">
+            <ToggleButton
+                Width="35"
+                Height="16"
+                Margin="2,0,0,0"
+                VerticalAlignment="Center"
+                IsEnabled="True"
+                Style="{StaticResource EllipseToggleButton1}"/>
+            <Label Foreground="{StaticResource NodeNameForeground}">Show groups</Label>
+            <Label Foreground="{StaticResource NodeNameForeground}">???</Label>
+        </StackPanel>
+        <!-- Run All Button-->
+        <Button
+            Name="RunAll"
+            Grid.Row="1" Grid.Column="2"
+            HorizontalAlignment="Right"
+            Width="60"
+            Height="Auto"
+            Margin="0,0,7,5"
+            Padding="5,2,5,2"
+            IsEnabled="{Binding  Path=IsRecomputeEnabled}"
+            Click="RecomputeGraph_Click">
+            Run All
+        </Button>
+
+
+
+        <!-- Recompute All Button --><!--
+        <StackPanel
+        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
         HorizontalAlignment="Left"
         Orientation="Horizontal">
             <Button
@@ -180,16 +252,19 @@
             IsEnabled="{Binding Path=IsRecomputeEnabled}">
                 Export
             </Button>
-            <Label Foreground="{StaticResource NodeNameForeground}">Total Graph Execution Time:</Label>
+            <Label Foreground="{StaticResource NodeNameForeground}">Total</Label>
             <Label Foreground="{StaticResource NodeNameForeground}"
                FontFamily="{StaticResource ArtifaktElementRegular}"
                Name="TotalGraphExecutiontimeLabel"
                Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1">
+        </StackPanel>-->
+
+
+
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <DataGrid
             x:Name="NodeAnalysisTable"
-            Grid.Row="1"                
+            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
             Style="{StaticResource DataGridStyle1}"
             AutoGenerateColumns="False"
@@ -277,5 +352,20 @@
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
+
+        <!-- Export Button-->
+        <Button
+            Grid.Row="3" Grid.Column="2"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Name="ExportTimes"
+            Width="Auto"
+            Height="Auto"
+            Margin="2,1,1,10"
+            Padding="5,2,5,2"
+            Click="ExportTimes_Click"
+            IsEnabled="{Binding Path=IsRecomputeEnabled}">
+            Export
+        </Button>
     </Grid>
 </Window>
