@@ -168,9 +168,9 @@ namespace TuneUp
             values[0] is bool isGroup &&
             values[1] is Guid groupGuid && groupGuid != DefaultGuid)
             {
-                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(30, 0, 0, 0);
+                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(6, 0, 0, 0);
             }
-            return new System.Windows.Thickness(0);
+            return new System.Windows.Thickness(2,0,0,0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -179,7 +179,30 @@ namespace TuneUp
         }
     }
 
-    public class IsGroupToBrushConverter : IValueConverter
+    public class IsInGroupToColorBrushMultiConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555"));
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 3 &&
+            values[0] is bool isGroup &&
+            values[1] is Guid groupGuid &&
+            values[2] is SolidColorBrush groupColorBrush && groupColorBrush != null)
+            {
+                if (isGroup || groupGuid != DefaultGuid) return groupColorBrush;
+            }
+            return DefaultBrush;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToColorBrushConverter : IValueConverter
     {
         private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
         private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
@@ -190,6 +213,27 @@ namespace TuneUp
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToColorBrushMultiConverter : IMultiValueConverter
+    {
+        private static readonly SolidColorBrush TransparentBrush = Brushes.Transparent;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+            values[0] is bool isGroup &&
+            values[1] is SolidColorBrush groupColorBrush)
+            {
+                if (isGroup && groupColorBrush != null) return groupColorBrush;
+            }
+            return TransparentBrush;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

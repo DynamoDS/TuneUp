@@ -17,7 +17,9 @@
             </ResourceDictionary.MergedDictionaries>
             <local:IsGroupToMarginMultiConverter  x:Key="IsGroupToMarginMultiConverter" />
             <local:IsGroupToVisibilityMultiConverter  x:Key="IsGroupToVisibilityMultiConverter" />
-            <local:IsGroupToBrushConverter x:Key="IsGroupToBrushConverter" />
+            <local:IsGroupToColorBrushConverter x:Key="IsGroupToColorBrushConverter" />
+            <local:IsGroupToColorBrushMultiConverter x:Key="IsGroupToColorBrushMultiConverter"/>
+            <local:IsInGroupToColorBrushMultiConverter x:Key="IsInGroupToColorBrushMultiConverter"/>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Name="MainGrid" >
@@ -33,6 +35,7 @@
                 <Setter Property="ColumnWidth" Value="Auto"/>
                 <Setter Property="GridLinesVisibility" Value="Vertical"/>
                 <Setter Property="VerticalGridLinesBrush" Value="#555555"/>
+                <Setter Property="Background" Value="#353535"/>
             </Style>
             <!-- DataGridColumnHeader style -->
             <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
@@ -94,9 +97,10 @@
             </Style>
             <!-- DataGridRow style -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
-                <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0.45" />
-                <Setter Property="BorderBrush" Value="#555555"/>
+                <!--<Setter Property="BorderBrush" Value="#555555"/>-->
+                <!--<Setter Property="BorderThickness" Value="0"/>-->
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#434343"/>
@@ -116,24 +120,14 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <!-- Group Style -->
-            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type GroupItem}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Name}"/>
-                                <ItemsPresenter/>
-                            </StackPanel>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
             <!-- TextBlock style for DataGrid columns -->
             <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="10,0,10,0"/>
-                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>
+                <!--<Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>-->
+                
+                <Setter Property="Foreground" Value="#AAAAAA"/>
+                
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
                         <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
@@ -267,6 +261,8 @@
             Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
             Style="{StaticResource DataGridStyle1}"
+            AlternationCount="2"
+            AlternatingRowBackground="#434343"
             AutoGenerateColumns="False"
             CanUserAddRows="False"
             Background="#353535"
@@ -320,25 +316,71 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    
                     <!--  Node Name  -->
-                    <DataGridTextColumn
-                    Header="Name"
-                    Binding="{Binding Name}"
-                    IsReadOnly="True"
-                    Width="*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
-                                <Setter Property="Margin">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
-                                            <Binding Path="IsGroup" />
-                                            <Binding Path="GroupGUID" />
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Name" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- Group indicator -->
+                                    <Border Grid.Column="0">
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource IsInGroupToColorBrushMultiConverter}">
+                                                <Binding Path="IsGroup" />
+                                                <Binding Path="GroupGUID" />
+                                                <Binding Path="BackgroundBrush" />
+                                            </MultiBinding>
+                                        </Border.Background>
+                                    </Border>
+                                    <!-- Node name -->
+                                    <Border Grid.Column="1">
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
+                                                <Binding Path="IsGroup" />
+                                                <Binding Path="BackgroundBrush" />
+                                            </MultiBinding>
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding Name}"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Margin>
+                                                <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
+                                                    <Binding Path="IsGroup" />
+                                                    <Binding Path="GroupGUID" />
+                                                </MultiBinding>
+                                            </TextBlock.Margin>
+                                            <TextBlock.Foreground>
+                                                <Binding Path="IsGroup" Converter="{StaticResource IsGroupToColorBrushConverter}"/>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </Border>
+                                    <!-- Renamed node indicator -->
+                                    <Border Grid.Column="2">
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
+                                                <Binding Path="IsGroup" />
+                                                <Binding Path="BackgroundBrush" />
+                                            </MultiBinding>
+                                        </Border.Background>
+                                    </Border>
+                                    <Ellipse Name="nodeRenamedBlueDot"
+                                             Grid.Column="2"
+                                             Width="6"
+                                             Height="6"
+                                             Margin="3 0 6 0"
+                                             HorizontalAlignment="Right"
+                                             VerticalAlignment="Center"
+                                             Fill="{StaticResource Blue300Brush}"/>
+                                    <!-- Add visibility converter -->
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    
                     <!--  Execution Time  -->
                     <DataGridTextColumn
                     Header="Execution Time (ms)"

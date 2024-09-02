@@ -272,7 +272,8 @@ namespace TuneUp
                         var profiledNode = new ProfiledNodeViewModel(nodeModel)
                         {
                             GroupGUID = group.GUID,
-                            GroupName = group.AnnotationText
+                            GroupName = group.AnnotationText,
+                            BackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background))
                         };
                         nodeDictionary[node.GUID] = profiledNode;
                         ProfiledNodes.Add(profiledNode);
