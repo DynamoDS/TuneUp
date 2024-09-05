@@ -5,11 +5,12 @@
          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
          xmlns:local="clr-namespace:TuneUp"
          xmlns:ui="clr-namespace:Dynamo.UI;assembly=DynamoCoreWpf"
+         xmlns:controls1="clr-namespace:Dynamo.Wpf.Controls;assembly=DynamoCoreWpf"
          xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
          mc:Ignorable="d" 
          d:DesignHeight="300" d:DesignWidth="300"
          Width="500" Height="100">
-    <Window.Resources>
+    <Window.Resources>        
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoColorsAndBrushesDictionaryUri}" />
@@ -17,30 +18,49 @@
             </ResourceDictionary.MergedDictionaries>
             <local:IsGroupToMarginMultiConverter  x:Key="IsGroupToMarginMultiConverter" />
             <local:IsGroupToVisibilityMultiConverter  x:Key="IsGroupToVisibilityMultiConverter" />
+            <local:ExecutionOrderNumberVisibilityConverter  x:Key="ExecutionOrderNumberVisibilityConverter" />
             <local:IsGroupToColorBrushConverter x:Key="IsGroupToColorBrushConverter" />
             <local:IsGroupToColorBrushMultiConverter x:Key="IsGroupToColorBrushMultiConverter"/>
             <local:IsInGroupToColorBrushMultiConverter x:Key="IsInGroupToColorBrushMultiConverter"/>
+            <local:IsRenamedToVisibilityMultiConverter x:Key="IsRenamedToVisibilityMultiConverter"/>
+            <local:ExecutionOrderNumberConverter x:Key="ExecutionOrderNumberConverter"/>
+            
+            <!-- ERROR : DYNAMO CRASHES WHEN REFERENCED FROM DYNAMOCOREWPF -->
+            <Color x:Key="BorderColorTuneUp">#555555</Color>
+            <SolidColorBrush x:Key="BorderColorBrushTuneUp" Color="{StaticResource BorderColorTuneUp}" />
+            
         </ResourceDictionary>
     </Window.Resources>
+    
     <Grid Name="MainGrid" >
         <Grid.Resources>
             <!-- DataGrid style -->
-            <Style x:Key="DataGridStyle1" TargetType="{x:Type DataGrid}">
-                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyle1}"/>
+            <Style x:Key="DataGridStyleTuneUp" TargetType="{x:Type DataGrid}">
+                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}"/>
                 <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}"/>
                 <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}"/>
                 <Setter Property="RowHeaderWidth" Value="0"/>
                 <Setter Property="BorderThickness" Value="0.5" />
-                <Setter Property="BorderBrush" Value="#555555"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderColorBrushTuneUp}"/>
                 <Setter Property="ColumnWidth" Value="Auto"/>
                 <Setter Property="GridLinesVisibility" Value="Vertical"/>
-                <Setter Property="VerticalGridLinesBrush" Value="#555555"/>
-                <Setter Property="Background" Value="#353535"/>
+                <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderColorBrushTuneUp}"/>
+                <Setter Property="UseLayoutRounding" Value="True"></Setter>
+                <Setter Property="SnapsToDevicePixels" Value="True"></Setter>
+                <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}"/>
             </Style>
+            <!-- ERROR : TUNEUP DOES NOT LOAD WHEN USING THIS !!!-->
+            <!--<Style x:Key="DataGridStyle2" TargetType="{x:Type DataGrid}" BasedOn="{StaticResource DataGridStyle1}">
+                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}"/>
+                <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}"/>
+                <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}"/>                
+                <Setter Property="BorderBrush" Value="#555555"/>
+                <Setter Property="VerticalGridLinesBrush" Value="#555555"/>
+            </Style>-->
             <!-- DataGridColumnHeader style -->
-            <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
+            <Style x:Key="ColumnHeaderStyleTuneUp" TargetType="DataGridColumnHeader">
                 <Setter Property="Height" Value="20"/>
-                <Setter Property="Background" Value="#333333"/>
+                <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}"/>
                 <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
                 <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}"/>
                 <Setter Property="FontSize" Value="10"/>
@@ -95,6 +115,58 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <!-- ERROR : TUNEUP DOES NOT LOAD WHEN USING THIS !!!-->
+            <!--<Style x:Key="ColumnHeaderStyle2" TargetType="DataGridColumnHeader" BasedOn="{StaticResource ColumnHeaderStyle1}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter x:Name="HeaderContent"
+                                                  Grid.Column="1"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="11,0,0,0"/>
+                                <Path x:Name="SortArrow"
+                                      Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+                                      Grid.Column="0"
+                                      Margin="0,0,4,0"
+                                      Stretch="Fill"
+                                      Width="7" Height="6"
+                                      Fill="#999999"       
+                                      VerticalAlignment="Center"
+                                      RenderTransformOrigin="0.5,0.5"
+                                      Visibility="Collapsed"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="SortDirection" Value="Ascending">
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="SortArrow" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="180"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                                <Trigger Property="SortDirection" Value="Descending">
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="SortArrow" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="0"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>-->
+
             <!-- DataGridRow style -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
                 <Setter Property="Background" Value="Transparent"/>
@@ -124,10 +196,7 @@
             <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="10,0,10,0"/>
-                <!--<Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>-->
-                
                 <Setter Property="Foreground" Value="#AAAAAA"/>
-                
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
                         <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
@@ -137,14 +206,20 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
+            <!-- Label style -->
+            <Style TargetType="Label">
+                <Setter Property="Foreground" Value="{StaticResource NodeNameForeground}" />
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
+            </Style>
             <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#999999"/>
                     </Trigger>
                 </Style.Triggers>
-            </Style>
+            </Style>            
         </Grid.Resources>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="175" />
@@ -154,7 +229,6 @@
             <RowDefinition Height="Auto" /> <!-- Run All button-->
             <RowDefinition Height="Auto" /> <!-- data grid-->
             <RowDefinition Height="Auto" /> <!-- export button-->
-            <!-- export button-->
         </Grid.RowDefinitions>
             
             
@@ -163,26 +237,20 @@
             Grid.Row="0" Grid.Column="0"
             HorizontalAlignment="Left"
             Orientation="Vertical">
-            <Label Foreground="{StaticResource NodeNameForeground}">Graph execution time (ms)</Label>
+            <Label>Graph execution time (ms)</Label>
             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                <Label Foreground="{StaticResource NodeNameForeground}">Latest</Label>
-                <Label Foreground="{StaticResource NodeNameForeground}"
-                       FontFamily="{StaticResource ArtifaktElementRegular}"                       
-                       Name="LatestExecutionTime"
-                       Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+                <Label Width="70">Latest</Label>
+                <Label Name="LatestExecutionTime"
+                       Content="{Binding Path=LatestGraphExecutiontime, Mode=OneWay}"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                <Label Foreground="{StaticResource NodeNameForeground}">Previous</Label>
-                <Label Foreground="{StaticResource NodeNameForeground}"
-                       FontFamily="{StaticResource ArtifaktElementRegular}"
-                       Name="PreviousExecutionTime"
-                       Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+                <Label Width="70">Previous</Label>
+                <Label Name="PreviousExecutionTime"
+                       Content="{Binding Path=PreviousGraphExecutiontime, Mode=OneWay}"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                <Label Foreground="{StaticResource NodeNameForeground}">Total</Label>
-                <Label Foreground="{StaticResource NodeNameForeground}"
-                       FontFamily="{StaticResource ArtifaktElementRegular}"
-                       Name="TotalExecutionTime"
+               <Label Width="70">Total</Label>
+                <Label Name="TotalExecutionTime"
                        Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
             </StackPanel>
         </StackPanel>
@@ -190,26 +258,43 @@
         
         <!-- Show Groups Button -->
         <StackPanel
-            Name="ShowGroupAndHelp"
             Grid.Row="0" Grid.Column="1"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Horizontal">
             <ToggleButton
-                Width="35"
-                Height="16"
+                Width="30"
+                Height="15"
                 Margin="2,0,0,0"
                 VerticalAlignment="Center"
                 IsEnabled="True"
+                IsChecked="{Binding ShowGroups, Mode=TwoWay}"
                 Style="{StaticResource EllipseToggleButton1}"/>
-            <Label Foreground="{StaticResource NodeNameForeground}">Show groups</Label>
-            <Label Foreground="{StaticResource NodeNameForeground}">???</Label>
+            <Label>Show groups</Label>
+            <!--<TextBlock Text="Show groups"
+                       Style="{StaticResource LabelStyle}"
+                       Margin="5 0"
+                       VerticalAlignment="Center" />-->
+            <Rectangle Width="16"
+                       Height="16"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0">
+                <Rectangle.Fill>
+                    <ImageBrush ImageSource="/DynamoCoreWpf;component/UI/Images/help-16px.png" />
+                </Rectangle.Fill>
+                <Rectangle.ToolTip>
+                    <ToolTip Content="Some text here...."
+                             Style="{StaticResource GenericToolTipLight}" />
+                </Rectangle.ToolTip>
+            </Rectangle>
         </StackPanel>
         <!-- Run All Button-->
         <Button
             Name="RunAll"
             Grid.Row="1" Grid.Column="2"
             HorizontalAlignment="Right"
+            Background="#353535"
+            Foreground="{StaticResource NodeNameForeground}"
             Width="60"
             Height="Auto"
             Margin="0,0,7,5"
@@ -260,7 +345,7 @@
             x:Name="NodeAnalysisTable"
             Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
             ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
-            Style="{StaticResource DataGridStyle1}"
+            Style="{StaticResource DataGridStyleTuneUp}"
             AlternationCount="2"
             AlternatingRowBackground="#434343"
             AutoGenerateColumns="False"
@@ -297,19 +382,20 @@
                     </GroupStyle>
                 </DataGrid.GroupStyle>
                 <DataGrid.Columns>
+                    
                     <!--  Execution Order  -->
                     <DataGridTextColumn
-                    Header="#"
-                    Binding="{Binding Path=ExecutionOrderNumber}"
-                    IsReadOnly="True"
-                    Width="Auto">
+                        Header="#"
+                        Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
+                        Width="Auto">                        
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
                                 <Setter Property="Visibility">
                                     <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource IsGroupToVisibilityMultiConverter}">
+                                        <MultiBinding Converter="{StaticResource ExecutionOrderNumberVisibilityConverter}">
                                             <Binding Path="IsGroup" />
                                             <Binding Path="GroupGUID" />
+                                            <Binding Path="ShowGroupIndicator" />
                                         </MultiBinding>
                                     </Setter.Value>
                                 </Setter>
@@ -325,15 +411,16 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="3"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto" MinWidth="8"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Group indicator -->
                                     <Border Grid.Column="0">
                                         <Border.Background>
-                                            <MultiBinding Converter="{StaticResource IsInGroupToColorBrushMultiConverter}">
+                                            <MultiBinding Converter="{StaticResource IsInGroupToColorBrushMultiConverter}" Mode="OneWay">
                                                 <Binding Path="IsGroup" />
                                                 <Binding Path="GroupGUID" />
                                                 <Binding Path="BackgroundBrush" />
+                                                <Binding Path="ShowGroupIndicator" />
                                             </MultiBinding>
                                         </Border.Background>
                                     </Border>
@@ -347,10 +434,20 @@
                                         </Border.Background>
                                         <TextBlock Text="{Binding Name}"
                                                    VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGroupExecutionTime}" Value="True">
+                                                            <Setter Property="TextAlignment" Value="Right"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
                                             <TextBlock.Margin>
                                                 <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
                                                     <Binding Path="IsGroup" />
                                                     <Binding Path="GroupGUID" />
+                                                    <Binding Path="ShowGroupIndicator" />
                                                 </MultiBinding>
                                             </TextBlock.Margin>
                                             <TextBlock.Foreground>
@@ -371,26 +468,47 @@
                                              Grid.Column="2"
                                              Width="6"
                                              Height="6"
-                                             Margin="3 0 6 0"
+                                             Margin="5 0 8 0"
                                              HorizontalAlignment="Right"
                                              VerticalAlignment="Center"
-                                             Fill="{StaticResource Blue300Brush}"/>
-                                    <!-- Add visibility converter -->
+                                             Fill="{StaticResource Blue300Brush}">
+                                        <!--<Ellipse.ToolTip>
+                                            <controls1:DynamoToolTip AttachmentSide="Bottom" Style="{DynamicResource ResourceKey=SLightToolTip}">
+                                                <Grid>
+                                                    <TextBlock MaxWidth="200"
+                                                               Padding="5"
+                                                               Text="Placeholder"/>
+                                                </Grid>
+                                            </controls1:DynamoToolTip>
+                                        </Ellipse.ToolTip>-->
+                                        <Ellipse.Visibility>
+                                            <MultiBinding Converter="{StaticResource IsRenamedToVisibilityMultiConverter}">
+                                                <Binding Path="IsGroup" />
+                                                <Binding Path="IsRenamed" />
+                                            </MultiBinding>
+                                        </Ellipse.Visibility>
+                                    </Ellipse>  
                                 </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     
                     <!--  Execution Time  -->
-                    <DataGridTextColumn
-                    Header="Execution Time (ms)"
-                    Binding="{Binding ExecutionMilliseconds}"
-                    IsReadOnly="True"
-                    Width="Auto">
+                    <DataGridTextColumn Header="Execution Time (ms)"
+                                        Binding="{Binding ExecutionMilliseconds}"
+                                        IsReadOnly="True"
+                                        Width="Auto">
                         <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}" />
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsGroup}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>

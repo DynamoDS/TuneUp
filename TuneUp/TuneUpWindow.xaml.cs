@@ -154,6 +154,11 @@ namespace TuneUp
         {
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
+
+        //private void HelpButton_Click(object sender, RoutedEventArgs e)
+        //{
+
+        //}
     }
 
     #region Converters
@@ -164,11 +169,12 @@ namespace TuneUp
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Length == 2 &&
+            if (values.Length == 3 &&
             values[0] is bool isGroup &&
-            values[1] is Guid groupGuid && groupGuid != DefaultGuid)
+            values[1] is Guid groupGuid &&
+            values[2] is bool showGroupIndicator && showGroupIndicator)
             {
-                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(6, 0, 0, 0);
+                if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(6,0,0,0);
             }
             return new System.Windows.Thickness(2,0,0,0);
         }
@@ -182,37 +188,25 @@ namespace TuneUp
     public class IsInGroupToColorBrushMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
-        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#555"));
+        private static readonly SolidColorBrush TransparentBrush = Brushes.Transparent;
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Length == 3 &&
+            if (values.Length == 4 &&
             values[0] is bool isGroup &&
             values[1] is Guid groupGuid &&
-            values[2] is SolidColorBrush groupColorBrush && groupColorBrush != null)
+            values[2] is SolidColorBrush groupColorBrush &&
+            values[3] is bool showGroupIndicator)
             {
-                if (isGroup || groupGuid != DefaultGuid) return groupColorBrush;
+                if (showGroupIndicator && groupColorBrush != null)
+                {
+                    if (isGroup || groupGuid != DefaultGuid) return groupColorBrush;
+                }                
             }
-            return DefaultBrush;
+            return TransparentBrush;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class IsGroupToColorBrushConverter : IValueConverter
-    {
-        private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
-        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
@@ -239,6 +233,24 @@ namespace TuneUp
         }
     }
 
+    public class IsGroupToColorBrushConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
+        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    
+
     public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
     {
         private static readonly Guid DefaultGuid = Guid.Empty;
@@ -254,6 +266,69 @@ namespace TuneUp
                     return Visibility.Visible;
                 }
                 return Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsRenamedToVisibilityMultiConverter : IMultiValueConverter
+    {        
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+            values[0] is bool isGroup &&
+            values[1] is bool isRenamed && !isGroup)
+            {
+                if (isRenamed) return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ExecutionOrderNumberConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ProfiledNodeViewModel node)
+            {
+                return node.ShowGroupIndicator ? node.GroupExecutionOrderNumber : node.ExecutionOrderNumber;
+            }
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ExecutionOrderNumberVisibilityConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 3 &&
+                values[0] is bool isGroup &&
+                values[1] is Guid groupGuid &&
+                values[2] is bool showGroups)
+            {
+                if (showGroups)
+                {
+                    if (isGroup || groupGuid == DefaultGuid) return Visibility.Visible;
+                    else return Visibility.Collapsed;
+                }
+                if (!showGroups) return Visibility.Visible;
             }
             return Visibility.Collapsed;
         }
