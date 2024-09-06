@@ -28,9 +28,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="help-16px.png" />
-  </ItemGroup>
   <!-- References to other assemblies -->
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -85,9 +82,6 @@
   <ItemGroup>
     <None Include="manifests\pkg.json" />
     <None Include="manifests\TuneUp_ViewExtensionDefinition.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="help-16px.png" />
   </ItemGroup>
   <!-- Including Custom Properties, PreBuildEvent, and Import -->
   <PropertyGroup>

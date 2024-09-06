@@ -17,7 +17,7 @@ using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using Microsoft.Win32;
-using NUnit.Framework.Interfaces;
+using Newtonsoft.Json;
 
 namespace TuneUp
 {
@@ -73,12 +73,12 @@ namespace TuneUp
         /// <summary>
         /// Name of the row to display current execution time
         /// </summary>
-        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Current Run";
+        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " Latest Run";
 
         /// <summary>
         /// Name of the row to display previous execution time
         /// </summary>
-        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " On Previous Run";
+        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " Previous Run";
 
         /// <summary>
         /// Shortcut to current execution time row
@@ -200,6 +200,9 @@ namespace TuneUp
         /// Collection of profiling data for nodes in the current workspace
         /// </summary>
         public ObservableCollection<ProfiledNodeViewModel> ProfiledNodes { get; set; } = new ObservableCollection<ProfiledNodeViewModel>();
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodesLatestRun { get; private set; }
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodesPreviousRun { get; private set; }
+        public ObservableCollection<ProfiledNodeViewModel> ProfiledNodesNotExecuted { get; private set; }
 
         /// <summary>
         /// Collection of profiling data for nodes in the current workspace.
@@ -303,7 +306,7 @@ namespace TuneUp
 
                 // Create group total execution time node
                 var groupTotalTimeNode = new ProfiledNodeViewModel
-                    (ProfiledNodeViewModel.TotalExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
+                    (ProfiledNodeViewModel.GroupExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
                 {
                     GroupGUID = group.GUID,
                     GroupName = group.AnnotationText,
@@ -413,6 +416,25 @@ namespace TuneUp
             }
         }
 
+        private void SplitProfiledNodeCollections()
+        {
+            ProfiledNodesLatestRun = new ObservableCollection<ProfiledNodeViewModel>(
+                ProfiledNodes.Where(n => n.State == ProfiledNodeState.ExecutedOnCurrentRun ||
+                                          n.State == ProfiledNodeState.ExecutedOnCurrentRunTotal));
+
+            ProfiledNodesPreviousRun = new ObservableCollection<ProfiledNodeViewModel>(
+                ProfiledNodes.Where(n => n.State == ProfiledNodeState.ExecutedOnPreviousRun ||
+                                          n.State == ProfiledNodeState.ExecutedOnPreviousRunTotal));
+
+            ProfiledNodesNotExecuted = new ObservableCollection<ProfiledNodeViewModel>(
+                ProfiledNodes.Where(n => n.State == ProfiledNodeState.NotExecuted));
+
+            // Raise property changed notifications
+            RaisePropertyChanged(nameof(ProfiledNodesLatestRun));
+            RaisePropertyChanged(nameof(ProfiledNodesPreviousRun));
+            RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
+        }
+
         #endregion
 
         #region ExecutionEvents
@@ -474,7 +496,6 @@ namespace TuneUp
                     // Update latest and previous run times
                     latestGraphExecutiontime = Math.Round(totalSpanExecuted.TotalMilliseconds).ToString();
                     previousGraphExecutiontime = Math.Round(totalSpanUnexecuted.TotalMilliseconds).ToString();
-
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
                         CurrentExecutionString, totalSpanExecuted, ProfiledNodeState.ExecutedOnCurrentRunTotal));
                     ProfiledNodes.Add(new ProfiledNodeViewModel(
@@ -726,7 +747,7 @@ namespace TuneUp
 
             // Create group total execution time node
             var groupTotalTimeNode = new ProfiledNodeViewModel
-                (ProfiledNodeViewModel.TotalExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
+                (ProfiledNodeViewModel.GroupExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
             {
                 GroupGUID = group.GUID,
                 GroupName = group.AnnotationText,
@@ -883,7 +904,7 @@ namespace TuneUp
 
         #endregion
 
-        #region Export Node times
+        #region Execution time exporters
 
         /// <summary>
         /// Exports the ProfiledNodesCollection to a CSV file.
@@ -891,7 +912,6 @@ namespace TuneUp
         public void ExportToCsv()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            //saveFileDialog.RestoreDirectory = false;
             saveFileDialog.Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*";
 
             if (saveFileDialog.ShowDialog() == true)
@@ -904,6 +924,39 @@ namespace TuneUp
                     {
                         writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Exports the ProfiledNodesCollection to a JSON file.
+        /// </summary>
+        public void ExportToJson()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JSON file (*.json)|*.json|All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                // Create a list to hold the node data
+                var nodeDataList = new List<object>();
+
+                // Loop through the nodes and add the required data to the list
+                foreach (ProfiledNodeViewModel node in ProfiledNodesCollection.View.Cast<ProfiledNodeViewModel>())
+                {
+                    nodeDataList.Add(new
+                    {
+                        ExecutionOrder = node.ExecutionOrderNumber,
+                        Name = node.Name,
+                        ExecutionTimeMs = node.ExecutionMilliseconds
+                    });
+                }
+
+                // Serialize the list and write to JSON
+                string json = JsonConvert.SerializeObject(nodeDataList, Formatting.Indented);
+                using (var writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    writer.Write(json);
                 }
             }
         }

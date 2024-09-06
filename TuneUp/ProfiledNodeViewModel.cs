@@ -116,7 +116,7 @@ namespace TuneUp
         /// </summary>
         public static readonly string ExecutionTimelString = "Execution Time";
         public static readonly string GroupNodePrefix = "Group: ";
-        public static readonly string TotalExecutionTimeString = "Group total";
+        public static readonly string GroupExecutionTimeString = "Group total";
 
         private string name = String.Empty;
         /// <summary>
@@ -131,7 +131,7 @@ namespace TuneUp
                 // For virtual row, do not attempt to grab node name
                 if (!name.Contains(ExecutionTimelString) &&
                     !name.StartsWith(GroupNodePrefix) &&
-                    !name.Equals(TotalExecutionTimeString))
+                    !name.Equals(GroupExecutionTimeString))
                     name = NodeModel?.Name;
                 return name;
             }

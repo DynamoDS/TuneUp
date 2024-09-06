@@ -155,10 +155,20 @@ namespace TuneUp
             (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
         }
 
-        //private void HelpButton_Click(object sender, RoutedEventArgs e)
-        //{
+        private void ExportToJson_Click(object sender, RoutedEventArgs e)
+        {
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel)?.ExportToJson();
+        }
 
-        //}
+        private void ExportToCsv_Click(object sender, RoutedEventArgs e)
+        {
+            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel)?.ExportToCsv();
+        }
+
+        private void ExportButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ExportButton.ContextMenu.IsOpen = true;
+        }
     }
 
     #region Converters
@@ -174,9 +184,9 @@ namespace TuneUp
             values[1] is Guid groupGuid &&
             values[2] is bool showGroupIndicator && showGroupIndicator)
             {
-                if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(6,0,0,0);
+                if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(5,0,0,0);
             }
-            return new System.Windows.Thickness(2,0,0,0);
+            return new System.Windows.Thickness(-4,0,0,0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -236,20 +246,18 @@ namespace TuneUp
     public class IsGroupToColorBrushConverter : IValueConverter
     {
         private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
-        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+        private static readonly SolidColorBrush DarkThemeBodyMediumBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"));
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
+            return value is bool isGroup && isGroup ? GroupBrush : DarkThemeBodyMediumBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-    }
-
-    
+    }    
 
     public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
     {
@@ -334,6 +342,59 @@ namespace TuneUp
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ContainsStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string name)
+            {
+                return (name.StartsWith(ProfiledNodeViewModel.ExecutionTimelString) ||
+                    name.Equals(ProfiledNodeViewModel.GroupExecutionTimeString));
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ContainsStringConverter1 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string name)
+            {
+                return (name.StartsWith(ProfiledNodeViewModel.ExecutionTimelString));
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class AlternatingBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int index)
+            {
+                // Alternate background colors based on index
+                return index % 2 == 0 ? new SolidColorBrush(Color.FromRgb(67, 67, 67)) : new SolidColorBrush(Color.FromRgb(211, 211, 211));
+            }
+            return DependencyProperty.UnsetValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
