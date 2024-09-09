@@ -327,7 +327,7 @@
                 CanUserSortColumns="True"
                 FontSize="11"
                 HeadersVisibility="Column"
-                ItemsSource="{Binding Path=ProfiledNodesCollection.View}"
+                ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
                 MouseLeave="NodeAnalysisTable_MouseLeave"
                 PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                 ScrollViewer.CanContentScroll="False"
