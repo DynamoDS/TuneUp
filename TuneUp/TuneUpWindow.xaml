@@ -49,7 +49,7 @@
             <Style x:Key="DataGridStyleTuneUpCombined" TargetType="{x:Type DataGrid}">
                 <Setter Property="AutoGenerateColumns" Value="False" />
                 <Setter Property="CanUserAddRows" Value="False" />
-                <Setter Property="CanUserResizeColumns" Value="True" />
+                <Setter Property="CanUserResizeColumns" Value="False" />
                 <Setter Property="CanUserSortColumns" Value="True" />
                 <Setter Property="FontSize" Value="11" />
                 <Setter Property="HeadersVisibility" Value="Column" />
@@ -57,14 +57,14 @@
                 <Setter Property="SelectionUnit" Value="FullRow" />
                 <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <!--<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />-->
                 <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}" />
                 <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}" />
                 <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}" />
                 <Setter Property="RowHeaderWidth" Value="0" />
                 <Setter Property="BorderThickness" Value="0.5" />
                 <Setter Property="BorderBrush" Value="{StaticResource ExtensionBackgroundColor}" />
-                <Setter Property="ColumnWidth" Value="Auto" />
+                <!--<Setter Property="ColumnWidth" Value="Auto" />-->
                 <Setter Property="GridLinesVisibility" Value="Vertical" />
                 <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderColorBrushTuneUp}" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -444,167 +444,168 @@
         </Button>
 
         <!--  Data Grids  -->
-        <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto">
-            <StackPanel
-                Grid.Row="2"
-                Grid.Column="0"
-                Grid.ColumnSpan="2">
-                <!-- Latest Run -->
-                <TextBlock Text="Latest Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
-                <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
-                          x:Name="LatestRunTable"
-                          Style="{StaticResource DataGridStyleTuneUpCombined}"
-                          AlternationCount="2"
-                          AlternatingRowBackground="#434343">
-                    <DataGrid.GroupStyle>
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Margin="3"
-                                                   FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource NodeNameForeground}"
-                                                   Text="{Binding Name}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                        </GroupStyle>
-                    </DataGrid.GroupStyle>
-                    <DataGrid.Columns>
-                        <!--  Execution Order  -->
-                        <DataGridTextColumn Width="30"
-                                            Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
-                                            Header="#">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <!--  Node Name  -->
-                        <DataGridTemplateColumn Width="*" MinWidth="100"
-                                                Header="Name"
-                                                SortMemberPath="Name">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <StaticResource ResourceKey="NodeNameTemplate" />
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--  Execution Time  -->
-                        <DataGridTextColumn Width="120"
-                                            Binding="{Binding ExecutionMilliseconds}"
-                                            Header="Execution Time (ms)"
-                                            IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
-                    <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
-                    <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>                    
+        <Grid Name="Nodes" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel >
+                    <!-- Latest Run -->
+                    <TextBlock Text="Latest Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
+                              x:Name="LatestRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternationCount="2"
+                              AlternatingRowBackground="#434343"
+                              Sorting="NodeAnalysisTable_Sorting">
+                        <DataGrid.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Margin="3"
+                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource NodeNameForeground}"
+                                                       Text="{Binding Name}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </DataGrid.GroupStyle>
+                        <DataGrid.Columns>
+                            <!--  Execution Order  -->
+                            <DataGridTextColumn Width="30"
+                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
+                                                Header="#">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--  Node Name  -->
+                            <DataGridTemplateColumn Width="*"
+                                                    MinWidth="100"
+                                                    Header="Name"
+                                                    SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  Execution Time  -->
+                            <DataGridTextColumn Width="120"
+                                                Binding="{Binding ExecutionMilliseconds}"
+                                                Header="Execution Time (ms)"
+                                                IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
+                        <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
+                        <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Previous Run -->
+                    <TextBlock Text="Previous Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
+                              x:Name="PreviousRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None">
+                        <DataGrid.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Margin="3"
+                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource NodeNameForeground}"
+                                                       Text="{Binding Name}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </DataGrid.GroupStyle>
+                        <DataGrid.Columns>
+                            <!--Execution Order-->
+                            <DataGridTextColumn Width="30"
+                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--Node Name-->
+                            <DataGridTemplateColumn Width="*" MinWidth="100"
+                                     SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--Execution Time-->
+                            <DataGridTextColumn Width="120"
+                                 Binding="{Binding ExecutionMilliseconds}"
+                                 IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
+                        <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
+                        <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
+                    </StackPanel>
+                    <!-- Not Executed -->
+                    <TextBlock Text="Not Executed" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
+                              x:Name="NotExecutedTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternationCount="2"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None">
+                        <DataGrid.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Margin="3"
+                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource NodeNameForeground}"
+                                        Text="{Binding Name}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </DataGrid.GroupStyle>
+                        <DataGrid.Columns>
+                            <!--Execution Order-->
+                            <DataGridTextColumn Width="30"
+                                 Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--Node Name-->
+                            <DataGridTemplateColumn Width="*" MinWidth="100"
+                                     SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--Execution Time-->
+                            <DataGridTextColumn Width="120"
+                                 Binding="{Binding ExecutionMilliseconds}"
+                                 IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </StackPanel>
-                
-                <!-- Previous Run -->
-                <TextBlock Text="Previous Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
-                <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
-                          x:Name="PreviousRunTable"
-                          Style="{StaticResource DataGridStyleTuneUpCombined}"
-                          AlternatingRowBackground="#434343"
-                          HeadersVisibility="None">
-                    <DataGrid.GroupStyle>
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Margin="3"
-                                                   FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource NodeNameForeground}"
-                                                   Text="{Binding Name}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                        </GroupStyle>
-                    </DataGrid.GroupStyle>
-                    <DataGrid.Columns>
-                        <!--Execution Order-->
-                        <DataGridTextColumn Width="30"
-                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <!--Node Name-->
-                        <DataGridTemplateColumn Width="*" MinWidth="100"
-                                                SortMemberPath="Name">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <StaticResource ResourceKey="NodeNameTemplate" />
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--Execution Time-->
-                        <DataGridTextColumn Width="120"
-                                            Binding="{Binding ExecutionMilliseconds}"
-                                            IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
-                    <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
-                    <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
-                </StackPanel>
-                <!-- Not Executed -->
-                <TextBlock Text="Not Executed" Height="20" FontSize="12" Margin="5,0,0,0"/>
-                <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
-                          x:Name="NotExecutedTable"
-                          Style="{StaticResource DataGridStyleTuneUpCombined}"
-                          AlternationCount="2"
-                          AlternatingRowBackground="#434343"
-                          HeadersVisibility="None"> 
-                    <DataGrid.GroupStyle>
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Margin="3"
-                                                   FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource NodeNameForeground}"
-                                                   Text="{Binding Name}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                        </GroupStyle>
-                    </DataGrid.GroupStyle>
-                    <DataGrid.Columns>
-                        <!--Execution Order-->
-                        <DataGridTextColumn Width="30"
-                                            Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <!--Node Name-->
-                        <DataGridTemplateColumn Width="*" MinWidth="100"
-                                                SortMemberPath="Name">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <StaticResource ResourceKey="NodeNameTemplate" />
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <!--Execution Time-->
-                        <DataGridTextColumn Width="120"
-                                            Binding="{Binding ExecutionMilliseconds}"
-                                            IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </StackPanel>
-        </ScrollViewer>
+            </ScrollViewer>
+        </Grid>
 
         <!--  Export Button  -->
         <DockPanel Grid.Row="3" Grid.Column="1">
