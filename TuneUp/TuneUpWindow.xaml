@@ -46,24 +46,6 @@
     <Grid Name="MainGrid">
         <Grid.Resources>
             <!--  DataGrid style  -->
-            <!-- PackageManager\Controls\ControlColorsAndBrushes -->
-            <Style x:Key="DataGridStyleTuneUp" TargetType="{x:Type DataGrid}">
-                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}" />
-                <!-- RowStyle not from original -->
-                <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}" />
-                <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}" />
-                <Setter Property="RowHeaderWidth" Value="0" />
-                <Setter Property="BorderThickness" Value="0.5" />
-                <Setter Property="BorderBrush" Value="{StaticResource ExtensionBackgroundColor}" />
-                <Setter Property="ColumnWidth" Value="Auto" />
-                <Setter Property="GridLinesVisibility" Value="Vertical" />
-                <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderColorBrushTuneUp}" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <!-- Background not from original -->
-                <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
-            </Style>
-
             <Style x:Key="DataGridStyleTuneUpCombined" TargetType="{x:Type DataGrid}">
                 <Setter Property="AutoGenerateColumns" Value="False" />
                 <Setter Property="CanUserAddRows" Value="False" />
@@ -88,6 +70,7 @@
                 <Setter Property="UseLayoutRounding" Value="True" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
 
             <!--  DataGridColumnHeader style  -->
@@ -305,7 +288,6 @@
                 </Style.Triggers>
             </Style>
 
-
             <!-- TextBlock style-->
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
@@ -399,7 +381,7 @@
                 <TextBlock Width="70"
                            Margin="5,0,0,0"
                            Text="Latest"/>
-                <TextBlock Text="{Binding Path=LatestGraphExecutiontime, Mode=OneWay}"/>
+                <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left"
                         Orientation="Horizontal"
@@ -407,7 +389,7 @@
                 <TextBlock Width="70"
                            Margin="5,0,0,0"
                            Text="Previous"/>
-                <TextBlock Text="{Binding Path=PreviousGraphExecutiontime, Mode=OneWay}"/>
+                <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left"
                         Orientation="Horizontal"
@@ -416,7 +398,7 @@
                            Margin="5,0,0,0"
                            Text="Total"
                            FontWeight="Bold"/>
-                <TextBlock Text="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"
+                <TextBlock Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}"
                            FontWeight="Bold"/>
             </StackPanel>
         </StackPanel>
@@ -491,7 +473,7 @@
                     </DataGrid.GroupStyle>
                     <DataGrid.Columns>
                         <!--  Execution Order  -->
-                        <DataGridTextColumn Width="Auto"
+                        <DataGridTextColumn Width="30"
                                             Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
                                             Header="#">
                             <DataGridTextColumn.ElementStyle>
@@ -499,7 +481,7 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <!--  Node Name  -->
-                        <DataGridTemplateColumn Width="*"
+                        <DataGridTemplateColumn Width="*" MinWidth="100"
                                                 Header="Name"
                                                 SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
@@ -519,7 +501,7 @@
                 </DataGrid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
                     <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
-                    <TextBlock Text="999" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>                    
+                    <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>                    
                 </StackPanel>
                 
                 <!-- Previous Run -->
@@ -546,14 +528,14 @@
                     </DataGrid.GroupStyle>
                     <DataGrid.Columns>
                         <!--Execution Order-->
-                        <DataGridTextColumn Width="Auto"
+                        <DataGridTextColumn Width="30"
                                 Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
                             <DataGridTextColumn.ElementStyle>
                                 <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <!--Node Name-->
-                        <DataGridTemplateColumn Width="*"
+                        <DataGridTemplateColumn Width="*" MinWidth="100"
                                                 SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
                                 <StaticResource ResourceKey="NodeNameTemplate" />
@@ -571,7 +553,7 @@
                 </DataGrid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
                     <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
-                    <TextBlock Text="999" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
+                    <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
                 </StackPanel>
                 <!-- Not Executed -->
                 <TextBlock Text="Not Executed" Height="20" FontSize="12" Margin="5,0,0,0"/>
@@ -598,14 +580,14 @@
                     </DataGrid.GroupStyle>
                     <DataGrid.Columns>
                         <!--Execution Order-->
-                        <DataGridTextColumn Width="Auto"
+                        <DataGridTextColumn Width="30"
                                             Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
                             <DataGridTextColumn.ElementStyle>
                                 <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <!--Node Name-->
-                        <DataGridTemplateColumn Width="*"
+                        <DataGridTemplateColumn Width="*" MinWidth="100"
                                                 SortMemberPath="Name">
                             <DataGridTemplateColumn.CellTemplate>
                                 <StaticResource ResourceKey="NodeNameTemplate" />
