@@ -495,7 +495,6 @@ namespace TuneUp
             ProfiledNodesCollection.Dispatcher.InvokeAsync(() =>
             {
                 ApplyCustomSorting();
-                ProfiledNodesCollection.View.Refresh();// to remove
                 ProfiledNodesCollectionNotExecuted.View.Refresh();
                 ProfiledNodesCollectionLatestRun.View.Refresh();
             });

@@ -12,6 +12,7 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Models;
 using Dynamo.Utilities;
 using Dynamo.Wpf.Extensions;
+using static Dynamo.ViewModels.SearchViewModel;
 
 namespace TuneUp
 {
@@ -52,10 +53,6 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-            // Initialize the height of the datagrid in order to make sure
-            // vertical scrollbar can be displayed correctly.
-            this.NodeAnalysisTable.Height = vlp.DynamoWindow.Height - sidebarHeightOffset;
-            vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
@@ -64,7 +61,7 @@ namespace TuneUp
         private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
             // Update the new height of datagrid
-            this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
+            //this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -119,7 +116,7 @@ namespace TuneUp
 
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
+            (LatestRunTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
 
         /// <summary>
@@ -128,7 +125,7 @@ namespace TuneUp
         /// </summary>
         private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            var viewModel = LatestRunTable.DataContext as TuneUpWindowViewModel;
             if (viewModel != null)
             {
                 viewModel.SortingOrder = e.Column.Header switch
@@ -150,19 +147,14 @@ namespace TuneUp
             }
         }
 
-        private void ExportTimes_Click(object sender, RoutedEventArgs e)
-        {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
-        }
-
         private void ExportToJson_Click(object sender, RoutedEventArgs e)
         {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel)?.ExportToJson();
+            (LatestRunTable.DataContext as TuneUpWindowViewModel)?.ExportToJson();
         }
 
         private void ExportToCsv_Click(object sender, RoutedEventArgs e)
         {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel)?.ExportToCsv();
+            (LatestRunTable.DataContext as TuneUpWindowViewModel)?.ExportToCsv();
         }
 
         private void ExportButton_OnClick(object sender, RoutedEventArgs e)

@@ -34,7 +34,9 @@ namespace TuneUp
             TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
-                NodeAnalysisTable = { DataContext = ViewModel },
+                LatestRunTable = { DataContext = ViewModel },
+                PreviousRunTable = { DataContext = ViewModel },
+                NotExecutedTable = { DataContext = ViewModel },
                 MainGrid = { DataContext = ViewModel },
                 Owner = p.DynamoWindow
             };
