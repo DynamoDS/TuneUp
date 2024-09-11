@@ -448,11 +448,10 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel >
                     <!-- Latest Run -->
-                    <TextBlock Text="Latest Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <TextBlock Text="Latest Run" Height="20" FontSize="12" Margin="5,0,0,0" Visibility="{Binding LatestRunVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
                               x:Name="LatestRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
-                              AlternationCount="2"
                               AlternatingRowBackground="#434343"
                               Sorting="LatestRunTable_Sorting">
                         <DataGrid.Columns>
@@ -484,13 +483,13 @@
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" Visibility="{Binding LatestRunVisibility}">
                         <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
                         <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
                     </StackPanel>
 
                     <!-- Previous Run -->
-                    <TextBlock Text="Previous Run" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <TextBlock Text="Previous Run" Height="20" FontSize="12" Margin="5,0,0,0" Visibility="{Binding PreviousRunVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
                               x:Name="PreviousRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
@@ -522,12 +521,12 @@
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" Visibility="{Binding PreviousRunVisibility}">
                         <TextBlock Text="Total" Height="20" FontSize="12" Margin="0,0,10,0" />
                         <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
                     </StackPanel>
                     <!-- Not Executed -->
-                    <TextBlock Text="Not Executed" Height="20" FontSize="12" Margin="5,0,0,0"/>
+                    <TextBlock Text="Not Executed" Height="20" FontSize="12" Margin="5,0,0,0" Visibility="{Binding NotExecutedVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
                               x:Name="NotExecutedTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
