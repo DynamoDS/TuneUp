@@ -123,7 +123,7 @@ namespace TuneUp
         /// Handles the sorting event for the NodeAnalysisTable DataGrid.
         /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
         /// </summary>
-        private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
+        private void LatestRunTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
             var viewModel = LatestRunTable.DataContext as TuneUpWindowViewModel;
             if (viewModel != null)
@@ -147,6 +147,22 @@ namespace TuneUp
             }
         }
 
+        private void NotExecutedTable_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            //var viewModel = NotExecutedTable.DataContext as TuneUpWindowViewModel;
+            //if (viewModel != null)
+            //{
+            //    // Always set the sorting order to "name", no matter which column is clicked
+            //    viewModel.SortingOrder = "name";
+
+            //    e.Column.SortDirection = ListSortDirection.Ascending;
+            //    viewModel.ApplyCustomSorting();
+
+            //    e.Handled = true;
+            //}
+            e.Handled = true;
+        }
+
         private void ExportToJson_Click(object sender, RoutedEventArgs e)
         {
             (LatestRunTable.DataContext as TuneUpWindowViewModel)?.ExportToJson();
@@ -161,6 +177,8 @@ namespace TuneUp
         {
             ExportButton.ContextMenu.IsOpen = true;
         }
+
+        
     }
 
     #region Converters

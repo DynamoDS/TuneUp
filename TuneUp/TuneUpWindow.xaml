@@ -454,22 +454,7 @@
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternationCount="2"
                               AlternatingRowBackground="#434343"
-                              Sorting="NodeAnalysisTable_Sorting">
-                        <DataGrid.GroupStyle>
-                            <GroupStyle>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <StackPanel>
-                                            <TextBlock Margin="3"
-                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource NodeNameForeground}"
-                                                       Text="{Binding Name}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </DataGrid.GroupStyle>
+                              Sorting="LatestRunTable_Sorting">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="30"
@@ -510,22 +495,8 @@
                               x:Name="PreviousRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternatingRowBackground="#434343"
-                              HeadersVisibility="None">
-                        <DataGrid.GroupStyle>
-                            <GroupStyle>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <StackPanel>
-                                            <TextBlock Margin="3"
-                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource NodeNameForeground}"
-                                                       Text="{Binding Name}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </DataGrid.GroupStyle>
+                              HeadersVisibility="None"
+                              Sorting="LatestRunTable_Sorting">
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="30"
@@ -562,22 +533,9 @@
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternationCount="2"
                               AlternatingRowBackground="#434343"
-                              HeadersVisibility="None">
-                        <DataGrid.GroupStyle>
-                            <GroupStyle>
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate>
-                                        <StackPanel>
-                                            <TextBlock Margin="3"
-                                                       FontFamily="{StaticResource ArtifaktElementRegular}"
-                                                       FontSize="12"
-                                                       Foreground="{StaticResource NodeNameForeground}"
-                                        Text="{Binding Name}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </DataGrid.GroupStyle>
+                              HeadersVisibility="None"
+                              CanUserSortColumns="False"
+                              Sorting="NotExecutedTable_Sorting">                       
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="30"
@@ -587,8 +545,7 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <!--Node Name-->
-                            <DataGridTemplateColumn Width="*" MinWidth="100"
-                                     SortMemberPath="Name">
+                            <DataGridTemplateColumn Width="*" MinWidth="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <StaticResource ResourceKey="NodeNameTemplate" />
                                 </DataGridTemplateColumn.CellTemplate>
@@ -598,7 +555,9 @@
                                  Binding="{Binding ExecutionMilliseconds}"
                                  IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="Transparent" />
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                         </DataGrid.Columns>
