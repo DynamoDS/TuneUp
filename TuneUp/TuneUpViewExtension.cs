@@ -18,7 +18,6 @@ namespace TuneUp
 
         public override void Dispose()
         {
-            TuneUpView.Dispose();
         }
 
         public override void Startup(ViewStartupParams p)

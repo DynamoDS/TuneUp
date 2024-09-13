@@ -12,7 +12,6 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Models;
 using Dynamo.Utilities;
 using Dynamo.Wpf.Extensions;
-using static Dynamo.ViewModels.SearchViewModel;
 
 namespace TuneUp
 {
@@ -38,13 +37,7 @@ namespace TuneUp
         /// is initiated by the user (true) or programmatically (false).
         /// </summary>
         private bool isUserInitiatedSelection = false;
-
-        /// <summary>
-        /// Since there is no API for height offset comparing to
-        /// DynamoWindow height. Define it as static for now.
-        /// </summary>
-        private static double sidebarHeightOffset = 200;
-
+                
         /// <summary>
         /// Create the TuneUp Window
         /// </summary>
@@ -56,12 +49,6 @@ namespace TuneUp
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
-        }
-
-        private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
-        {
-            // Update the new height of datagrid
-            //this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -109,18 +96,13 @@ namespace TuneUp
             isUserInitiatedSelection = false;
         }
 
-        internal void Dispose()
-        {
-            viewLoadedParams.DynamoWindow.SizeChanged -= DynamoWindow_SizeChanged;
-        }
-
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (LatestRunTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
 
         /// <summary>
-        /// Handles the sorting event for the NodeAnalysisTable DataGrid.
+        /// Handles the sorting event for the LatestRunTable DataGrid.
         /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
         /// </summary>
         private void LatestRunTable_Sorting(object sender, DataGridSortingEventArgs e)
@@ -149,17 +131,6 @@ namespace TuneUp
 
         private void NotExecutedTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            //var viewModel = NotExecutedTable.DataContext as TuneUpWindowViewModel;
-            //if (viewModel != null)
-            //{
-            //    // Always set the sorting order to "name", no matter which column is clicked
-            //    viewModel.SortingOrder = "name";
-
-            //    e.Column.SortDirection = ListSortDirection.Ascending;
-            //    viewModel.ApplyCustomSorting();
-
-            //    e.Handled = true;
-            //}
             e.Handled = true;
         }
 
@@ -176,9 +147,7 @@ namespace TuneUp
         private void ExportButton_OnClick(object sender, RoutedEventArgs e)
         {
             ExportButton.ContextMenu.IsOpen = true;
-        }
-
-        
+        }        
     }
 
     #region Converters
@@ -367,24 +336,6 @@ namespace TuneUp
                     name.Equals(ProfiledNodeViewModel.GroupExecutionTimeString));
             }
             return false;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class AlternatingBackgroundConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is int index)
-            {
-                // Alternate background colors based on index
-                return index % 2 == 0 ? new SolidColorBrush(Color.FromRgb(67, 67, 67)) : new SolidColorBrush(Color.FromRgb(211, 211, 211));
-            }
-            return DependencyProperty.UnsetValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -54,59 +54,22 @@ namespace TuneUp
         #region Internal Properties
 
         private ViewLoadedParams viewLoadedParams;
-        private IProfilingExecutionTimeData executionTimeData;
+        private IProfilingExecutionTimeData executionTimeData;        
+        private HomeWorkspaceModel currentWorkspace;
+        private SynchronizationContext uiContext;
         private int executedNodesNum;
         private bool isProfilingEnabled = true;
         private bool isRecomputeEnabled = true;
-        private HomeWorkspaceModel currentWorkspace;
-        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-        private Dictionary<Guid, List<ProfiledNodeViewModel>> groupDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
-        // Dictionary required so that the execTimeNodes can be removed when a group is deleted
-        private Dictionary<Guid, Guid> executionTimeNodeDictionary = new Dictionary<Guid, Guid>();
-        private SynchronizationContext uiContext;
         private bool isTuneUpChecked = false;
+        private bool showGroups = true;
         private ListSortDirection sortDirection;
         private string sortingOrder = "number";
-
         private string latestGraphExecutionTime = "N/A";
         private string previousGraphExecutionTime = "N/A";
         private string totalGraphExecutionTime = "N/A";
-        private bool showGroups = true;
-
-        //ip code:
-        public Visibility LatestRunVisibility
-        {
-            get
-            {
-                return ProfiledNodesLatestRun != null && ProfiledNodesLatestRun.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-        public Visibility PreviousRunVisibility
-        {
-            get
-            {
-                return ProfiledNodesPreviousRun != null && ProfiledNodesPreviousRun.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-        public Visibility NotExecutedVisibility
-        {
-            get
-            {
-                return ProfiledNodesNotExecuted != null && ProfiledNodesNotExecuted.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-
-        /// <summary>
-        /// Name of the row to display current execution time
-        /// </summary>
-        private string CurrentExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " Latest Run";
-
-        /// <summary>
-        /// Name of the row to display previous execution time
-        /// </summary>
-        private string PreviousExecutionString = ProfiledNodeViewModel.ExecutionTimelString + " Previous Run";        
-
+        private Dictionary<Guid, ProfiledNodeViewModel> nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+        private Dictionary<Guid, List<ProfiledNodeViewModel>> groupDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
+        private Dictionary<Guid, Guid> executionTimeNodeDictionary = new Dictionary<Guid, Guid>();
         private HomeWorkspaceModel CurrentWorkspace
         {
             get => currentWorkspace;
@@ -127,43 +90,6 @@ namespace TuneUp
                     {
                         ManageWorkspaceEvents(currentWorkspace, true);
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the sorting order and toggles the sort direction.
-        /// </summary>
-        public string SortingOrder
-        {
-            get => sortingOrder;
-            set
-            {
-                if (sortingOrder != value)
-                {
-                    sortingOrder = value;
-                    SortDirection = ListSortDirection.Ascending;
-                }
-                else
-                {
-                    SortDirection = SortDirection == ListSortDirection.Ascending
-                        ? ListSortDirection.Descending
-                        : ListSortDirection.Ascending;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the sort direction and raises property change notification if the value changes.
-        /// </summary>
-        public ListSortDirection SortDirection
-        {
-            get => sortDirection;
-            set
-            {
-                if (sortDirection != value)
-                {
-                    sortDirection = value;
                 }
             }
         }
@@ -229,6 +155,23 @@ namespace TuneUp
 
 
         /// <summary>
+        /// Returns visibility status for the latest run, previous run, and not executed node collections,
+        /// based on whether each collection contains any nodes.
+        /// </summary>
+        public Visibility LatestRunVisibility
+        {
+            get => ProfiledNodesLatestRun != null && ProfiledNodesLatestRun.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public Visibility PreviousRunVisibility
+        {
+            get => ProfiledNodesPreviousRun != null && ProfiledNodesPreviousRun.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public Visibility NotExecutedVisibility
+        {
+            get => ProfiledNodesNotExecuted != null && ProfiledNodesNotExecuted.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        /// <summary>
         /// Total graph execution time
         /// </summary>
         public string TotalGraphExecutionTime
@@ -244,6 +187,9 @@ namespace TuneUp
             get => previousGraphExecutionTime;
         }
 
+        /// <summary>
+        /// Gets or sets whether node groups are displayed, and refreshes node collections based on this setting.
+        /// </summary>
         public bool ShowGroups
         {
             get => showGroups;
@@ -264,6 +210,43 @@ namespace TuneUp
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the sort direction and raises property change notification if the value changes.
+        /// </summary>
+        public ListSortDirection SortDirection
+        {
+            get => sortDirection;
+            set
+            {
+                if (sortDirection != value)
+                {
+                    sortDirection = value;
+                }
+            }
+        }
+        /// <summary>
+        /// Gets or sets the sorting order and toggles the sort direction.
+        /// </summary>
+        public string SortingOrder
+        {
+            get => sortingOrder;
+            set
+            {
+                if (sortingOrder != value)
+                {
+                    sortingOrder = value;
+                    SortDirection = ListSortDirection.Ascending;
+                }
+                else
+                {
+                    SortDirection = SortDirection == ListSortDirection.Ascending
+                        ? ListSortDirection.Descending
+                        : ListSortDirection.Ascending;
+                }
+            }
+        }
+
 
         #endregion
 
@@ -509,6 +492,9 @@ namespace TuneUp
                     totalGraphExecutionTime = (totalLatestRun + previousLatestRun).ToString();
                 }, null);
 
+            RaisePropertyChanged(nameof(LatestRunVisibility));
+            RaisePropertyChanged(nameof(PreviousRunVisibility));
+            RaisePropertyChanged(nameof(NotExecutedVisibility));
             RaisePropertyChanged(nameof(TotalGraphExecutionTime));
             RaisePropertyChanged(nameof(LatestGraphExecutionTime));
             RaisePropertyChanged(nameof(PreviousGraphExecutionTime));
@@ -519,8 +505,7 @@ namespace TuneUp
         /// Aggregates execution times and updates states for nodes within groups.
         /// Ensures nodes are processed only once and maintains the sorted order of nodes.
         /// </summary>
-        private void 
-            CalculateGroupNodes()
+        private void CalculateGroupNodes()
         {
             int groupExecutionCounter = 1;
             bool groupIsRenamed = false;
@@ -599,7 +584,6 @@ namespace TuneUp
                         totalExecTimeNode.State = profiledGroup.State;
                         totalExecTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime; // accurate, for sorting
                         totalExecTimeNode.ExecutionMilliseconds = profiledGroup.ExecutionMilliseconds; // rounded, for display in UI
-                        //totalExecTimeNode.ExecutionTime = profiledGroup.GroupExecutionTime;
                         totalExecTimeNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
                         totalExecTimeNode.WasExecutedOnLastRun = true;
 
@@ -623,18 +607,271 @@ namespace TuneUp
             }
         }
 
-        /// <summary>
-        /// Applies the GroupNodeFilter to all node collections by removing and re-adding the filter.
-        /// </summary>
-        private void ApplyGroupNodeFilter()
+        internal void OnNodeExecutionBegin(NodeModel nm)
         {
-            ProfiledNodesCollectionLatestRun.Filter -= GroupNodeFilter;            
-            ProfiledNodesCollectionPreviousRun.Filter -= GroupNodeFilter;            
-            ProfiledNodesCollectionNotExecuted.Filter -= GroupNodeFilter;
+            var profiledNode = nodeDictionary[nm.GUID];
+            profiledNode.Stopwatch.Start();
+            profiledNode.State = ProfiledNodeState.Executing;
+        }
 
-            ProfiledNodesCollectionLatestRun.Filter += GroupNodeFilter;
-            ProfiledNodesCollectionPreviousRun.Filter += GroupNodeFilter;
-            ProfiledNodesCollectionNotExecuted.Filter += GroupNodeFilter;
+        internal void OnNodeExecutionEnd(NodeModel nm)
+        {
+            var profiledNode = nodeDictionary[nm.GUID];
+            profiledNode.Stopwatch.Stop();
+            var executionTime = profiledNode.Stopwatch.Elapsed;
+
+            if (executionTime > TimeSpan.Zero)
+            {
+                profiledNode.ExecutionTime = executionTime;
+                // Assign execution time and manually set the execution milliseconds value
+                // so that group node execution time is based on rounded millisecond values.
+                profiledNode.ExecutionMilliseconds = (int)Math.Round(executionTime.TotalMilliseconds);
+
+                if (!profiledNode.WasExecutedOnLastRun)
+                {
+                    profiledNode.ExecutionOrderNumber = executedNodesNum++;
+                    // Move to collection LatestRun
+                    MoveNodeToCollection(profiledNode, ProfiledNodesLatestRun);
+                }
+            }
+
+            profiledNode.Stopwatch.Reset();
+            profiledNode.WasExecutedOnLastRun = true;
+            profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
+        }
+
+        internal void OnNodePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is NodeModel nodeModel && nodeDictionary.TryGetValue(nodeModel.GUID, out var profiledNode))
+            {
+                bool hasChanges = false;
+
+                // Detect node renaming
+                if (e.PropertyName == nameof(nodeModel.Name))
+                {
+                    profiledNode.Name = nodeModel.Name;
+                    hasChanges = true;
+                }
+
+                // Refresh UI if any changes were made
+                if (hasChanges)
+                {
+                    RefreshAllCollections();
+                }
+            }
+        }
+
+        internal void OnGroupPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is AnnotationModel groupModel && nodeDictionary.TryGetValue(groupModel.GUID, out var profiledGroup))
+            {
+                bool hasChanges = false;
+
+                // Detect group renaming
+                if (e.PropertyName == nameof(groupModel.AnnotationText))
+                {
+                    profiledGroup.Name = $"{ProfiledNodeViewModel.GroupNodePrefix}{groupModel.AnnotationText}";
+                    profiledGroup.GroupName = groupModel.AnnotationText;
+
+                    // Update the nodes in the group
+                    foreach (var profiledNode in groupDictionary[groupModel.GUID])
+                    {
+                        profiledNode.GroupName = groupModel.AnnotationText;
+                    }
+                    hasChanges = true;
+                }
+
+                // Detect change of color
+                if (e.PropertyName == nameof(groupModel.Background))
+                {
+                    var newBackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(groupModel.Background));
+                    profiledGroup.BackgroundBrush = newBackgroundBrush;
+
+                    // Update the nodes in the group
+                    foreach (var profiledNode in groupDictionary[groupModel.GUID])
+                    {
+                        profiledNode.BackgroundBrush = newBackgroundBrush;
+                    }
+                    hasChanges = true;
+                }
+
+                // Refresh UI if any changes were made
+                if (hasChanges)
+                {
+                    RefreshAllCollections();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Workspace Events
+
+        private void CurrentWorkspaceModel_NodeAdded(NodeModel node)
+        {
+            var profiledNode = new ProfiledNodeViewModel(node);
+            nodeDictionary[node.GUID] = profiledNode;
+
+            node.NodeExecutionBegin += OnNodeExecutionBegin;
+            node.NodeExecutionEnd += OnNodeExecutionEnd;
+            node.PropertyChanged += OnNodePropertyChanged;
+
+            ProfiledNodesNotExecuted.Add(profiledNode);
+            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted)); // we don't need this
+            RaisePropertyChanged(nameof(NotExecutedVisibility));
+        }
+
+        private void CurrentWorkspaceModel_NodeRemoved(NodeModel node)
+        {
+            var profiledNode = nodeDictionary[node.GUID];
+            nodeDictionary.Remove(node.GUID);
+
+            node.NodeExecutionBegin -= OnNodeExecutionBegin;
+            node.NodeExecutionEnd -= OnNodeExecutionEnd;
+            node.PropertyChanged -= OnNodePropertyChanged;
+
+            MoveNodeToCollection(profiledNode, null);
+            //Recalculate the execution times
+            UpdateExecutionTime();
+
+            //RaisePropertyChanged(nameof(ProfiledNodesLatestRun)); // we don't need this
+            //RaisePropertyChanged(nameof(ProfiledNodesPreviousRun)); // we don't need this
+            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted)); // we don't need this
+        }
+
+        private void CurrentWorkspaceModel_GroupAdded(AnnotationModel group)
+        {
+            var profiledGroup = new ProfiledNodeViewModel(group);
+            nodeDictionary[group.GUID] = profiledGroup;
+            ProfiledNodesNotExecuted.Add(profiledGroup);
+            groupDictionary[group.GUID] = new List<ProfiledNodeViewModel>();
+
+            group.PropertyChanged += OnGroupPropertyChanged;
+
+            // Create profiledNode for each node in the group
+            foreach (var node in group.Nodes)
+            {
+                if (node is NodeModel nodeModel)
+                {
+                    ProfiledNodeViewModel profiledNode;
+                    if (nodeDictionary.TryGetValue(node.GUID, out profiledNode))
+                    {
+                        profiledGroup.State = profiledNode.State;
+                    }
+                    else
+                    {
+                        profiledNode = new ProfiledNodeViewModel(node as NodeModel);
+                        nodeDictionary[node.GUID] = profiledNode;
+                        ProfiledNodesNotExecuted.Add(profiledNode);
+                    }
+                    profiledNode.GroupGUID = group.GUID;
+                    profiledNode.GroupName = group.AnnotationText;
+                    profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
+                    profiledNode.BackgroundBrush = profiledGroup.BackgroundBrush;
+                    profiledNode.ShowGroupIndicator = ShowGroups;
+
+                    groupDictionary[group.GUID].Add(profiledNode);
+                }                
+            }
+            // Executes for each group when a graph with groups is open while TuneUp is enabled
+            // Ensures that group nodes are sorted properly and do not appear at the bottom of the DataGrid
+            ApplySortingNotExecuted();
+
+            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted)); // we don't need this
+            //RaisePropertyChanged(nameof(NotExecutedVisibility)); // we don't need this
+        }
+
+        private void CurrentWorkspaceModel_GroupRemoved(AnnotationModel group)
+        {
+            var groupGUID = group.GUID;
+
+            group.PropertyChanged -= OnGroupPropertyChanged;
+
+            // Remove the group from nodeDictionary and ProfiledNodes
+            if (nodeDictionary.Remove(groupGUID, out var profiledGroup))
+            {
+                MoveNodeToCollection(profiledGroup, null);
+            }
+
+            // Reset grouped nodes' properties and remove them from groupDictionary
+            if (groupDictionary.Remove(groupGUID, out var groupedNodes))
+            {
+                foreach (var profiledNode in groupedNodes)
+                {
+                    // Remove group total execution time node
+                    if (profiledNode.IsGroupExecutionTime &&
+                        executionTimeNodeDictionary.TryGetValue(groupGUID, out var execTimeNodeGUID))
+                    {
+                        MoveNodeToCollection(profiledNode, null);
+                        nodeDictionary.Remove(execTimeNodeGUID);
+                    }
+
+                    // Reset properties for each grouped node
+                    profiledNode.GroupGUID = Guid.Empty;
+                    profiledNode.GroupName = string.Empty;
+                    profiledNode.ExecutionOrderNumber = null;
+                    profiledNode.GroupExecutionTime = TimeSpan.Zero;
+                }
+            }
+
+            //RaisePropertyChanged(nameof(ProfiledNodesLatestRun)); // we don't need this            
+            //RaisePropertyChanged(nameof(ProfiledNodesPreviousRun)); // we don't need this           
+            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted)); // we don't need this
+
+            //Recalculate the execution times
+            UpdateExecutionTime();
+        }
+
+        private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
+        {
+            // Profiling needs to be enabled per workspace so mark it false after switching
+            isProfilingEnabled = false;
+            CurrentWorkspace = workspace as HomeWorkspaceModel;
+        }
+
+        private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
+        {
+            // Profiling needs to be enabled per workspace so mark it false after closing
+            isProfilingEnabled = false;
+            CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
+        }
+
+        #endregion
+
+        #region Helpers
+
+        /// <summary>
+        /// Refreshes all profiling node collections and updates the view.
+        /// </summary>
+        private void RefreshAllCollections()
+        {
+            RaisePropertyChanged(nameof(ProfiledNodesLatestRun));
+            ProfiledNodesCollectionLatestRun.View.Refresh();
+            RaisePropertyChanged(nameof(ProfiledNodesPreviousRun));
+            ProfiledNodesCollectionPreviousRun.View.Refresh();
+            RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
+            ProfiledNodesCollectionNotExecuted.View.Refresh();
+        }
+
+        /// <summary>
+        /// Updates the group visibility, refreshes the collection view, and applies appropriate sorting for the given nodes.
+        /// </summary>
+        private void UpdateGroupVisibility(CollectionViewSource collectionView, ObservableCollection<ProfiledNodeViewModel> nodes)
+        {
+            collectionView.View.Refresh();
+            foreach (var node in nodes)
+            {
+                node.ShowGroupIndicator = showGroups;
+            }
+
+            if (collectionView == ProfiledNodesCollectionNotExecuted)
+            {
+                ApplySortingNotExecuted();
+            }
+            else
+            {
+                ApplyCustomSorting(collectionView);
+            }
         }
 
         /// <summary>
@@ -649,6 +886,20 @@ namespace TuneUp
 
             if (ShowGroups) e.Accepted = true;
             else e.Accepted = !(node.IsGroup || node.IsGroupExecutionTime);
+        }
+
+        /// <summary>
+        /// Applies the GroupNodeFilter to all node collections by removing and re-adding the filter.
+        /// </summary>
+        private void ApplyGroupNodeFilter()
+        {
+            ProfiledNodesCollectionLatestRun.Filter -= GroupNodeFilter;
+            ProfiledNodesCollectionPreviousRun.Filter -= GroupNodeFilter;
+            ProfiledNodesCollectionNotExecuted.Filter -= GroupNodeFilter;
+
+            ProfiledNodesCollectionLatestRun.Filter += GroupNodeFilter;
+            ProfiledNodesCollectionPreviousRun.Filter += GroupNodeFilter;
+            ProfiledNodesCollectionNotExecuted.Filter += GroupNodeFilter;
         }
 
         /// <summary>
@@ -720,7 +971,8 @@ namespace TuneUp
             RaisePropertyChanged(nameof(collection));
         }
 
-        // only for when the graph has not been executed yet
+        /// <summary>
+        /// Applies sorting to the collection of nodes that have not been executed.
         private void ApplySortingNotExecuted()
         {
             ProfiledNodesCollectionNotExecuted.SortDescriptions.Clear();
@@ -733,100 +985,15 @@ namespace TuneUp
         }
 
         /// <summary>
-        /// Updates the group visibility, refreshes the collection view, and applies appropriate sorting for the given nodes.
+        /// Moves a node between collections, removing it from all collections and adding it to the target collection if provided.
         /// </summary>
-        private void UpdateGroupVisibility(CollectionViewSource collectionView, ObservableCollection<ProfiledNodeViewModel> nodes)
-        {
-            collectionView.View.Refresh();
-            foreach (var node in nodes)
-            {
-                node.ShowGroupIndicator = showGroups;
-            }
-
-            if (collectionView == ProfiledNodesCollectionNotExecuted)
-            {
-                ApplySortingNotExecuted();
-            }
-            else
-            {
-                ApplyCustomSorting(collectionView);
-            }
-        }
-
-        internal void OnNodeExecutionBegin(NodeModel nm)
-        {
-            var profiledNode = nodeDictionary[nm.GUID];
-            profiledNode.Stopwatch.Start();
-            profiledNode.State = ProfiledNodeState.Executing;
-        }
-
-        internal void OnNodeExecutionEnd(NodeModel nm)
-        {
-            var profiledNode = nodeDictionary[nm.GUID];
-            profiledNode.Stopwatch.Stop();
-            var executionTime = profiledNode.Stopwatch.Elapsed;
-
-            if (executionTime > TimeSpan.Zero)
-            {
-                profiledNode.ExecutionTime = executionTime;
-                // Assign execution time and manually set the execution milliseconds value
-                // so that group node execution time is based on rounded millisecond values.
-                profiledNode.ExecutionMilliseconds = (int)Math.Round(executionTime.TotalMilliseconds);
-
-                if (!profiledNode.WasExecutedOnLastRun)
-                {
-                    profiledNode.ExecutionOrderNumber = executedNodesNum++;
-                    // Move to collection LatestRun
-                    MoveNodeToCollection(profiledNode, ProfiledNodesLatestRun);
-                }
-            }
-
-            profiledNode.Stopwatch.Reset();
-            profiledNode.WasExecutedOnLastRun = true;
-            profiledNode.State = ProfiledNodeState.ExecutedOnCurrentRun;
-        }
-
-        #endregion
-
-        #region Workspace Events
-
-        private void CurrentWorkspaceModel_NodeAdded(NodeModel node)
-        {
-            var profiledNode = new ProfiledNodeViewModel(node);
-            nodeDictionary[node.GUID] = profiledNode;
-
-            node.NodeExecutionBegin += OnNodeExecutionBegin;
-            node.NodeExecutionEnd += OnNodeExecutionEnd;
-
-            ProfiledNodesNotExecuted.Add(profiledNode);
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            RaisePropertyChanged(nameof(NotExecutedVisibility));
-        }
-
-        private void CurrentWorkspaceModel_NodeRemoved(NodeModel node)
-        {
-            var profiledNode = nodeDictionary[node.GUID];
-            nodeDictionary.Remove(node.GUID);
-
-            node.NodeExecutionBegin -= OnNodeExecutionBegin;
-            node.NodeExecutionEnd -= OnNodeExecutionEnd;
-
-            MoveNodeToCollection(profiledNode, null);
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            RaisePropertyChanged(nameof(LatestRunVisibility));
-            RaisePropertyChanged(nameof(PreviousRunVisibility));
-            RaisePropertyChanged(nameof(NotExecutedVisibility));
-        }
-
         private void MoveNodeToCollection(ProfiledNodeViewModel profiledNode, ObservableCollection<ProfiledNodeViewModel> targetCollection)
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 var collections = new[]
-                { 
-                    ProfiledNodesLatestRun, 
+                {
+                    ProfiledNodesLatestRun,
                     ProfiledNodesPreviousRun,
                     ProfiledNodesNotExecuted
                 };
@@ -838,111 +1005,6 @@ namespace TuneUp
 
                 targetCollection?.Add(profiledNode);
             });
-        }
-
-        private void CurrentWorkspaceModel_GroupAdded(AnnotationModel group)
-        {
-            var profiledGroup = new ProfiledNodeViewModel(group);
-            nodeDictionary[group.GUID] = profiledGroup;
-            ProfiledNodesNotExecuted.Add(profiledGroup);
-            groupDictionary[group.GUID] = new List<ProfiledNodeViewModel>();
-
-            // Create profiledNode for each node in the group
-            foreach (var node in group.Nodes)
-            {
-                if (node is NodeModel nodeModel)
-                {
-                    ProfiledNodeViewModel profiledNode;
-                    if (nodeDictionary.TryGetValue(node.GUID, out profiledNode))
-                    {
-                        profiledGroup.State = profiledNode.State;
-                    }
-                    else
-                    {
-                        profiledNode = new ProfiledNodeViewModel(node as NodeModel);
-                        nodeDictionary[node.GUID] = profiledNode;
-                        ProfiledNodesNotExecuted.Add(profiledNode);
-                    }
-                    profiledNode.GroupGUID = group.GUID;
-                    profiledNode.GroupName = group.AnnotationText;
-                    profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
-                    profiledNode.BackgroundBrush = profiledGroup.BackgroundBrush;
-                    profiledNode.ShowGroupIndicator = ShowGroups;
-
-                    groupDictionary[group.GUID].Add(profiledNode);
-                }                
-            }
-            // Executes for each group when a graph with groups is open while TuneUp is enabled
-            // Ensures that group nodes are sorted properly and do not appear at the bottom of the DataGrid
-            ApplySortingNotExecuted();
-
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
-            RaisePropertyChanged(nameof(NotExecutedVisibility));
-        }
-
-        private void CurrentWorkspaceModel_GroupRemoved(AnnotationModel group)
-        {
-            var groupGUID = group.GUID;
-
-            // Remove the group from nodeDictionary and ProfiledNodes
-            if (nodeDictionary.Remove(groupGUID, out var profiledGroup))
-            {
-                MoveNodeToCollection(profiledGroup, null);
-            }
-
-            // Reset grouped nodes' properties and remove them from groupDictionary
-            if (groupDictionary.Remove(groupGUID, out var groupedNodes))
-            {
-                foreach (var profiledNode in groupedNodes)
-                {
-                    // Remove group total execution time node
-                    if (profiledNode.IsGroupExecutionTime &&
-                        executionTimeNodeDictionary.TryGetValue(groupGUID, out var execTimeNodeGUID))
-                    {
-                        MoveNodeToCollection(profiledNode, null);
-                        nodeDictionary.Remove(execTimeNodeGUID);
-                    }
-
-                    // Reset properties for each grouped node
-                    profiledNode.GroupGUID = Guid.Empty;
-                    profiledNode.GroupName = string.Empty;
-                    profiledNode.ExecutionOrderNumber = null;
-                    profiledNode.GroupExecutionTime = TimeSpan.Zero;
-                }
-            }
-
-            //RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));// to remove?
-            //RaisePropertyChanged(nameof(ProfiledNodesLatestRun));// to remove?
-            //RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));// to remove?
-            //RaisePropertyChanged(nameof(ProfiledNodesPreviousRun));// to remove?
-            //RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));// to remove?
-            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));// to remove?
-
-            // Recalculate the execution times
-            //UpdateExecutionTime();
-
-            //// Raise property changed notifications to update the UI
-            //RaisePropertyChanged(nameof(TotalGraphExecutionTime));
-            //RaisePropertyChanged(nameof(LatestGraphExecutionTime));
-            //RaisePropertyChanged(nameof(PreviousGraphExecutionTime));
-            RaisePropertyChanged(nameof(LatestRunVisibility));
-            RaisePropertyChanged(nameof(PreviousRunVisibility));
-            RaisePropertyChanged(nameof(NotExecutedVisibility));
-        }
-
-        private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
-        {
-            // Profiling needs to be enabled per workspace so mark it false after switching
-            isProfilingEnabled = false;
-            CurrentWorkspace = workspace as HomeWorkspaceModel;
-        }
-
-        private void OnCurrentWorkspaceCleared(IWorkspaceModel workspace)
-        {
-            // Profiling needs to be enabled per workspace so mark it false after closing
-            isProfilingEnabled = false;
-            CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
         }
 
         #endregion
@@ -1007,7 +1069,7 @@ namespace TuneUp
 
         #endregion
 
-        #region Execution time exporters
+        #region Exporters
 
         /// <summary>
         /// Exports the ProfiledNodesCollections to a CSV file.
@@ -1172,7 +1234,6 @@ namespace TuneUp
                 writer.Write(json);
             }
         }
-
 
         #endregion
     }

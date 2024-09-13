@@ -27,19 +27,15 @@
             <local:IsRenamedToVisibilityMultiConverter x:Key="IsRenamedToVisibilityMultiConverter" />
             <local:ExecutionOrderNumberConverter x:Key="ExecutionOrderNumberConverter" />
             <local:ContainsStringConverter x:Key="ContainsStringConverter" />
-            <local:AlternatingBackgroundConverter x:Key="AlternatingBackgroundConverter" />
-
+            
             <!--  ERROR : DYNAMO CRASHES WHEN REFERENCED FROM DYNAMOCOREWPF  -->
             <Color x:Key="BorderColorTuneUp">#555555</Color>
             <SolidColorBrush x:Key="BorderColorBrushTuneUp" Color="{StaticResource BorderColorTuneUp}" />
-
             <Color x:Key="AlternativeBackgroundColor">#434343</Color>
             <SolidColorBrush x:Key="AlternativeBackgroundBrush" Color="{StaticResource AlternativeBackgroundColor}" />
             <SolidColorBrush x:Key="BorderMediumColorBrush" Color="{StaticResource BorderMediumColor}" />
-
         </ResourceDictionary>
     </Window.Resources>
-
     <Grid Name="MainGrid">
         <Grid.Resources>
             <!--  DataGrid style  -->
@@ -54,14 +50,12 @@
                 <Setter Property="SelectionUnit" Value="FullRow" />
                 <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
-                <!--<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />-->
                 <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}" />
                 <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}" />
                 <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}" />
                 <Setter Property="RowHeaderWidth" Value="0" />
                 <Setter Property="BorderThickness" Value="0.5" />
                 <Setter Property="BorderBrush" Value="{StaticResource ExtensionBackgroundColor}" />
-                <!--<Setter Property="ColumnWidth" Value="Auto" />-->
                 <Setter Property="GridLinesVisibility" Value="Vertical" />
                 <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderColorBrushTuneUp}" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -69,7 +63,6 @@
                 <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
-
             <!--  DataGridColumnHeader style  -->
             <Style x:Key="ColumnHeaderStyleTuneUp" TargetType="DataGridColumnHeader">
                 <Setter Property="Height" Value="20" />
@@ -130,7 +123,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
             <!--  DataGridRow style  -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
                 <Setter Property="Background" Value="Transparent" />
@@ -145,7 +137,6 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-
             <!--  Cell style  -->
             <Style x:Key="CellStyle1" TargetType="DataGridCell">
                 <Setter Property="BorderThickness" Value="0" />
@@ -155,7 +146,6 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-
             <!--  TextBlock style for DataGrid columns  -->
             <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center" />
@@ -170,7 +160,6 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-
             <!-- TextBlock style for "ExecutionOrder" Column-->
             <Style x:Key="ExecutionOrderTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
                 <Setter Property="Visibility">
@@ -183,7 +172,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
             <!-- DataTemplate for "Name" Column -->
             <DataTemplate x:Key="NodeNameTemplate">
                 <Grid>
@@ -192,7 +180,6 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" MinWidth="8" />
                     </Grid.ColumnDefinitions>
-
                     <!-- Group indicator -->
                     <Border Grid.Column="0" Margin="4,0,0,0">
                         <Border.Background>
@@ -204,7 +191,6 @@
                             </MultiBinding>
                         </Border.Background>
                     </Border>
-
                     <!-- Node name -->
                     <Border Grid.Column="1">
                         <Border.Background>
@@ -235,7 +221,6 @@
                             </TextBlock.Foreground>
                         </TextBlock>
                     </Border>
-
                     <!-- Renamed node indicator -->
                     <Border Grid.Column="2">
                         <Border.Background>
@@ -271,7 +256,6 @@
                     </Ellipse>
                 </Grid>
             </DataTemplate>
-
             <!-- TextBlock style for "ExecutionTime" Columns -->
             <Style x:Key="ExecutionTimeTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
                 <Style.Triggers>
@@ -280,13 +264,37 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-
             <!-- TextBlock style-->
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
                 <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
             </Style>
-
+            <!-- StackPanel style for total time headers -->
+            <Style x:Key="TotalTimeHeaderStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Height" Value="20" />
+            </Style>
+            <!-- StackPanel style for collection footer -->
+            <Style x:Key="CollectionFooterStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Height" Value="25" />
+            </Style>
+            <!-- TextBlock style for collection footer -->
+            <Style x:Key="CollectionFooterTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="Width" Value="120"/>
+                <Setter Property="Margin" Value="10,0,0,0"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Padding" Value="10,0,0,0"/>
+            </Style>
+            <!-- TextBlock style for collection header -->
+            <Style x:Key="CollectionHeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Margin" Value="5,0,0,0"/>
+            </Style>
             <!--  Button style *** -->
             <!-- PackageManager\Controls\ControlColorsAndBrushes -->
             <Style x:Key="ButtonStyleTuneUp" TargetType="{x:Type Button}">
@@ -328,7 +336,6 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-
             <!-- Context Menu style for Export button * -->
             <Style x:Key="ContextMenuStyleTuneUp" TargetType="{x:Type ContextMenu}" BasedOn="{StaticResource ContextMenuStyle}">
                 <Setter Property="Template">
@@ -346,8 +353,8 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
         </Grid.Resources>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="150"/>
             <ColumnDefinition Width="150" />
@@ -368,25 +375,19 @@
                        Margin="5,0,0,0"
                        Height="20">
             </TextBlock>
-            <StackPanel HorizontalAlignment="Left"
-                        Orientation="Horizontal"
-                        Height="20">
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock Width="70"
                            Margin="5,0,0,0"
                            Text="Latest"/>
                 <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"/>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Left"
-                        Orientation="Horizontal"
-                        Height="20">
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock Width="70"
                            Margin="5,0,0,0"
                            Text="Previous"/>
                 <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"/>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Left"
-                        Orientation="Horizontal"
-                        Height="20">
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock Width="70"
                            Margin="5,0,0,0"
                            Text="Total"
@@ -435,7 +436,6 @@
                 Style="{StaticResource ButtonStyleTuneUp}"
                 Cursor="Hand">
         </Button>
-
         <!--  Data Grids  -->
         <Grid Name="Nodes"
               Grid.Row="2"
@@ -445,9 +445,7 @@
                 <StackPanel >
                     <!-- Latest Run -->
                     <TextBlock Text="Latest Run"
-                               Height="20"
-                               FontSize="12"
-                               Margin="5,0,0,0"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
                                Visibility="{Binding LatestRunVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
                               x:Name="LatestRunTable"
@@ -482,25 +480,16 @@
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Height="25"
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
                                 Visibility="{Binding LatestRunVisibility}">
                         <TextBlock Text="Total"
-                                   Height="20"
-                                   FontSize="12"
-                                   Margin="0,0,10,0" />
+                                   Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
                         <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"
-                                   Height="20"
-                                   FontSize="12"
-                                   Width="120"
-                                   Padding="10,0,0,0"/>
+                                   Style="{StaticResource CollectionFooterTextBlockStyle}"/>
                     </StackPanel>
                     <!-- Previous Run -->
                     <TextBlock Text="Previous Run"
-                               Height="20"
-                               FontSize="12"
-                               Margin="5,0,0,0"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
                                Visibility="{Binding PreviousRunVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
                               x:Name="PreviousRunTable"
@@ -532,21 +521,16 @@
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Height="25"
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
                                 Visibility="{Binding PreviousRunVisibility}">
                         <TextBlock Text="Total"
-                                   Height="20"
-                                   FontSize="12" Margin=
-                                   "0,0,10,0" />
-                        <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" Height="20" FontSize="12" Width="120" Padding="10,0,0,0"/>
+                                   Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"
+                                   Style="{StaticResource CollectionFooterTextBlockStyle}" />
                     </StackPanel>
                     <!-- Not Executed -->
                     <TextBlock Text="Not Executed"
-                               Height="20"
-                               FontSize="12"
-                               Margin="5,0,0,0"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
                                Visibility="{Binding NotExecutedVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
                               x:Name="NotExecutedTable"
@@ -572,7 +556,6 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-
         <!--  Export Button  -->
         <DockPanel Grid.Row="3" Grid.Column="1">
             <Grid DockPanel.Dock="Top">
@@ -606,6 +589,5 @@
                 </Button>
             </Grid>
         </DockPanel>
-
     </Grid>
 </Window>
