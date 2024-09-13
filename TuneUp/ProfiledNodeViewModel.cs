@@ -202,8 +202,15 @@ namespace TuneUp
         /// </summary>
         public int ExecutionMilliseconds
         {
-            get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
+            //get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
+            get => executionMilliseconds;
+            set
+            {
+                executionMilliseconds = value;
+                RaisePropertyChanged(nameof(ExecutionMilliseconds));
+            }
         }
+        private int executionMilliseconds;
 
         /// <summary>
         /// Indicates whether this node was executed on the most recent graph run

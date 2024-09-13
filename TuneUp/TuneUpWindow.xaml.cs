@@ -375,23 +375,6 @@ namespace TuneUp
         }
     }
 
-    public class ContainsStringConverter1 : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is string name)
-            {
-                return (name.StartsWith(ProfiledNodeViewModel.ExecutionTimelString));
-            }
-            return false;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class AlternatingBackgroundConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

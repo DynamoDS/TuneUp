@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using Dynamo.Core;
@@ -354,11 +351,6 @@ namespace TuneUp
                 nodeDictionary[node.GUID] = profiledNode;
             }
 
-            //ip checks:
-            var c1 = ProfiledNodesLatestRun;
-            var c2 = ProfiledNodesPreviousRun;
-            var c3 = ProfiledNodesNotExecuted;
-
             ProfiledNodesCollectionLatestRun = new CollectionViewSource { Source = ProfiledNodesLatestRun};
             ProfiledNodesCollectionPreviousRun = new CollectionViewSource { Source = ProfiledNodesPreviousRun };
             ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
@@ -373,7 +365,6 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
             RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
             RaisePropertyChanged(nameof(TotalGraphExecutionTime));
-            //ip code:
             RaisePropertyChanged(nameof(LatestRunVisibility));
             RaisePropertyChanged(nameof(PreviousRunVisibility));
             RaisePropertyChanged(nameof(NotExecutedVisibility));
@@ -394,10 +385,6 @@ namespace TuneUp
             CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace, currentWorkspace.Nodes);
             // run the graph now that profiling is enabled.
             CurrentWorkspace.Run();
-
-            var d1 = ProfiledNodesLatestRun;
-            var d2 = ProfiledNodesPreviousRun;
-            var d3 = ProfiledNodesNotExecuted;
 
             isProfilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
@@ -464,18 +451,10 @@ namespace TuneUp
             }
             executedNodesNum = 1;
             EnableProfiling();
-
-            var d1 = ProfiledNodesLatestRun;
-            var d2 = ProfiledNodesPreviousRun;
-            var d3 = ProfiledNodesNotExecuted;
         }
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
-            var c1 = ProfiledNodesLatestRun;
-            var c2 = ProfiledNodesPreviousRun;
-            var c3 = ProfiledNodesNotExecuted;
-
             IsRecomputeEnabled = true;
 
             CalculateGroupNodes();
@@ -487,15 +466,9 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesPreviousRun));
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
             RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
-            //ip code:
             RaisePropertyChanged(nameof(LatestRunVisibility));
             RaisePropertyChanged(nameof(PreviousRunVisibility));
             RaisePropertyChanged(nameof(NotExecutedVisibility));
-
-            var d1 = ProfiledNodesLatestRun;
-            var d2 = ProfiledNodesPreviousRun;
-            var d3 = ProfiledNodesNotExecuted;
-            var d31 = ProfiledNodesNotExecuted;
 
             ProfiledNodesCollectionLatestRun.Dispatcher.InvokeAsync(() =>
             {
@@ -522,17 +495,18 @@ namespace TuneUp
             uiContext.Send(
                 x =>
                 {   // After each evaluation, manually update execution time column(s)
-                    var totalSpanLatestRun = new TimeSpan(ProfiledNodesLatestRun
+                    // Calculate total execution times using rounded node execution times, not exact values.
+                    int totalLatestRun = ProfiledNodesLatestRun
                         .Where(n => n.WasExecutedOnLastRun && !n.IsGroup && !n.IsGroupExecutionTime)
-                        .Sum(r => r.ExecutionTime.Ticks));
-                    var totalSpanPreviousRun = new TimeSpan(ProfiledNodesPreviousRun
+                        .Sum(r => r?.ExecutionMilliseconds ?? 0);
+                    int previousLatestRun = ProfiledNodesPreviousRun
                         .Where(n => !n.WasExecutedOnLastRun && !n.IsGroup && !n.IsGroupExecutionTime)
-                        .Sum(r => r.ExecutionTime.Ticks));
+                        .Sum(r => r?.ExecutionMilliseconds ?? 0);
 
                     // Update latest and previous run times
-                    latestGraphExecutionTime = Math.Round(totalSpanLatestRun.TotalMilliseconds).ToString();
-                    previousGraphExecutionTime = Math.Round(totalSpanPreviousRun.TotalMilliseconds).ToString();
-                    totalGraphExecutionTime = Math.Round(totalSpanLatestRun.TotalMilliseconds + totalSpanPreviousRun.TotalMilliseconds).ToString();
+                    latestGraphExecutionTime = totalLatestRun.ToString();
+                    previousGraphExecutionTime = previousLatestRun.ToString();
+                    totalGraphExecutionTime = (totalLatestRun + previousLatestRun).ToString();
                 }, null);
 
             RaisePropertyChanged(nameof(TotalGraphExecutionTime));
@@ -545,13 +519,9 @@ namespace TuneUp
         /// Aggregates execution times and updates states for nodes within groups.
         /// Ensures nodes are processed only once and maintains the sorted order of nodes.
         /// </summary>
-        private void CalculateGroupNodes()
+        private void 
+            CalculateGroupNodes()
         {
-            //ip checks:
-            var c1 = ProfiledNodesLatestRun; // on RunAll here are all the actual nodes
-            var c2 = ProfiledNodesPreviousRun; // on RunAll here are all group and execution time nodes
-            var c3 = ProfiledNodesNotExecuted;
-
             int groupExecutionCounter = 1;
             bool groupIsRenamed = false;
             var processedNodes = new HashSet<ProfiledNodeViewModel>();
@@ -590,7 +560,9 @@ namespace TuneUp
                             else if (processedNodes.Add(node)) // Adds to HashSet and checks if it was added
                             {
                                 // Update group state, execution order, and execution time
-                                profiledGroup.GroupExecutionTime += node.ExecutionTime;
+                                profiledGroup.GroupExecutionTime += node.ExecutionTime; // accurate, for sorting
+                                // ip code:
+                                profiledGroup.ExecutionMilliseconds += node.ExecutionMilliseconds; // rounded, for display in UI
                                 node.GroupExecutionOrderNumber = groupExecutionCounter;
                                 if (groupIsRenamed)
                                 {
@@ -625,10 +597,10 @@ namespace TuneUp
                         executionTimeNodeDictionary[profiledGroup.GroupGUID] = totalExecTimeGUID;
 
                         totalExecTimeNode.State = profiledGroup.State;
-                        totalExecTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime;
-                        totalExecTimeNode.ExecutionTime = profiledGroup.GroupExecutionTime;
+                        totalExecTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime; // accurate, for sorting
+                        totalExecTimeNode.ExecutionMilliseconds = profiledGroup.ExecutionMilliseconds; // rounded, for display in UI
+                        //totalExecTimeNode.ExecutionTime = profiledGroup.GroupExecutionTime;
                         totalExecTimeNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
-                        totalExecTimeNode.ExecutionOrderNumber = int.MaxValue;
                         totalExecTimeNode.WasExecutedOnLastRun = true;
 
                         MoveNodeToCollection(totalExecTimeNode, ProfiledNodesLatestRun);
@@ -645,16 +617,10 @@ namespace TuneUp
                     !profiledNode.Name.Contains(ProfiledNodeViewModel.ExecutionTimelString) &&
                     !profiledNode.IsGroupExecutionTime)
                 {
-                    profiledNode.ExecutionOrderNumber = groupExecutionCounter;
                     profiledNode.GroupExecutionOrderNumber = groupExecutionCounter++;
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
             }
-
-            //ip checks:
-            var d1 = ProfiledNodesLatestRun;
-            var d2 = ProfiledNodesPreviousRun;
-            var d3 = ProfiledNodesNotExecuted;
         }
 
         /// <summary>
@@ -751,6 +717,7 @@ namespace TuneUp
                     }
                     break;
             }
+            RaisePropertyChanged(nameof(collection));
         }
 
         // only for when the graph has not been executed yet
@@ -802,11 +769,14 @@ namespace TuneUp
             if (executionTime > TimeSpan.Zero)
             {
                 profiledNode.ExecutionTime = executionTime;
+                // Assign execution time and manually set the execution milliseconds value
+                // so that group node execution time is based on rounded millisecond values.
+                profiledNode.ExecutionMilliseconds = (int)Math.Round(executionTime.TotalMilliseconds);
 
                 if (!profiledNode.WasExecutedOnLastRun)
                 {
                     profiledNode.ExecutionOrderNumber = executedNodesNum++;
-                    // move to CollectionLatestRun
+                    // Move to collection LatestRun
                     MoveNodeToCollection(profiledNode, ProfiledNodesLatestRun);
                 }
             }
@@ -1052,30 +1022,46 @@ namespace TuneUp
                 using (var writer = new StreamWriter(saveFileDialog.FileName))
                 {
                     writer.WriteLine("Execution Order,Name,Execution Time (ms)");
-                    // Create an array of collections and corresponding labels
+
                     var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
                     {
                         ("Latest Run", ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
                         ("Previous Run", ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
                         ("Not Executed", ProfiledNodesCollectionNotExecuted, null)
                     };
-                    // Iterate through each collection
+
                     foreach (var (label, collection, totalTime) in collections)
                     {
-                        if (collection.View.Cast<ProfiledNodeViewModel>().Any())
+                        var nodes = collection.View.Cast<ProfiledNodeViewModel>().ToList();
+                        if (!nodes.Any()) continue;
+
+                        writer.WriteLine(label);
+
+                        foreach (var node in nodes)
                         {
-                            writer.WriteLine(label);  // Write collection header
-                            foreach (ProfiledNodeViewModel node in collection.View.Cast<ProfiledNodeViewModel>())
+                            if (showGroups)
+                            {                                
+                                if (node.IsGroup || node.GroupGUID == Guid.Empty)
+                                {
+                                    writer.WriteLine($"{node.GroupExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
+                                }
+                                else
+                                {
+                                    writer.WriteLine($",{node.Name},{node.ExecutionMilliseconds}");
+                                }
+                            }
+                            else if (!node.IsGroup || !node.IsGroupExecutionTime)
                             {
                                 writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
                             }
-
-                            if (!string.IsNullOrEmpty(totalTime))
-                            {
-                                writer.WriteLine($"Total: {totalTime}");
-                            }
-                            writer.WriteLine();
                         }
+
+                        // Write total execution time, if applicable
+                        if (!string.IsNullOrEmpty(totalTime))
+                        {
+                            writer.WriteLine($",Total, {totalTime}");
+                        }
+                        writer.WriteLine();
                     }
                 }
             }
@@ -1086,33 +1072,107 @@ namespace TuneUp
         /// </summary>
         public void ExportToJson()
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "JSON file (*.json)|*.json|All files (*.*)|*.*";
-
-            if (saveFileDialog.ShowDialog() == true)
+            SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                // Create a list to hold the node data
-                var nodeDataList = new List<object>();
+                Filter = "JSON file (*.json)|*.json|All files (*.*)|*.*"
+            };
 
-                // Loop through the nodes and add the required data to the list
-                foreach (ProfiledNodeViewModel node in ProfiledNodesCollectionLatestRun.View.Cast<ProfiledNodeViewModel>())
+            if (saveFileDialog.ShowDialog() != true) return;
+
+            var exportData = new List<object>();
+
+            var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
+            {
+                ("Latest Run", ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
+                ("Previous Run", ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
+                ("Not Executed", ProfiledNodesCollectionNotExecuted, null)
+            };
+
+            foreach (var (label, collection, totalTime) in collections)
+            {
+                var nodes = collection.View.Cast<ProfiledNodeViewModel>().ToList();
+                if (!nodes.Any()) continue;
+
+                // Create an object for each collection, including label and nodes
+                var collectionData = new
                 {
-                    nodeDataList.Add(new
+                    Label = label,
+                    Nodes = new List<object>(),
+                    TotalTime = totalTime
+                };
+
+                ProfiledNodeViewModel currentGroup = null;
+                List<object> currentGroupChildren = null;
+
+                foreach (var node in nodes)
+                {
+                    if (node.IsGroup)
                     {
-                        ExecutionOrder = node.ExecutionOrderNumber,
-                        Name = node.Name,
-                        ExecutionTimeMs = node.ExecutionMilliseconds
+                        // If there's an existing group, add its children to it
+                        if (currentGroup != null)
+                        {
+                            collectionData.Nodes.Add(new
+                            {
+                                ExecutionOrder = currentGroup.GroupExecutionOrderNumber,
+                                Name = currentGroup.Name,
+                                ExecutionTimeMs = currentGroup.ExecutionMilliseconds,
+                                Children = currentGroupChildren
+                            });
+                        }
+
+                        // Start a new group
+                        currentGroup = node;
+                        currentGroupChildren = new List<object>();
+                    }
+                    else
+                    {
+                        // Add the node either to the current group or directly to the collection
+                        if (currentGroup != null && node.GroupGUID == currentGroup.GroupGUID)
+                        {
+                            currentGroupChildren.Add(new
+                            {
+                                ExecutionOrder = node.ExecutionOrderNumber,
+                                Name = node.Name,
+                                ExecutionTimeMs = node.ExecutionMilliseconds
+                            });
+                        }
+                        // Stand-alone node
+                        else
+                        {
+                            collectionData.Nodes.Add(new
+                            {
+                                ExecutionOrder = showGroups ? node.GroupExecutionOrderNumber : node.ExecutionOrderNumber,
+                                Name = node.Name,
+                                ExecutionTimeMs = node.ExecutionMilliseconds
+                            });
+                        }
+                    }
+                }
+
+                // After the loop, add the last group if it exists
+                if (currentGroup != null)
+                {
+                    collectionData.Nodes.Add(new
+                    {
+                        ExecutionOrder = currentGroup.GroupExecutionOrderNumber,
+                        Name = currentGroup.Name,
+                        ExecutionTimeMs = currentGroup.ExecutionMilliseconds,
+                        Children = currentGroupChildren
                     });
                 }
 
-                // Serialize the list and write to JSON
-                string json = JsonConvert.SerializeObject(nodeDataList, Formatting.Indented);
-                using (var writer = new StreamWriter(saveFileDialog.FileName))
-                {
-                    writer.Write(json);
-                }
+                // Add the collection data to the export data
+                exportData.Add(collectionData);
+            }
+
+            // Serialize the data to JSON and write it to a file
+            string json = JsonConvert.SerializeObject(exportData, Formatting.Indented);
+            using (var writer = new StreamWriter(saveFileDialog.FileName))
+            {
+                writer.Write(json);
             }
         }
+
 
         #endregion
     }
