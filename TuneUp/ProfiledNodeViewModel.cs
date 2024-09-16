@@ -15,10 +15,7 @@ namespace TuneUp
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
-
-        //new ip code:
-        private string originalName = string.Empty;
-        private bool isRenamed = false;
+        
         /// <summary>
         /// Checks if the Node has been Renamed after its creation
         /// </summary>
@@ -40,6 +37,8 @@ namespace TuneUp
                 RaisePropertyChanged(nameof(IsRenamed));
             }
         }
+        private bool isRenamed = false;
+
         /// <summary>
         /// The original name of the node
         /// </summary>
@@ -58,6 +57,11 @@ namespace TuneUp
                 RaisePropertyChanged(nameof(OriginalName));
             }
         }
+        private string originalName = string.Empty;
+
+        /// <summary>
+        /// Indicates whether this node represents the total execution time for its group
+        /// </summary>
         public bool IsGroupExecutionTime
         {
             get => isGroupExecutionTime;
@@ -68,7 +72,6 @@ namespace TuneUp
             }
         }
         private bool isGroupExecutionTime = false;
-
 
         /// <summary>
         /// Getting the original name before graph author renamed the node
@@ -106,10 +109,6 @@ namespace TuneUp
 
             return nodeType.FullName;
         }
-
-
-
-
 
         /// <summary>
         /// Prefix string of execution time.
