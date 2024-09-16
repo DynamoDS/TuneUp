@@ -64,7 +64,7 @@ namespace TuneUp
         private bool showGroups = true;
         private ListSortDirection sortDirection;
         private const string defaultExecutionTime = "N/A";
-        private string sortingOrder = "number";        
+        private string defaultSortingOrder = "number";        
         private string latestGraphExecutionTime = defaultExecutionTime;
         private string previousGraphExecutionTime = defaultExecutionTime;
         private string totalGraphExecutionTime = defaultExecutionTime;
@@ -252,12 +252,12 @@ namespace TuneUp
         /// </summary>
         public string SortingOrder
         {
-            get => sortingOrder;
+            get => defaultSortingOrder;
             set
             {
-                if (sortingOrder != value)
+                if (defaultSortingOrder != value)
                 {
-                    sortingOrder = value;
+                    defaultSortingOrder = value;
                     SortDirection = ListSortDirection.Ascending;
                 }
                 else
@@ -268,6 +268,10 @@ namespace TuneUp
                 }
             }
         }
+
+        public const  string SortByName = "name";
+        public const string SortByNumber = "number";
+        public const string SortByTime = "time";
 
         #endregion
 
@@ -365,7 +369,7 @@ namespace TuneUp
             ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
 
             ApplyGroupNodeFilter();
-            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, "name");
+            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
 
             RefreshAllCollectionViews();
 
@@ -475,15 +479,10 @@ namespace TuneUp
             {
                 ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
                 ProfiledNodesCollectionLatestRun.View?.Refresh();
-            });
-            ProfiledNodesCollectionPreviousRun.Dispatcher.InvokeAsync(() =>
-            {
                 ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
                 ProfiledNodesCollectionPreviousRun.View?.Refresh();
-            });
-            ProfiledNodesCollectionNotExecuted.Dispatcher.InvokeAsync(() =>
-            {
                 ProfiledNodesCollectionNotExecuted.View?.Refresh();
+
             });
         }
 
@@ -527,7 +526,7 @@ namespace TuneUp
             var processedNodes = new HashSet<ProfiledNodeViewModel>();
             var sortedProfiledNodes = ProfiledNodesLatestRun.OrderBy(node => node.ExecutionOrderNumber).ToList();
 
-            // Create a lookup dictionary for annotations
+            // Create lookup dictionaries
             var annotationLookup = CurrentWorkspace.Annotations.ToDictionary(g => g.GUID);
 
             foreach (var profiledNode in sortedProfiledNodes)
@@ -583,33 +582,12 @@ namespace TuneUp
 
 
                         // Create and add group total execution time node if it doesn't exist
-                        if (groupTotalTimeNode == null)
-                        {
-                            groupTotalTimeNode = new ProfiledNodeViewModel(
-                                ProfiledNodeViewModel.GroupExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
-                            {
-                                GroupGUID = profiledGroup.GroupGUID,
-                                GroupName = profiledGroup.GroupName,
-                                BackgroundBrush = profiledGroup.BackgroundBrush,
-                                IsGroupExecutionTime = true
-                            };
+                        groupTotalTimeNode ??= CreateGroupTotalTimeNode(profiledGroup);
 
-                            var totalExecTimeGUID = Guid.NewGuid();
-                            nodeDictionary[totalExecTimeGUID] = groupTotalTimeNode;
-                            groupDictionary[profiledGroup.GroupGUID].Add(groupTotalTimeNode);
-                            executionTimeNodeDictionary[profiledGroup.GroupGUID] = totalExecTimeGUID;
-                        }
+                        // Update the properties of the groupTotalTimeNode and move to latestRunCollection
+                        UpdateGroupTotalTimeNodeProperties(groupTotalTimeNode, profiledGroup);
 
-                        // Update the properties of the total execution time node
-                        groupTotalTimeNode.State = profiledGroup.State;
-                        groupTotalTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime; // accurate, for sorting
-                        groupTotalTimeNode.ExecutionMilliseconds = profiledGroup.ExecutionMilliseconds; // rounded, for display in UI
-                        groupTotalTimeNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
-                        groupTotalTimeNode.WasExecutedOnLastRun = true;
-
-                        MoveNodeToCollection(groupTotalTimeNode, ProfiledNodesLatestRun);
-
-                        // Update the total groupExecutionTime for the purposes of sorting
+                        // Update the groupExecutionTime for all nodes of the group for the purposes of sorting
                         foreach (var node in nodesInGroup)
                         {
                             node.GroupExecutionTime = profiledGroup.GroupExecutionTime;
@@ -791,7 +769,7 @@ namespace TuneUp
             }
             // Executes for each group when a graph with groups is open while TuneUp is enabled
             // Ensures that group nodes are sorted properly and do not appear at the bottom of the DataGrid
-            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, "name");
+            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
         }
 
         private void CurrentWorkspaceModel_GroupRemoved(AnnotationModel group)
@@ -849,6 +827,37 @@ namespace TuneUp
 
         #region Helpers
 
+        private ProfiledNodeViewModel CreateGroupTotalTimeNode(ProfiledNodeViewModel profiledGroup)
+        {
+            var groupTotalTimeNode = new ProfiledNodeViewModel(
+                ProfiledNodeViewModel.GroupExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
+            {
+                GroupGUID = profiledGroup.GroupGUID,
+                GroupName = profiledGroup.GroupName,
+                BackgroundBrush = profiledGroup.BackgroundBrush,
+                IsGroupExecutionTime = true
+            };
+
+            var totalExecTimeGUID = Guid.NewGuid();
+            nodeDictionary[totalExecTimeGUID] = groupTotalTimeNode;
+            groupDictionary[profiledGroup.GroupGUID].Add(groupTotalTimeNode);
+            executionTimeNodeDictionary[profiledGroup.GroupGUID] = totalExecTimeGUID;
+
+            return groupTotalTimeNode;
+        }
+
+        private void UpdateGroupTotalTimeNodeProperties(ProfiledNodeViewModel groupTotalTimeNode, ProfiledNodeViewModel profiledGroup)
+        {
+            groupTotalTimeNode.State = profiledGroup.State;
+            groupTotalTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime; // Accurate, for sorting
+            groupTotalTimeNode.ExecutionMilliseconds = profiledGroup.ExecutionMilliseconds; // Rounded, for display in UI
+            groupTotalTimeNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
+            groupTotalTimeNode.WasExecutedOnLastRun = true;
+
+            // Move node to the latest run collection
+            MoveNodeToCollection(groupTotalTimeNode, ProfiledNodesLatestRun);
+        }
+
         /// <summary>
         /// Refreshes the profiling node collection that contains a given node and updates the view.
         /// </summary>
@@ -900,7 +909,7 @@ namespace TuneUp
 
             if (collectionView?.View?.Cast<ProfiledNodeViewModel>().Any() == true)
             {
-                string sortingOrder = collectionView == ProfiledNodesCollectionNotExecuted ? "name" : null;
+                string sortingOrder = collectionView == ProfiledNodesCollectionNotExecuted ? SortByName : null;
                 ApplyCustomSorting(collectionView, sortingOrder);
             }
         }
@@ -941,7 +950,7 @@ namespace TuneUp
             ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
             ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
             // Apply custom sorting to NotExecuted collection only if sortingOrder is "name"
-            if (sortingOrder == "name")
+            if (defaultSortingOrder == SortByName)
             {
                 ApplyCustomSorting(ProfiledNodesCollectionNotExecuted);
             }
@@ -953,12 +962,12 @@ namespace TuneUp
         public void ApplyCustomSorting(CollectionViewSource collection, string explicitSortingOrder = null)
         {
             // Use the sorting parameter if specified; otherwise, use the private sortingOrder
-            string sortBy = explicitSortingOrder ?? sortingOrder;
+            string sortBy = explicitSortingOrder ?? defaultSortingOrder;
             collection.SortDescriptions.Clear();
 
             switch (sortBy)
             {
-                case "time":
+                case SortByTime:
                     if (showGroups)
                     {
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupExecutionTime), sortDirection));
@@ -972,7 +981,7 @@ namespace TuneUp
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection));
                     }
                     break;
-                case "name":
+                case SortByName:
                     if (showGroups)
                     {
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupName), sortDirection));
@@ -986,7 +995,7 @@ namespace TuneUp
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.Name), sortDirection));
                     }
                     break;
-                case "number":
+                case SortByNumber:
                     if (showGroups)
                     {
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupExecutionOrderNumber), sortDirection));

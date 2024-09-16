@@ -115,7 +115,7 @@ namespace TuneUp
                 this.TuneUpMenuItem.IsChecked = false;
 
                 // Reset DataGrid sorting order & direction
-                ViewModel.SortingOrder = "number";
+                ViewModel.SortingOrder = TuneUpWindowViewModel.SortByNumber;
                 ViewModel.SortDirection = System.ComponentModel.ListSortDirection.Ascending;
             }
         }

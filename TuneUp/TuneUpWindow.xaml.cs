@@ -112,9 +112,9 @@ namespace TuneUp
             {
                 viewModel.SortingOrder = e.Column.Header switch
                 {
-                    "#" => "number",
-                    "Name" => "name",
-                    "Execution Time (ms)" => "time",
+                    "#" => TuneUpWindowViewModel.SortByNumber,
+                    "Name" => TuneUpWindowViewModel.SortByName,
+                    "Execution Time (ms)" => TuneUpWindowViewModel.SortByTime,
                     _ => viewModel.SortingOrder
                 };
 
