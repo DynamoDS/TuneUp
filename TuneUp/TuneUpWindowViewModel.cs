@@ -61,7 +61,7 @@ namespace TuneUp
         private bool isProfilingEnabled = true;
         private bool isRecomputeEnabled = true;
         private bool isTuneUpChecked = false;
-        private bool showGroups = true;
+        private bool showGroups;
         private ListSortDirection sortDirection;
         private const string defaultExecutionTime = "N/A";
         private string defaultSortingOrder = "number";        

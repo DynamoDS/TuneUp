@@ -291,7 +291,7 @@ namespace TuneUp
                 RaisePropertyChanged(nameof(ShowGroupIndicator));
             }
         }
-        private bool showGroupIndicator = true;
+        private bool showGroupIndicator;
 
 
         /// <summary>
