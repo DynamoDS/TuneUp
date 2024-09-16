@@ -202,7 +202,6 @@ namespace TuneUp
         /// </summary>
         public int ExecutionMilliseconds
         {
-            //get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
             get => executionMilliseconds;
             set
             {

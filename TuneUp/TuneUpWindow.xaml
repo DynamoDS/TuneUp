@@ -446,7 +446,7 @@
                     <!-- Latest Run -->
                     <TextBlock Text="Latest Run"
                                Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                               Visibility="{Binding LatestRunVisibility}"/>
+                               Visibility="{Binding LatestRunTableVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
                               x:Name="LatestRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
@@ -454,7 +454,7 @@
                               Sorting="LatestRunTable_Sorting">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="30"
+                            <DataGridTextColumn Width="40"
                                                 Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
                                                 Header="#">
                                 <DataGridTextColumn.ElementStyle>
@@ -481,7 +481,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
-                                Visibility="{Binding LatestRunVisibility}">
+                                Visibility="{Binding LatestRunTableVisibility}">
                         <TextBlock Text="Total"
                                    Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
                         <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"
@@ -490,7 +490,7 @@
                     <!-- Previous Run -->
                     <TextBlock Text="Previous Run"
                                Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                               Visibility="{Binding PreviousRunVisibility}"/>
+                               Visibility="{Binding PreviousRunTableVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
                               x:Name="PreviousRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
@@ -499,7 +499,7 @@
                               Sorting="LatestRunTable_Sorting">
                         <DataGrid.Columns>
                             <!--Execution Order-->
-                            <DataGridTextColumn Width="30"
+                            <DataGridTextColumn Width="40"
                                                 Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
                                 <DataGridTextColumn.ElementStyle>
                                     <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
@@ -522,7 +522,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
-                                Visibility="{Binding PreviousRunVisibility}">
+                                Visibility="{Binding PreviousRunTableVisibility}">
                         <TextBlock Text="Total"
                                    Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
                         <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"
@@ -531,7 +531,7 @@
                     <!-- Not Executed -->
                     <TextBlock Text="Not Executed"
                                Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                               Visibility="{Binding NotExecutedVisibility}"/>
+                               Visibility="{Binding NotExecutedTableVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
                               x:Name="NotExecutedTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
@@ -542,7 +542,7 @@
                               Sorting="NotExecutedTable_Sorting">                       
                         <DataGrid.Columns>
                             <!--Execution Order-->
-                            <DataGridTextColumn Width="30"/>
+                            <DataGridTextColumn Width="40"/>
                             <!--Node Name-->
                             <DataGridTemplateColumn Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
