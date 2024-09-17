@@ -374,6 +374,7 @@ namespace TuneUp
             BackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background));
             IsGroup = true;
             State = ProfiledNodeState.NotExecuted;
+            ShowGroupIndicator = true;
         }
     }
 }

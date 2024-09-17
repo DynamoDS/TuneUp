@@ -835,7 +835,8 @@ namespace TuneUp
                 GroupGUID = profiledGroup.GroupGUID,
                 GroupName = profiledGroup.GroupName,
                 BackgroundBrush = profiledGroup.BackgroundBrush,
-                IsGroupExecutionTime = true
+                IsGroupExecutionTime = true,
+                ShowGroupIndicator = true
             };
 
             var totalExecTimeGUID = Guid.NewGuid();
