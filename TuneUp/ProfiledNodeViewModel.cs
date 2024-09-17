@@ -7,18 +7,115 @@ using System.Windows.Media;
 using Dynamo.Core;
 using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
+using Dynamo.Graph.Nodes.CustomNodes;
+using Dynamo.Graph.Nodes.ZeroTouch;
 
 namespace TuneUp
 {
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
+        
+        /// <summary>
+        /// Checks if the Node has been Renamed after its creation
+        /// </summary>
+        public bool IsRenamed
+        {
+            get
+            {
+                if (NodeModel == null)
+                {
+                    return false;
+                }
+                isRenamed = GetOriginalName(NodeModel) != NodeModel.Name;
+                return isRenamed;
+            }
+            internal set
+            {
+                if (isRenamed == value) return;
+                isRenamed = value;
+                RaisePropertyChanged(nameof(IsRenamed));
+            }
+        }
+        private bool isRenamed = false;
+
+        /// <summary>
+        /// The original name of the node
+        /// </summary>
+        public string OriginalName
+        {
+            get
+            {
+                //string originalName = NodeModel.GetOriginalName();
+                string originalName = GetOriginalName(NodeModel);
+                return originalName;
+            }
+            internal set
+            {
+                if (originalName == value) return;
+                originalName = value;
+                RaisePropertyChanged(nameof(OriginalName));
+            }
+        }
+        private string originalName = string.Empty;
+
+        /// <summary>
+        /// Indicates whether this node represents the total execution time for its group
+        /// </summary>
+        public bool IsGroupExecutionTime
+        {
+            get => isGroupExecutionTime;
+            set
+            {
+                isGroupExecutionTime = value;
+                RaisePropertyChanged(nameof(IsGroupExecutionTime));
+            }
+        }
+        private bool isGroupExecutionTime = false;
+
+        /// <summary>
+        /// Getting the original name before graph author renamed the node
+        /// </summary>
+        /// <param name="node">target NodeModel</param>
+        /// <returns>Original node name as string</returns>
+        private static string GetOriginalName(NodeModel node)
+        {
+            if (node == null) return string.Empty;
+            // For dummy node, return the current name so that does not appear to be renamed
+            if (node is DummyNode)
+            {
+                return node.Name;
+            }
+            if (node.IsCustomFunction)
+            {
+                // If the custom node is not loaded, return the current name so that does not appear to be renamed
+                if ((node as Function).State == ElementState.Error && (node as Function).Definition.IsProxy)
+                {
+                    return node.Name;
+                }
+                // If the custom node is loaded, return original name as usual
+                var customNodeFunction = node as Function;
+                return customNodeFunction?.Definition.DisplayName;
+            }
+
+            var function = node as DSFunctionBase;
+            if (function != null)
+                return function.Controller.Definition.DisplayName;
+
+            var nodeType = node.GetType();
+            var elNameAttrib = nodeType.GetCustomAttributes<NodeNameAttribute>(false).FirstOrDefault();
+            if (elNameAttrib != null)
+                return elNameAttrib.Name;
+
+            return nodeType.FullName;
+        }
+
         /// <summary>
         /// Prefix string of execution time.
         /// </summary>
         public static readonly string ExecutionTimelString = "Execution Time";
-
         public static readonly string GroupNodePrefix = "Group: ";
+        public static readonly string GroupExecutionTimeString = "Group total";
 
         private string name = String.Empty;
         /// <summary>
@@ -31,7 +128,9 @@ namespace TuneUp
             get 
             {
                 // For virtual row, do not attempt to grab node name
-                if (!name.Contains(ExecutionTimelString) && !name.StartsWith(GroupNodePrefix))
+                if (!name.Contains(ExecutionTimelString) &&
+                    !name.StartsWith(GroupNodePrefix) &&
+                    !name.Equals(GroupExecutionTimeString))
                     name = NodeModel?.Name;
                 return name;
             }
@@ -102,8 +201,14 @@ namespace TuneUp
         /// </summary>
         public int ExecutionMilliseconds
         {
-            get => (int)Math.Round(ExecutionTime.TotalMilliseconds);
+            get => executionMilliseconds;
+            set
+            {
+                executionMilliseconds = value;
+                RaisePropertyChanged(nameof(ExecutionMilliseconds));
+            }
         }
+        private int executionMilliseconds;
 
         /// <summary>
         /// Indicates whether this node was executed on the most recent graph run
@@ -175,6 +280,18 @@ namespace TuneUp
             }
         }
         private bool isGroup;
+
+        public bool ShowGroupIndicator
+        {
+            get => showGroupIndicator;
+            set
+            {
+                showGroupIndicator = value;
+                RaisePropertyChanged(nameof(ShowGroupIndicator));
+            }
+        }
+        private bool showGroupIndicator;
+
 
         /// <summary>
         /// The background brush for this node

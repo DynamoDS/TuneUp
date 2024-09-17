@@ -50,7 +50,7 @@ namespace TuneUpTests
             var nodes = homespace.Nodes;
 
             // Assert there is a ProfiledNodeViewModel for every node in the graph
-            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesNotExecuted;
             foreach (var node in nodes)
             {
                 Assert.Contains(node.GUID, profiledNodes.Select(n => n.NodeModel.GUID).ToList());
@@ -80,7 +80,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
 
             // Assert all node states are NotExecuted before graph run
-            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesNotExecuted;
             foreach (var node in profiledNodes)
             {
                 Assert.AreEqual(ProfiledNodeState.NotExecuted, node.State);
@@ -148,7 +148,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
 
             // Assert all node execution order numbers are null
-            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodes;
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesNotExecuted;
             foreach (var node in profiledNodes)
             {
                 Assert.IsNull(node.ExecutionOrderNumber);

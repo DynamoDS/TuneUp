@@ -1,89 +1,120 @@
-﻿<Window x:Class="TuneUp.TuneUpWindow"
-         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-         xmlns:local="clr-namespace:TuneUp"
-         xmlns:ui="clr-namespace:Dynamo.UI;assembly=DynamoCoreWpf"
-         xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-         mc:Ignorable="d" 
-         d:DesignHeight="300" d:DesignWidth="300"
-         Width="500" Height="100">
+﻿<Window
+    x:Class="TuneUp.TuneUpWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:TuneUp"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:Dynamo.UI;assembly=DynamoCoreWpf"
+    Width="500"
+    Height="100"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoColorsAndBrushesDictionaryUri}" />
                 <ui:SharedResourceDictionary Source="{x:Static ui:SharedDictionaryManager.DynamoModernDictionaryUri}" />
             </ResourceDictionary.MergedDictionaries>
-            <local:IsGroupToMarginMultiConverter  x:Key="IsGroupToMarginMultiConverter" />
-            <local:IsGroupToVisibilityMultiConverter  x:Key="IsGroupToVisibilityMultiConverter" />
-            <local:IsGroupToBrushConverter x:Key="IsGroupToBrushConverter" />
+            <local:IsGroupToMarginMultiConverter x:Key="IsGroupToMarginMultiConverter" />
+            <local:IsGroupToVisibilityMultiConverter x:Key="IsGroupToVisibilityMultiConverter" />
+            <local:ExecutionOrderNumberVisibilityConverter x:Key="ExecutionOrderNumberVisibilityConverter" />
+            <local:IsGroupToColorBrushConverter x:Key="IsGroupToColorBrushConverter" />
+            <local:IsGroupToColorBrushMultiConverter x:Key="IsGroupToColorBrushMultiConverter" />
+            <local:IsInGroupToColorBrushMultiConverter x:Key="IsInGroupToColorBrushMultiConverter" />
+            <local:IsRenamedToVisibilityMultiConverter x:Key="IsRenamedToVisibilityMultiConverter" />
+            <local:ExecutionOrderNumberConverter x:Key="ExecutionOrderNumberConverter" />
+            <local:ContainsStringConverter x:Key="ContainsStringConverter" />
+            
+            <!--  ERROR : DYNAMO CRASHES WHEN REFERENCED FROM DYNAMOCOREWPF  -->
+            <Color x:Key="BorderColorTuneUp">#555555</Color>
+            <SolidColorBrush x:Key="BorderColorBrushTuneUp" Color="{StaticResource BorderColorTuneUp}" />
+            <Color x:Key="AlternativeBackgroundColor">#434343</Color>
+            <SolidColorBrush x:Key="AlternativeBackgroundBrush" Color="{StaticResource AlternativeBackgroundColor}" />
+            <SolidColorBrush x:Key="BorderMediumColorBrush" Color="{StaticResource BorderMediumColor}" />
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Name="MainGrid" >
+    <Grid Name="MainGrid">
         <Grid.Resources>
-            <!-- DataGrid style -->
-            <Style x:Key="DataGridStyle1" TargetType="{x:Type DataGrid}">
-                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyle1}"/>
-                <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}"/>
-                <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}"/>
-                <Setter Property="RowHeaderWidth" Value="0"/>
+            <!--  DataGrid style  -->
+            <Style x:Key="DataGridStyleTuneUpCombined" TargetType="{x:Type DataGrid}">
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="CanUserResizeColumns" Value="False" />
+                <Setter Property="CanUserSortColumns" Value="True" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyleTuneUp}" />
+                <Setter Property="RowStyle" Value="{DynamicResource RowStyle1}" />
+                <Setter Property="CellStyle" Value="{DynamicResource CellStyle1}" />
+                <Setter Property="RowHeaderWidth" Value="0" />
                 <Setter Property="BorderThickness" Value="0.5" />
-                <Setter Property="BorderBrush" Value="#555555"/>
-                <Setter Property="ColumnWidth" Value="Auto"/>
-                <Setter Property="GridLinesVisibility" Value="Vertical"/>
-                <Setter Property="VerticalGridLinesBrush" Value="#555555"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ExtensionBackgroundColor}" />
+                <Setter Property="GridLinesVisibility" Value="Vertical" />
+                <Setter Property="VerticalGridLinesBrush" Value="{StaticResource BorderColorBrushTuneUp}" />
+                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
-            <!-- DataGridColumnHeader style -->
-            <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
-                <Setter Property="Height" Value="20"/>
-                <Setter Property="Background" Value="#333333"/>
-                <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
-                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}"/>
-                <Setter Property="FontSize" Value="10"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="BorderBrush" Value="#555555"/>
-                <Setter Property="Margin" Value="5,0,10,0"/>
+            <!--  DataGridColumnHeader style  -->
+            <Style x:Key="ColumnHeaderStyleTuneUp" TargetType="DataGridColumnHeader">
+                <Setter Property="Height" Value="20" />
+                <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
+                <Setter Property="Foreground" Value="{StaticResource UnSelectedLayoutForeground}" />
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Margin" Value="5,0,7,0" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter x:Name="HeaderContent"
-                                              Grid.Column="1"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              Margin="11,0,0,0"/>
-                                <Path x:Name="SortArrow"
-                                  Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
-                                  Grid.Column="0"
-                                  Margin="0,0,4,0"
-                                  Stretch="Fill"
-                                  Width="7" Height="6"
-                                  Fill="#999999"                                      
-                                  VerticalAlignment="Center"
-                                  RenderTransformOrigin="0.5,0.5"
-                                  Visibility="Collapsed"/>
+                                <ContentPresenter
+                                    x:Name="HeaderContent"
+                                    Grid.Column="1"
+                                    Margin="11,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center" />
+                                <Path
+                                    x:Name="SortArrow"
+                                    Grid.Column="0"
+                                    Width="7"
+                                    Height="6"
+                                    Margin="0,0,4,0"
+                                    VerticalAlignment="Center"
+                                    Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+                                    Fill="{StaticResource UnSelectedLayoutForeground}"
+                                    RenderTransformOrigin="0.5,0.5"
+                                    Stretch="Fill"
+                                    Visibility="Collapsed" />
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="SortDirection" Value="Ascending">
-                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
-                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0" />
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible" />
                                     <Setter TargetName="SortArrow" Property="RenderTransform">
                                         <Setter.Value>
-                                            <RotateTransform Angle="180"/>
+                                            <RotateTransform Angle="180" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
                                 <Trigger Property="SortDirection" Value="Descending">
-                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0"/>
-                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="HeaderContent" Property="Margin" Value="0" />
+                                    <Setter TargetName="SortArrow" Property="Visibility" Value="Visible" />
                                     <Setter TargetName="SortArrow" Property="RenderTransform">
                                         <Setter.Value>
-                                            <RotateTransform Angle="0"/>
+                                            <RotateTransform Angle="0" />
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -92,190 +123,471 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <!-- DataGridRow style -->
+            <!--  DataGridRow style  -->
             <Style x:Key="RowStyle1" TargetType="DataGridRow">
-                <Setter Property="Background" Value="{Binding BackgroundBrush}"/>
-                <Setter Property="BorderThickness" Value="0.45" />
-                <Setter Property="BorderBrush" Value="#555555"/>
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="MinHeight" Value="17" />
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#434343"/>
+                        <Setter Property="Background" Value="{StaticResource AlternativeBackgroundBrush}" />
                     </Trigger>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{StaticResource MainBackgroundColor}"/>
+                        <Setter Property="Background" Value="{StaticResource MainBackgroundColor}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <!-- Cell style -->
+            <!--  Cell style  -->
             <Style x:Key="CellStyle1" TargetType="DataGridCell">
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Margin" Value="1" />
+                <Setter Property="BorderThickness" Value="0" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#555555" />
+                        <Setter Property="Background" Value="{StaticResource BorderColorBrushTuneUp}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <!-- Group Style -->
-            <Style x:Key="GroupHeaderStyle" TargetType="{x:Type GroupItem}">
+            <!--  TextBlock style for DataGrid columns  -->
+            <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="10,0,10,0" />
+                <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <!-- TextBlock style for "ExecutionOrder" Column-->
+            <Style x:Key="ExecutionOrderTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
+                <Setter Property="Visibility">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource ExecutionOrderNumberVisibilityConverter}">
+                            <Binding Path="IsGroup" />
+                            <Binding Path="GroupGUID" />
+                            <Binding Path="ShowGroupIndicator" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!-- DataTemplate for "Name" Column -->
+            <DataTemplate x:Key="NodeNameTemplate">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="7" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" MinWidth="8" />
+                    </Grid.ColumnDefinitions>
+                    <!-- Group indicator -->
+                    <Border Grid.Column="0" Margin="4,0,0,0">
+                        <Border.Background>
+                            <MultiBinding Converter="{StaticResource IsInGroupToColorBrushMultiConverter}" Mode="OneWay">
+                                <Binding Path="IsGroup" />
+                                <Binding Path="GroupGUID" />
+                                <Binding Path="BackgroundBrush" />
+                                <Binding Path="ShowGroupIndicator" />
+                            </MultiBinding>
+                        </Border.Background>
+                    </Border>
+                    <!-- Node name -->
+                    <Border Grid.Column="1">
+                        <Border.Background>
+                            <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
+                                <Binding Path="IsGroup" />
+                                <Binding Path="BackgroundBrush" />
+                            </MultiBinding>
+                        </Border.Background>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Name, Converter={StaticResource ContainsStringConverter}}" Value="True">
+                                            <Setter Property="TextAlignment" Value="Right" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                            <TextBlock.Margin>
+                                <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
+                                    <Binding Path="IsGroup" />
+                                    <Binding Path="GroupGUID" />
+                                    <Binding Path="ShowGroupIndicator" />
+                                </MultiBinding>
+                            </TextBlock.Margin>
+                            <TextBlock.Foreground>
+                                <Binding Converter="{StaticResource IsGroupToColorBrushConverter}" Path="IsGroup" />
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                    </Border>
+                    <!-- Renamed node indicator -->
+                    <Border Grid.Column="2">
+                        <Border.Background>
+                            <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
+                                <Binding Path="IsGroup" />
+                                <Binding Path="BackgroundBrush" />
+                            </MultiBinding>
+                        </Border.Background>
+                    </Border>
+                    <Ellipse Name="nodeRenamedBlueDot"
+                             Grid.Column="2"
+                             Width="6"
+                             Height="6"
+                             Margin="5,0,8,0"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"
+                             Fill="{StaticResource Blue300Brush}">
+                        <Ellipse.ToolTip>
+                            <ToolTip Style="{StaticResource GenericToolTipLight}">
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <Binding Path="OriginalName" StringFormat="Node original name:&#x0a;{0}" />
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </ToolTip>
+                        </Ellipse.ToolTip>
+                        <Ellipse.Visibility>
+                            <MultiBinding Converter="{StaticResource IsRenamedToVisibilityMultiConverter}">
+                                <Binding Path="IsGroup" />
+                                <Binding Path="IsRenamed" />
+                            </MultiBinding>
+                        </Ellipse.Visibility>
+                    </Ellipse>
+                </Grid>
+            </DataTemplate>
+            <!-- TextBlock style for "ExecutionTime" Columns -->
+            <Style x:Key="ExecutionTimeTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsGroup}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <!-- TextBlock style-->
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
+            </Style>
+            <!-- StackPanel style for total time headers -->
+            <Style x:Key="TotalTimeHeaderStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Height" Value="20" />
+            </Style>
+            <!-- StackPanel style for collection footer -->
+            <Style x:Key="CollectionFooterStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Height" Value="25" />
+            </Style>
+            <!-- TextBlock style for collection footer -->
+            <Style x:Key="CollectionFooterTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="Width" Value="120"/>
+                <Setter Property="Margin" Value="10,0,0,0"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Padding" Value="10,0,0,0"/>
+            </Style>
+            <!-- TextBlock style for collection header -->
+            <Style x:Key="CollectionHeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Margin" Value="5,0,0,0"/>
+            </Style>
+            <!--  Button style *** -->
+            <!-- PackageManager\Controls\ControlColorsAndBrushes -->
+            <Style x:Key="ButtonStyleTuneUp" TargetType="{x:Type Button}">
+                <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="FontFamily" Value="{DynamicResource ArtifaktElementRegular}" />
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type GroupItem}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Name}"/>
-                                <ItemsPresenter/>
-                            </StackPanel>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="1">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource Blue400Brush}" />
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource MidLightBlueBrush}" />
+                    </Trigger>
+                    <Trigger Property="Visibility" Value="Visible">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation
+                                        Storyboard.TargetProperty="Opacity"
+                                        From="0.0"
+                                        To="1.0"
+                                        Duration="0:0:0.3" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <!-- Context Menu style for Export button * -->
+            <Style x:Key="ContextMenuStyleTuneUp" TargetType="{x:Type ContextMenu}" BasedOn="{StaticResource ContextMenuStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ContextMenu}">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderThickness="0px">
+                                <StackPanel IsItemsHost="True"
+                                            Margin="0"
+                                            ClipToBounds="True"
+                                            Orientation="Vertical" />
+                            </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
-            <!-- TextBlock style for DataGrid columns -->
-            <Style x:Key="DataGridTextBlockStyle" TargetType="TextBlock">
-                <Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="Margin" Value="10,0,10,0"/>
-                <Setter Property="Foreground" Value="{Binding IsGroup, Converter={StaticResource IsGroupToBrushConverter}}"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True">
-                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
-                        <Setter Property="Foreground" Value="{StaticResource MemberButtonText}"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#999999"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
         </Grid.Resources>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="150"/>
+            <ColumnDefinition Width="150" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <!-- Recompute All Button -->
-        <StackPanel
-        Grid.Row="0"
-        HorizontalAlignment="Left"
-        Orientation="Horizontal">
-            <Button
-            Name="RecomputeGraph"
-            Width="Auto"
-            Height="Auto"
-            Margin="2,1,1,10"
-            Padding="5,2,5,2"
-            IsEnabled="{Binding  Path=IsRecomputeEnabled}"
-            Click="RecomputeGraph_Click">
-                Run All
-            </Button>
-            <Button
-            Name="ExportTimes"
-            Width="Auto"
-            Height="Auto"
-            Margin="2,1,1,10"
-            Padding="5,2,5,2"
-            Click="ExportTimes_Click"
-            IsEnabled="{Binding Path=IsRecomputeEnabled}">
-                Export
-            </Button>
-            <Label Foreground="{StaticResource NodeNameForeground}">Total Graph Execution Time:</Label>
-            <Label Foreground="{StaticResource NodeNameForeground}"
-               FontFamily="{StaticResource ArtifaktElementRegular}"
-               Name="TotalGraphExecutiontimeLabel"
-               Content="{Binding Path=TotalGraphExecutiontime, Mode=OneWay}"/>
+
+        <!--  Execution Times  -->
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    Orientation="Vertical">
+            <TextBlock Text="Graph execution time (ms)"
+                       Margin="5,0,0,0"
+                       Height="20">
+            </TextBlock>
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
+                <TextBlock Width="70"
+                           Margin="5,0,0,0"
+                           Text="Latest"/>
+                <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
+                <TextBlock Width="70"
+                           Margin="5,0,0,0"
+                           Text="Previous"/>
+                <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
+                <TextBlock Width="70"
+                           Margin="5,0,0,0"
+                           Text="Total"
+                           FontWeight="Bold"/>
+                <TextBlock Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}"
+                           FontWeight="Bold"/>
+            </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Row="1">
-            <DataGrid
-            x:Name="NodeAnalysisTable"
-            Grid.Row="1"                
-            ItemsSource="{Binding Path=ProfiledNodesCollection.View}"                
-            Style="{StaticResource DataGridStyle1}"
-            AutoGenerateColumns="False"
-            CanUserAddRows="False"
-            Background="#353535"
-            FontSize="11"
-            VerticalAlignment="Center"
-            SelectionUnit="FullRow"
-            SelectionMode="Single"
-            ScrollViewer.CanContentScroll="False"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            CanUserResizeColumns="True"
-            CanUserSortColumns="True"
-            HeadersVisibility="Column"
-            SelectionChanged="NodeAnalysisTable_SelectionChanged"
-            PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-            MouseLeave="NodeAnalysisTable_MouseLeave"
-            Sorting="NodeAnalysisTable_Sorting">
-                <DataGrid.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock
-                                    Margin="3"
-                                    FontFamily="{StaticResource ArtifaktElementRegular}"
-                                    FontSize="12"
-                                    Foreground="{StaticResource NodeNameForeground}"
-                                    Text="{Binding Name}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </DataGrid.GroupStyle>
-                <DataGrid.Columns>
-                    <!--  Execution Order  -->
-                    <DataGridTextColumn
-                    Header="#"
-                    Binding="{Binding Path=ExecutionOrderNumber}"
-                    IsReadOnly="True"
-                    Width="Auto">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
-                                <Setter Property="Visibility">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource IsGroupToVisibilityMultiConverter}">
-                                            <Binding Path="IsGroup" />
-                                            <Binding Path="GroupGUID" />
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <!--  Node Name  -->
-                    <DataGridTextColumn
-                    Header="Name"
-                    Binding="{Binding Name}"
-                    IsReadOnly="True"
-                    Width="*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}">
-                                <Setter Property="Margin">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource IsGroupToMarginMultiConverter}">
-                                            <Binding Path="IsGroup" />
-                                            <Binding Path="GroupGUID" />
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <!--  Execution Time  -->
-                    <DataGridTextColumn
-                    Header="Execution Time (ms)"
-                    Binding="{Binding ExecutionMilliseconds}"
-                    IsReadOnly="True"
-                    Width="Auto">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextBlockStyle}" />
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+        <!--  Show Groups Button  -->
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal">
+            <ToggleButton Width="30"
+                          Height="15"
+                          Margin="2,0,0,0"
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding ShowGroups, Mode=TwoWay}"
+                          IsEnabled="True"
+                          Style="{StaticResource EllipseToggleButton1}" />
+            <TextBlock Margin="5,0,0,0"
+                       Text="Show groups">
+            </TextBlock>
+            <Rectangle Width="16"
+                       Height="16"
+                       Margin="10,0,7,0"
+                       VerticalAlignment="Center">
+                <Rectangle.Fill>
+                    <ImageBrush ImageSource="/DynamoCoreWpf;component/UI/Images/help-16px.png" />
+                </Rectangle.Fill>
+            </Rectangle>
         </StackPanel>
+        <!--  Run All Button  -->
+        <Button Grid.Row="1"
+                Grid.Column="2"
+                Content="Run All"
+                Width="60"
+                Height="24"
+                Margin="0,0,7,20"
+                Padding="5,2,5,2"
+                HorizontalAlignment="Right"
+                BorderBrush="{StaticResource BorderMediumColorBrush}"
+                Click="RecomputeGraph_Click"
+                IsEnabled="{Binding Path=IsRecomputeEnabled}"
+                Style="{StaticResource ButtonStyleTuneUp}"
+                Cursor="Hand">
+        </Button>
+        <!--  Data Grids  -->
+        <Grid Name="Nodes"
+              Grid.Row="2"
+              Grid.Column="0"
+              Grid.ColumnSpan="2">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel >
+                    <!-- Latest Run -->
+                    <TextBlock Text="Latest Run"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding LatestRunTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
+                              x:Name="LatestRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternatingRowBackground="#434343"
+                              Sorting="LatestRunTable_Sorting">
+                        <DataGrid.Columns>
+                            <!--  Execution Order  -->
+                            <DataGridTextColumn Width="40"
+                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
+                                                Header="#">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--  Node Name  -->
+                            <DataGridTemplateColumn Width="*"
+                                                    Header="Name"
+                                                    SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  Execution Time  -->
+                            <DataGridTextColumn Width="120"
+                                                Binding="{Binding ExecutionMilliseconds}"
+                                                Header="Execution Time (ms)"
+                                                IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
+                                Visibility="{Binding LatestRunTableVisibility}">
+                        <TextBlock Text="Total"
+                                   Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"
+                                   Style="{StaticResource CollectionFooterTextBlockStyle}"/>
+                    </StackPanel>
+                    <!-- Previous Run -->
+                    <TextBlock Text="Previous Run"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding PreviousRunTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
+                              x:Name="PreviousRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None"
+                              Sorting="LatestRunTable_Sorting">
+                        <DataGrid.Columns>
+                            <!--Execution Order-->
+                            <DataGridTextColumn Width="40"
+                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <!--Node Name-->
+                            <DataGridTemplateColumn Width="*" SortMemberPath="Name">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--Execution Time-->
+                            <DataGridTextColumn Width="120"
+                                                Binding="{Binding ExecutionMilliseconds}"
+                                                IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
+                                Visibility="{Binding PreviousRunTableVisibility}">
+                        <TextBlock Text="Total"
+                                   Style="{StaticResource CollectionHeaderTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"
+                                   Style="{StaticResource CollectionFooterTextBlockStyle}" />
+                    </StackPanel>
+                    <!-- Not Executed -->
+                    <TextBlock Text="Not Executed"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding NotExecutedTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
+                              x:Name="NotExecutedTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternationCount="2"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None"
+                              CanUserSortColumns="False"
+                              Sorting="NotExecutedTable_Sorting">                       
+                        <DataGrid.Columns>
+                            <!--Execution Order-->
+                            <DataGridTextColumn Width="40"/>
+                            <!--Node Name-->
+                            <DataGridTemplateColumn Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <StaticResource ResourceKey="NodeNameTemplate" />
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--Execution Time-->
+                            <DataGridTextColumn Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+        <!--  Export Button  -->
+        <DockPanel Grid.Row="3" Grid.Column="1">
+            <Grid DockPanel.Dock="Top">
+                <Button x:Name="ExportButton"
+                        Content="Export"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,10,10,10"
+                        BorderThickness="0"
+                        Style="{StaticResource ButtonStyleTuneUp}"
+                        Click="ExportButton_OnClick"
+                        Cursor="Hand">
+                    <Button.ContextMenu>
+                        <ContextMenu Name="MainContextMenu"
+                                     Style="{StaticResource ContextMenuStyleTuneUp}"
+                                     Background="{StaticResource MidGrayBrush}"
+                                     Width="170"
+                                     Height="Auto">
+                            <MenuItem Name="CSVItem"
+                                      Header="Export as CSV"
+                                      Padding="10"
+                                      FontSize="12"
+                                      Click="ExportToCsv_Click"/>
+                            <MenuItem Name="JSONItem"
+                                      Header="Export as JSON"
+                                      Padding="10"
+                                      FontSize="12"
+                                      Click="ExportToJson_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </Grid>
+        </DockPanel>
     </Grid>
 </Window>

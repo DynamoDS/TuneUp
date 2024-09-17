@@ -37,13 +37,7 @@ namespace TuneUp
         /// is initiated by the user (true) or programmatically (false).
         /// </summary>
         private bool isUserInitiatedSelection = false;
-
-        /// <summary>
-        /// Since there is no API for height offset comparing to
-        /// DynamoWindow height. Define it as static for now.
-        /// </summary>
-        private static double sidebarHeightOffset = 200;
-
+                
         /// <summary>
         /// Create the TuneUp Window
         /// </summary>
@@ -52,19 +46,9 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-            // Initialize the height of the datagrid in order to make sure
-            // vertical scrollbar can be displayed correctly.
-            this.NodeAnalysisTable.Height = vlp.DynamoWindow.Height - sidebarHeightOffset;
-            vlp.DynamoWindow.SizeChanged += DynamoWindow_SizeChanged;
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
-        }
-
-        private void DynamoWindow_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
-        {
-            // Update the new height of datagrid
-            this.NodeAnalysisTable.Height = e.NewSize.Height - sidebarHeightOffset;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -112,30 +96,25 @@ namespace TuneUp
             isUserInitiatedSelection = false;
         }
 
-        internal void Dispose()
-        {
-            viewLoadedParams.DynamoWindow.SizeChanged -= DynamoWindow_SizeChanged;
-        }
-
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
+            (LatestRunTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
         }
 
         /// <summary>
-        /// Handles the sorting event for the NodeAnalysisTable DataGrid.
+        /// Handles the sorting event for the LatestRunTable DataGrid.
         /// Updates the SortingOrder property in the view model based on the column header clicked by the user.
         /// </summary>
-        private void NodeAnalysisTable_Sorting(object sender, DataGridSortingEventArgs e)
+        private void LatestRunTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            var viewModel = NodeAnalysisTable.DataContext as TuneUpWindowViewModel;
+            var viewModel = LatestRunTable.DataContext as TuneUpWindowViewModel;
             if (viewModel != null)
             {
                 viewModel.SortingOrder = e.Column.Header switch
                 {
-                    "#" => "number",
-                    "Name" => "name",
-                    "Execution Time (ms)" => "time",
+                    "#" => TuneUpWindowViewModel.SortByNumber,
+                    "Name" => TuneUpWindowViewModel.SortByName,
+                    "Execution Time (ms)" => TuneUpWindowViewModel.SortByTime,
                     _ => viewModel.SortingOrder
                 };
 
@@ -150,10 +129,25 @@ namespace TuneUp
             }
         }
 
-        private void ExportTimes_Click(object sender, RoutedEventArgs e)
+        private void NotExecutedTable_Sorting(object sender, DataGridSortingEventArgs e)
         {
-            (NodeAnalysisTable.DataContext as TuneUpWindowViewModel).ExportToCsv();
+            e.Handled = true;
         }
+
+        private void ExportToJson_Click(object sender, RoutedEventArgs e)
+        {
+            (LatestRunTable.DataContext as TuneUpWindowViewModel)?.ExportToJson();
+        }
+
+        private void ExportToCsv_Click(object sender, RoutedEventArgs e)
+        {
+            (LatestRunTable.DataContext as TuneUpWindowViewModel)?.ExportToCsv();
+        }
+
+        private void ExportButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ExportButton.ContextMenu.IsOpen = true;
+        }        
     }
 
     #region Converters
@@ -164,13 +158,14 @@ namespace TuneUp
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Length == 2 &&
+            if (values.Length == 3 &&
             values[0] is bool isGroup &&
-            values[1] is Guid groupGuid && groupGuid != DefaultGuid)
+            values[1] is Guid groupGuid &&
+            values[2] is bool showGroupIndicator && showGroupIndicator)
             {
-                return isGroup ? new System.Windows.Thickness(0) : new System.Windows.Thickness(30, 0, 0, 0);
+                if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(5,0,0,0);
             }
-            return new System.Windows.Thickness(0);
+            return new System.Windows.Thickness(-4,0,0,0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -179,21 +174,69 @@ namespace TuneUp
         }
     }
 
-    public class IsGroupToBrushConverter : IValueConverter
+    public class IsInGroupToColorBrushMultiConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+        private static readonly SolidColorBrush TransparentBrush = Brushes.Transparent;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 4 &&
+            values[0] is bool isGroup &&
+            values[1] is Guid groupGuid &&
+            values[2] is SolidColorBrush groupColorBrush &&
+            values[3] is bool showGroupIndicator)
+            {
+                if (showGroupIndicator && groupColorBrush != null)
+                {
+                    if (isGroup || groupGuid != DefaultGuid) return groupColorBrush;
+                }                
+            }
+            return TransparentBrush;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToColorBrushMultiConverter : IMultiValueConverter
+    {
+        private static readonly SolidColorBrush TransparentBrush = Brushes.Transparent;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+            values[0] is bool isGroup &&
+            values[1] is SolidColorBrush groupColorBrush)
+            {
+                if (isGroup && groupColorBrush != null) return groupColorBrush;
+            }
+            return TransparentBrush;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsGroupToColorBrushConverter : IValueConverter
     {
         private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
-        private static readonly SolidColorBrush DefaultBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AAAAAA"));
+        private static readonly SolidColorBrush DarkThemeBodyMediumBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"));
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is bool isGroup && isGroup ? GroupBrush : DefaultBrush;
+            return value is bool isGroup && isGroup ? GroupBrush : DarkThemeBodyMediumBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-    }
+    }    
 
     public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
     {
@@ -215,6 +258,87 @@ namespace TuneUp
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsRenamedToVisibilityMultiConverter : IMultiValueConverter
+    {        
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 &&
+            values[0] is bool isGroup &&
+            values[1] is bool isRenamed && !isGroup)
+            {
+                if (isRenamed) return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ExecutionOrderNumberConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ProfiledNodeViewModel node)
+            {
+                return node.ShowGroupIndicator ? node.GroupExecutionOrderNumber : node.ExecutionOrderNumber;
+            }
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ExecutionOrderNumberVisibilityConverter : IMultiValueConverter
+    {
+        private static readonly Guid DefaultGuid = Guid.Empty;
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 3 &&
+                values[0] is bool isGroup &&
+                values[1] is Guid groupGuid &&
+                values[2] is bool showGroups)
+            {
+                if (showGroups)
+                {
+                    if (isGroup || groupGuid == DefaultGuid) return Visibility.Visible;
+                    else return Visibility.Collapsed;
+                }
+                if (!showGroups) return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ContainsStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string name)
+            {
+                return (name.StartsWith(ProfiledNodeViewModel.ExecutionTimelString) ||
+                    name.Equals(ProfiledNodeViewModel.GroupExecutionTimeString));
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

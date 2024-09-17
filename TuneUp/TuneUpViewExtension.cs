@@ -18,7 +18,6 @@ namespace TuneUp
 
         public override void Dispose()
         {
-            TuneUpView.Dispose();
         }
 
         public override void Startup(ViewStartupParams p)
@@ -34,7 +33,9 @@ namespace TuneUp
             TuneUpView = new TuneUpWindow(p, UniqueId)
             {
                 // Set the data context for the main grid in the window.
-                NodeAnalysisTable = { DataContext = ViewModel },
+                LatestRunTable = { DataContext = ViewModel },
+                PreviousRunTable = { DataContext = ViewModel },
+                NotExecutedTable = { DataContext = ViewModel },
                 MainGrid = { DataContext = ViewModel },
                 Owner = p.DynamoWindow
             };
@@ -114,7 +115,7 @@ namespace TuneUp
                 this.TuneUpMenuItem.IsChecked = false;
 
                 // Reset DataGrid sorting order & direction
-                ViewModel.SortingOrder = "number";
+                ViewModel.SortingOrder = TuneUpWindowViewModel.SortByNumber;
                 ViewModel.SortDirection = System.ComponentModel.ListSortDirection.Ascending;
             }
         }
