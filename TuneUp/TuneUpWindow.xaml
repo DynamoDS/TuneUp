@@ -444,7 +444,10 @@
                               x:Name="LatestRunTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternatingRowBackground="#434343"
-                              Sorting="LatestRunTable_Sorting">
+                              Sorting="LatestRunTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40"
@@ -493,7 +496,10 @@
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternatingRowBackground="#434343"
                               HeadersVisibility="None"
-                              Sorting="LatestRunTable_Sorting">
+                              Sorting="LatestRunTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave">
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="40"
@@ -540,7 +546,10 @@
                               AlternatingRowBackground="#434343"
                               HeadersVisibility="None"
                               CanUserSortColumns="False"
-                              Sorting="NotExecutedTable_Sorting">                       
+                              Sorting="NotExecutedTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave">                       
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="40"/>
