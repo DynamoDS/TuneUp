@@ -165,7 +165,7 @@ namespace TuneUp
             {
                 if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(5,0,0,0);
             }
-            return new System.Windows.Thickness(-4,0,0,0);
+            return new System.Windows.Thickness(-3,0,0,0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
