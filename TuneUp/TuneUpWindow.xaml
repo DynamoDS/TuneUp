@@ -21,12 +21,12 @@
             <local:IsGroupToMarginMultiConverter x:Key="IsGroupToMarginMultiConverter" />
             <local:IsGroupToVisibilityMultiConverter x:Key="IsGroupToVisibilityMultiConverter" />
             <local:ExecutionOrderNumberVisibilityConverter x:Key="ExecutionOrderNumberVisibilityConverter" />
-            <local:IsGroupToColorBrushConverter x:Key="IsGroupToColorBrushConverter" />
             <local:IsGroupToColorBrushMultiConverter x:Key="IsGroupToColorBrushMultiConverter" />
             <local:IsInGroupToColorBrushMultiConverter x:Key="IsInGroupToColorBrushMultiConverter" />
             <local:IsRenamedToVisibilityMultiConverter x:Key="IsRenamedToVisibilityMultiConverter" />
             <local:ExecutionOrderNumberConverter x:Key="ExecutionOrderNumberConverter" />
             <local:ContainsStringConverter x:Key="ContainsStringConverter" />
+            <local:IsGroupAndBackgroundToForegroundConverter x:Key="IsGroupAndBackgroundToForegroundConverter" />
             <!--  ERROR : DYNAMO CRASHES WHEN REFERENCED FROM DYNAMOCOREWPF  -->
             <Color x:Key="BorderColorTuneUp">#555555</Color>
             <SolidColorBrush x:Key="BorderColorBrushTuneUp" Color="{StaticResource BorderColorTuneUp}" />
@@ -211,7 +211,10 @@
                                 </MultiBinding>
                             </TextBlock.Margin>
                             <TextBlock.Foreground>
-                                <Binding Converter="{StaticResource IsGroupToColorBrushConverter}" Path="IsGroup" />
+                                <MultiBinding Converter="{StaticResource IsGroupAndBackgroundToForegroundConverter}">
+                                    <Binding Path="IsGroup" />
+                                    <Binding Path="BackgroundBrush" />
+                                </MultiBinding>
                             </TextBlock.Foreground>
                         </TextBlock>
                     </Border>
