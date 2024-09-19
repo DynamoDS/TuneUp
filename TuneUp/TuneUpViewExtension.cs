@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
+using Dynamo.Wpf.Properties;
 
 namespace TuneUp
 {
@@ -62,11 +63,7 @@ namespace TuneUp
 
             // Add this view extension's menu item to the Extensions tab or View tab accordingly.
             var dynamoMenuItems = p.dynamoMenu.Items.OfType<MenuItem>();
-            // TODO: Investigate why TuneUpMenuItem is not added to the specified MenuItem
-            // When _Extensions is specified, TuneUpMenuItem goes to the View menu in Dynamo 3.0-
-            // and does not appear in Dynamo 3.1+.
-            // We need to specify _View for TuneUpMenuItem to be added to the Extensions menu
-            var extensionsMenuItem = dynamoMenuItems.Where(item => item.Header.ToString() == "_View");
+            var extensionsMenuItem = dynamoMenuItems.Where(item => item.Header.ToString() == Resources.DynamoViewExtensionsMenu);
 
             if (extensionsMenuItem.Count() > 0)
             {
