@@ -10,6 +10,7 @@ using System.Windows.Media;
 using Dynamo.Extensions;
 using Dynamo.Graph.Nodes;
 using Dynamo.Models;
+using Dynamo.UI;
 using Dynamo.Utilities;
 using Dynamo.Wpf.Extensions;
 
@@ -165,7 +166,7 @@ namespace TuneUp
             {
                 if ( isGroup || !groupGuid.Equals(DefaultGuid)) return new System.Windows.Thickness(5,0,0,0);
             }
-            return new System.Windows.Thickness(-4,0,0,0);
+            return new System.Windows.Thickness(-3,0,0,0);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -222,21 +223,56 @@ namespace TuneUp
         }
     }
 
-    public class IsGroupToColorBrushConverter : IValueConverter
+    public class IsGroupAndBackgroundToForegroundConverter : IMultiValueConverter
     {
-        private static readonly SolidColorBrush GroupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#333333"));
-        private static readonly SolidColorBrush DarkThemeBodyMediumBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"));
+        private static readonly SolidColorBrush LightBrush = new SolidColorBrush((Color)SharedDictionaryManager.DynamoColorsAndBrushesDictionary["WhiteColor"]);
+        private static readonly SolidColorBrush DarkBrush = new SolidColorBrush((Color)SharedDictionaryManager.DynamoColorsAndBrushesDictionary["DarkerGrey"]);
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is bool isGroup && isGroup ? GroupBrush : DarkThemeBodyMediumBrush;
+            if (values.Length != 2 ||
+                !(values[0] is bool isGroup) ||
+                !(values[1] is SolidColorBrush backgroundBrush))
+            {
+                return LightBrush;
+            }
+
+            if (!isGroup)
+            {
+                return LightBrush;
+            }
+            var backgroundColor = backgroundBrush.Color;
+            var contrastRatio = GetContrastRatio((Color)SharedDictionaryManager.DynamoColorsAndBrushesDictionary["DarkerGrey"], backgroundColor);
+
+            return contrastRatio < 4.5 ? LightBrush : DarkBrush;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-    }    
+
+        private double GetContrastRatio(Color foreground, Color background)
+        {
+            double L1 = GetRelativeLuminance(foreground);
+            double L2 = GetRelativeLuminance(background);
+
+            return L1 > L2 ? (L1 + 0.05) / (L2 + 0.05) : (L2 + 0.05) / (L1 + 0.05);
+        }
+
+        private double GetRelativeLuminance(Color color)
+        {
+            var R = color.R / 255.0;
+            var G = color.G / 255.0;
+            var B = color.B / 255.0;
+
+            R = R < 0.03928 ? R / 12.92 : Math.Pow((R + 0.055) / 1.055, 2.4);
+            G = G < 0.03928 ? G / 12.92 : Math.Pow((G + 0.055) / 1.055, 2.4);
+            B = B < 0.03928 ? B / 12.92 : Math.Pow((B + 0.055) / 1.055, 2.4);
+
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        }
+    }
 
     public class IsGroupToVisibilityMultiConverter : IMultiValueConverter
     {
