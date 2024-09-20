@@ -454,10 +454,16 @@
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40"
-                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
                                                 Header="#">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.ShowGroups, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True">
+                                            <Setter Property="Text" Value="{Binding GroupExecutionOrderNumber}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <!--  Node Name  -->
@@ -508,7 +514,14 @@
                             <DataGridTextColumn Width="40"
                                                 Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.ShowGroups, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True">
+                                                <Setter Property="Text" Value="{Binding GroupExecutionOrderNumber}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <!--Node Name-->

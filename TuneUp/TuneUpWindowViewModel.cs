@@ -345,7 +345,8 @@ namespace TuneUp
                     {
                         GroupGUID = groupGUID,
                         GroupName = group.AnnotationText,
-                        BackgroundBrush = groupBackgroundBrush
+                        BackgroundBrush = groupBackgroundBrush,
+                        ShowGroupIndicator = ShowGroups
                     };
                     ProfiledNodesNotExecuted.Add(profiledNode);
                     nodeDictionary[node.GUID] = profiledNode;
@@ -371,11 +372,14 @@ namespace TuneUp
             ApplyGroupNodeFilter();
             ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
 
-            RefreshAllCollectionViews();
+            //RefreshAllCollectionViews();
+            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
 
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
 
+            // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
+            RaisePropertyChanged(nameof(LatestRunTableVisibility));
+            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
             RaisePropertyChanged(nameof(NotExecutedTableVisibility));
         }
 
@@ -568,6 +572,7 @@ namespace TuneUp
                                 profiledGroup.GroupExecutionTime += node.ExecutionTime; // accurate, for sorting
                                 profiledGroup.ExecutionMilliseconds += node.ExecutionMilliseconds; // rounded, for display in UI
                                 node.GroupExecutionOrderNumber = groupExecutionCounter;
+                                node.ShowGroupIndicator = ShowGroups;
                                 if (groupIsRenamed)
                                 {
                                     node.GroupName = profiledGroup.GroupName;
@@ -603,6 +608,15 @@ namespace TuneUp
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
             }
+
+            // Additional sorting to prevent group nodes from appearing at the bottom of the DataGrid
+            // when consecutive graphs are opened while TuneUp is enabled.
+            ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
+            {
+                ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
+                RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+            });
+
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
