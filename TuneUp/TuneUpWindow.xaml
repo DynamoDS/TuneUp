@@ -74,8 +74,8 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                            <DockPanel LastChildFill="False" HorizontalAlignment="Left">
-                                <!-- Sort Arrow -->
+                            <DockPanel HorizontalAlignment="Left" LastChildFill="False">
+                                <!--  Sort Arrow  -->
                                 <Path
                                     x:Name="SortArrow"
                                     Width="7"
@@ -83,12 +83,12 @@
                                     Margin="5,0,0,0"
                                     VerticalAlignment="Center"
                                     Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+                                    DockPanel.Dock="Right"
                                     Fill="{StaticResource UnSelectedLayoutForeground}"
                                     RenderTransformOrigin="0.5,0.5"
                                     Stretch="Fill"
-                                    Visibility="Collapsed"
-                                    DockPanel.Dock="Right" />
-                                <!-- Header Content -->
+                                    Visibility="Collapsed" />
+                                <!--  Header Content  -->
                                 <ContentPresenter
                                     x:Name="HeaderContent"
                                     HorizontalAlignment="Left"
@@ -154,8 +154,11 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-            <!-- TextBlock style for "ExecutionOrder" Column-->
-            <Style x:Key="ExecutionOrderTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
+            <!--  TextBlock style for "ExecutionOrder" Column  -->
+            <Style
+                x:Key="ExecutionOrderTextBlockStyle"
+                BasedOn="{StaticResource DataGridTextBlockStyle}"
+                TargetType="TextBlock">
                 <Setter Property="Visibility">
                     <Setter.Value>
                         <MultiBinding Converter="{StaticResource ExecutionOrderNumberVisibilityConverter}">
@@ -166,7 +169,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <!-- DataTemplate for "Name" Column -->
+            <!--  DataTemplate for "Name" Column  -->
             <DataTemplate x:Key="NodeNameTemplate">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -185,7 +188,7 @@
                             </MultiBinding>
                         </Border.Background>
                     </Border>
-                    <!-- Node name -->
+                    <!--  Node name  -->
                     <Border Grid.Column="1">
                         <Border.Background>
                             <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
@@ -218,7 +221,7 @@
                             </TextBlock.Foreground>
                         </TextBlock>
                     </Border>
-                    <!-- Renamed node indicator -->
+                    <!--  Renamed node indicator  -->
                     <Border Grid.Column="2">
                         <Border.Background>
                             <MultiBinding Converter="{StaticResource IsGroupToColorBrushMultiConverter}">
@@ -227,14 +230,15 @@
                             </MultiBinding>
                         </Border.Background>
                     </Border>
-                    <Ellipse Name="nodeRenamedBlueDot"
-                             Grid.Column="2"
-                             Width="6"
-                             Height="6"
-                             Margin="5,0,8,0"
-                             HorizontalAlignment="Right"
-                             VerticalAlignment="Center"
-                             Fill="{StaticResource Blue300Brush}">
+                    <Ellipse
+                        Name="nodeRenamedBlueDot"
+                        Grid.Column="2"
+                        Width="6"
+                        Height="6"
+                        Margin="5,0,8,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Fill="{StaticResource Blue300Brush}">
                         <Ellipse.ToolTip>
                             <ToolTip Style="{StaticResource GenericToolTipLight}">
                                 <TextBlock>
@@ -253,46 +257,49 @@
                     </Ellipse>
                 </Grid>
             </DataTemplate>
-            <!-- TextBlock style for "ExecutionTime" Columns -->
-            <Style x:Key="ExecutionTimeTextBlockStyle" BasedOn="{StaticResource DataGridTextBlockStyle}" TargetType="TextBlock">
+            <!--  TextBlock style for "ExecutionTime" Columns  -->
+            <Style
+                x:Key="ExecutionTimeTextBlockStyle"
+                BasedOn="{StaticResource DataGridTextBlockStyle}"
+                TargetType="TextBlock">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsGroup}" Value="True">
                         <Setter Property="Visibility" Value="Collapsed" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-            <!-- TextBlock style-->
+            <!--  TextBlock style  -->
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
                 <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
             </Style>
-            <!-- StackPanel style for total time headers -->
+            <!--  StackPanel style for total time headers  -->
             <Style x:Key="TotalTimeHeaderStackPanelStyle" TargetType="StackPanel">
                 <Setter Property="Orientation" Value="Horizontal" />
                 <Setter Property="HorizontalAlignment" Value="Left" />
                 <Setter Property="Height" Value="20" />
             </Style>
-            <!-- StackPanel style for collection footer -->
+            <!--  StackPanel style for collection footer  -->
             <Style x:Key="CollectionFooterStackPanelStyle" TargetType="StackPanel">
                 <Setter Property="Orientation" Value="Horizontal" />
                 <Setter Property="HorizontalAlignment" Value="Right" />
                 <Setter Property="Height" Value="25" />
             </Style>
-            <!-- TextBlock style for collection footer -->
+            <!--  TextBlock style for collection footer  -->
             <Style x:Key="CollectionFooterTextBlockStyle" TargetType="TextBlock">
-                <Setter Property="Height" Value="20"/>
-                <Setter Property="FontSize" Value="12"/>
-                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementBold}"/>
+                <Setter Property="Height" Value="20" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementBold}" />
             </Style>
-            <!-- TextBlock style for collection header -->
+            <!--  TextBlock style for collection header  -->
             <Style x:Key="CollectionHeaderTextBlockStyle" TargetType="TextBlock">
-                <Setter Property="Height" Value="20"/>
-                <Setter Property="FontSize" Value="12"/>
-                <Setter Property="Margin" Value="5,0,0,0"/>
-                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Height" Value="20" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Margin" Value="5,0,0,0" />
+                <Setter Property="FontWeight" Value="Normal" />
             </Style>
-            <!--  Button style *** -->
-            <!-- PackageManager\Controls\ControlColorsAndBrushes -->
+            <!--  Button style ***  -->
+            <!--  PackageManager\Controls\ControlColorsAndBrushes  -->
             <Style x:Key="ButtonStyleTuneUp" TargetType="{x:Type Button}">
                 <Setter Property="Foreground" Value="{StaticResource DarkThemeBodyMediumBrush}" />
                 <Setter Property="Background" Value="Transparent" />
@@ -332,82 +339,90 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <!-- Context Menu style for Export button * -->
-            <Style x:Key="ContextMenuStyleTuneUp" TargetType="{x:Type ContextMenu}" BasedOn="{StaticResource ContextMenuStyle}">
+            <!--  Context Menu style for Export button *  -->
+            <Style
+                x:Key="ContextMenuStyleTuneUp"
+                BasedOn="{StaticResource ContextMenuStyle}"
+                TargetType="{x:Type ContextMenu}">
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ContextMenu}">
-                            <Border x:Name="Border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderThickness="0px">
-                                <StackPanel IsItemsHost="True"
-                                            Margin="0"
-                                            ClipToBounds="True"
-                                            Orientation="Vertical" />
+                            <Border
+                                x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="0px">
+                                <StackPanel
+                                    Margin="0"
+                                    ClipToBounds="True"
+                                    IsItemsHost="True"
+                                    Orientation="Vertical" />
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
         </Grid.Resources>
-        
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="150"/>
+            <ColumnDefinition Width="*" MinWidth="150" />
             <ColumnDefinition Width="150" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!--  Execution Times  -->
-        <StackPanel Grid.Row="0"
-                    Grid.Column="0"
-                    HorizontalAlignment="Left"
-                    Orientation="Vertical">
-            <TextBlock Text="Graph execution time (ms)"
-                       Margin="5,0,0,0"
-                       Height="20">
-            </TextBlock>
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="0"
+            HorizontalAlignment="Left"
+            Orientation="Vertical">
+            <TextBlock
+                Height="20"
+                Margin="5,0,0,0"
+                Text="Graph execution time (ms)" />
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70"
-                           Margin="5,0,0,0"
-                           Text="Latest"/>
-                <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"/>
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    Text="Latest" />
+                <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70"
-                           Margin="5,0,0,0"
-                           Text="Previous"/>
-                <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"/>
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    Text="Previous" />
+                <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70"
-                           Margin="5,0,0,0"
-                           Text="Total"
-                           FontFamily="{StaticResource ArtifaktElementBold}"/>
-                <TextBlock Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}"
-                           FontFamily="{StaticResource ArtifaktElementBold}"/>
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    FontFamily="{StaticResource ArtifaktElementBold}"
+                    Text="Total" />
+                <TextBlock FontFamily="{StaticResource ArtifaktElementBold}" Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
         </StackPanel>
         <!--  Show Groups Button  -->
-        <StackPanel Grid.Row="0"
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal">
-            <ToggleButton Width="30"
-                          Height="15"
-                          Margin="2,0,0,0"
-                          VerticalAlignment="Center"
-                          IsChecked="{Binding ShowGroups, Mode=TwoWay}"
-                          IsEnabled="True"
-                          Style="{StaticResource EllipseToggleButton1}" />
-            <TextBlock Margin="5,0,7,0"
-                       Text="Show groups">
-            </TextBlock>
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="1"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Orientation="Horizontal">
+            <ToggleButton
+                Width="30"
+                Height="15"
+                Margin="2,0,0,0"
+                VerticalAlignment="Center"
+                IsChecked="{Binding ShowGroups, Mode=TwoWay}"
+                IsEnabled="True"
+                Style="{StaticResource EllipseToggleButton1}" />
+            <TextBlock Margin="5,0,7,0" Text="Show groups" />
             <!--<Rectangle Width="16"
                        Height="16"
                        Margin="10,0,7,0"
@@ -418,25 +433,26 @@
             </Rectangle>-->
         </StackPanel>
         <!--  Run All Button  -->
-        <Button Grid.Row="1"
-                Grid.Column="2"
-                Content="Run All"
-                Width="60"
-                Height="24"
-                Margin="0,0,7,20"
-                Padding="5,2,5,2"
-                HorizontalAlignment="Right"
-                BorderBrush="{StaticResource BorderMediumColorBrush}"
-                Click="RecomputeGraph_Click"
-                IsEnabled="{Binding Path=IsRecomputeEnabled}"
-                Style="{StaticResource ButtonStyleTuneUp}"
-                Cursor="Hand">
-        </Button>
+        <Button
+            Grid.Row="1"
+            Grid.Column="2"
+            Width="60"
+            Height="24"
+            Margin="0,0,7,20"
+            Padding="5,2,5,2"
+            HorizontalAlignment="Right"
+            BorderBrush="{StaticResource BorderMediumColorBrush}"
+            Click="RecomputeGraph_Click"
+            Content="Run All"
+            Cursor="Hand"
+            IsEnabled="{Binding Path=IsRecomputeEnabled}"
+            Style="{StaticResource ButtonStyleTuneUp}" />
         <!--  Data Grids  -->
-        <Grid Name="Nodes"
-              Grid.Row="2"
-              Grid.Column="0"
-              Grid.ColumnSpan="2">
+        <Grid
+            Name="Nodes"
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="2">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel >
                     <!-- Latest Run -->
@@ -454,42 +470,48 @@
                               PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40"
-                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}"
-                                                Header="#">
+                            <DataGridTextColumn Width="40" Header="#">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.ShowGroups, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True">
+                                                <Setter Property="Text" Value="{Binding GroupExecutionOrderNumber}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <!--  Node Name  -->
-                            <DataGridTemplateColumn Width="*"
-                                                    Header="Name"
-                                                    SortMemberPath="Name">
+                            <DataGridTemplateColumn
+                                Width="*"
+                                Header="Name"
+                                SortMemberPath="Name">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <StaticResource ResourceKey="NodeNameTemplate" />
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
-                            <DataGridTextColumn Width="120"
-                                                Binding="{Binding ExecutionMilliseconds}"
-                                                Header="Execution time (ms)"
-                                                IsReadOnly="True">
+                            <DataGridTextColumn
+                                Width="120"
+                                Binding="{Binding ExecutionMilliseconds}"
+                                Header="Execution time (ms)"
+                                IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock" />
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
-                                Visibility="{Binding LatestRunTableVisibility}">
-                        <TextBlock Text="Total"
-                                   Style="{StaticResource CollectionFooterTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}"
-                                   Style="{StaticResource CollectionFooterTextBlockStyle}"
-                                   Width="120"
-                                   HorizontalAlignment="Left"
-                                   Margin="10,0,0,0"
-                                   Padding="7,0,0,0"/>
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}" Visibility="{Binding LatestRunTableVisibility}">
+                        <TextBlock Style="{StaticResource CollectionFooterTextBlockStyle}" Text="Total" />
+                        <TextBlock
+                            Width="120"
+                            Margin="10,0,0,0"
+                            Padding="7,0,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource CollectionFooterTextBlockStyle}"
+                            Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" />
                     </StackPanel>
                     <!-- Previous Run -->
                     <TextBlock Text="Previous run"
@@ -506,39 +528,45 @@
                               MouseLeave="NodeAnalysisTable_MouseLeave"
                               PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
-                            <!--Execution Order-->
-                            <DataGridTextColumn Width="40"
-                                                Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
+                            <!--  Execution Order  -->
+                            <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.ShowGroups, RelativeSource={RelativeSource AncestorType=DataGrid}}" Value="True">
+                                                <Setter Property="Text" Value="{Binding GroupExecutionOrderNumber}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <!--Node Name-->
+                            <!--  Node Name  -->
                             <DataGridTemplateColumn Width="*" SortMemberPath="Name">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <StaticResource ResourceKey="NodeNameTemplate" />
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <!--Execution Time-->
-                            <DataGridTextColumn Width="120"
-                                                Binding="{Binding ExecutionMilliseconds}"
-                                                IsReadOnly="True">
+                            <!--  Execution Time  -->
+                            <DataGridTextColumn
+                                Width="120"
+                                Binding="{Binding ExecutionMilliseconds}"
+                                IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
-                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock"/>
+                                    <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock" />
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}"
-                                Visibility="{Binding PreviousRunTableVisibility}">
-                        <TextBlock Text="Total"
-                                   Style="{StaticResource CollectionFooterTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}"
-                                   Style="{StaticResource CollectionFooterTextBlockStyle}"
-                                   Width="120"
-                                   HorizontalAlignment="Left"
-                                   Margin="10,0,0,0"
-                                   Padding="7,0,0,0"/>
+                    <StackPanel Style="{StaticResource CollectionFooterStackPanelStyle}" Visibility="{Binding PreviousRunTableVisibility}">
+                        <TextBlock Style="{StaticResource CollectionFooterTextBlockStyle}" Text="Total" />
+                        <TextBlock
+                            Width="120"
+                            Margin="10,0,0,0"
+                            Padding="7,0,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource CollectionFooterTextBlockStyle}"
+                            Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" />
                     </StackPanel>
                     <!-- Not Executed -->
                     <TextBlock Text="Not executed"
@@ -555,18 +583,18 @@
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                               MouseLeave="NodeAnalysisTable_MouseLeave"
-                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">                       
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">   
                         <DataGrid.Columns>
-                            <!--Execution Order-->
-                            <DataGridTextColumn Width="40"/>
-                            <!--Node Name-->
+                            <!--  Execution Order  -->
+                            <DataGridTextColumn Width="40" />
+                            <!--  Node Name  -->
                             <DataGridTemplateColumn Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <StaticResource ResourceKey="NodeNameTemplate" />
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <!--Execution Time-->
-                            <DataGridTextColumn Width="120"/>
+                            <!--  Execution Time  -->
+                            <DataGridTextColumn Width="120" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>
@@ -575,31 +603,35 @@
         <!--  Export Button  -->
         <DockPanel Grid.Row="3" Grid.Column="1">
             <Grid DockPanel.Dock="Top">
-                <Button x:Name="ExportButton"
-                        Content="Export"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="0,10,10,10"
-                        BorderThickness="0"
-                        Style="{StaticResource ButtonStyleTuneUp}"
-                        Click="ExportButton_OnClick"
-                        Cursor="Hand">
+                <Button
+                    x:Name="ExportButton"
+                    Margin="0,10,10,10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    BorderThickness="0"
+                    Click="ExportButton_OnClick"
+                    Content="Export"
+                    Cursor="Hand"
+                    Style="{StaticResource ButtonStyleTuneUp}">
                     <Button.ContextMenu>
-                        <ContextMenu Name="MainContextMenu"
-                                     Style="{StaticResource ContextMenuStyleTuneUp}"
-                                     Background="{StaticResource MidGrayBrush}"
-                                     Width="170"
-                                     Height="Auto">
-                            <MenuItem Name="CSVItem"
-                                      Header="Export as CSV"
-                                      Padding="10"
-                                      FontSize="12"
-                                      Click="ExportToCsv_Click"/>
-                            <MenuItem Name="JSONItem"
-                                      Header="Export as JSON"
-                                      Padding="10"
-                                      FontSize="12"
-                                      Click="ExportToJson_Click"/>
+                        <ContextMenu
+                            Name="MainContextMenu"
+                            Width="170"
+                            Height="Auto"
+                            Background="{StaticResource MidGrayBrush}"
+                            Style="{StaticResource ContextMenuStyleTuneUp}">
+                            <MenuItem
+                                Name="CSVItem"
+                                Padding="10"
+                                Click="ExportToCsv_Click"
+                                FontSize="12"
+                                Header="Export as CSV" />
+                            <MenuItem
+                                Name="JSONItem"
+                                Padding="10"
+                                Click="ExportToJson_Click"
+                                FontSize="12"
+                                Header="Export as JSON" />
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
