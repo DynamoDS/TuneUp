@@ -612,7 +612,6 @@ namespace TuneUp
                 ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
                 RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
             });
-
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
