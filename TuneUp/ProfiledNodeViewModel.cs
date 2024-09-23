@@ -71,44 +71,7 @@ namespace TuneUp
                 RaisePropertyChanged(nameof(IsGroupExecutionTime));
             }
         }
-        private bool isGroupExecutionTime = false;
-
-        /// <summary>
-        /// Getting the original name before graph author renamed the node
-        /// </summary>
-        /// <param name="node">target NodeModel</param>
-        /// <returns>Original node name as string</returns>
-        private static string GetOriginalName(NodeModel node)
-        {
-            if (node == null) return string.Empty;
-            // For dummy node, return the current name so that does not appear to be renamed
-            if (node is DummyNode)
-            {
-                return node.Name;
-            }
-            if (node.IsCustomFunction)
-            {
-                // If the custom node is not loaded, return the current name so that does not appear to be renamed
-                if ((node as Function).State == ElementState.Error && (node as Function).Definition.IsProxy)
-                {
-                    return node.Name;
-                }
-                // If the custom node is loaded, return original name as usual
-                var customNodeFunction = node as Function;
-                return customNodeFunction?.Definition.DisplayName;
-            }
-
-            var function = node as DSFunctionBase;
-            if (function != null)
-                return function.Controller.Definition.DisplayName;
-
-            var nodeType = node.GetType();
-            var elNameAttrib = nodeType.GetCustomAttributes<NodeNameAttribute>(false).FirstOrDefault();
-            if (elNameAttrib != null)
-                return elNameAttrib.Name;
-
-            return nodeType.FullName;
-        }
+        private bool isGroupExecutionTime = false;        
 
         /// <summary>
         /// Prefix string of execution time.
@@ -335,6 +298,59 @@ namespace TuneUp
         internal NodeModel NodeModel { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// Getting the original name before graph author renamed the node
+        /// </summary>
+        /// <param name="node">target NodeModel</param>
+        /// <returns>Original node name as string</returns>
+        private static string GetOriginalName(NodeModel node)
+        {
+            if (node == null) return string.Empty;
+            // For dummy node, return the current name so that does not appear to be renamed
+            if (node is DummyNode)
+            {
+                return node.Name;
+            }
+            if (node.IsCustomFunction)
+            {
+                // If the custom node is not loaded, return the current name so that does not appear to be renamed
+                if ((node as Function).State == ElementState.Error && (node as Function).Definition.IsProxy)
+                {
+                    return node.Name;
+                }
+                // If the custom node is loaded, return original name as usual
+                var customNodeFunction = node as Function;
+                return customNodeFunction?.Definition.DisplayName;
+            }
+
+            var function = node as DSFunctionBase;
+            if (function != null)
+                return function.Controller.Definition.DisplayName;
+
+            var nodeType = node.GetType();
+            var elNameAttrib = nodeType.GetCustomAttributes<NodeNameAttribute>(false).FirstOrDefault();
+            if (elNameAttrib != null)
+                return elNameAttrib.Name;
+
+            return nodeType.FullName;
+        }
+
+        internal void ResetGroupProperties()
+        {
+            GroupGUID = Guid.Empty;
+            GroupName = string.Empty;
+            GroupExecutionOrderNumber = null;
+            GroupExecutionTime = TimeSpan.Zero;
+        }
+
+        internal void ApplyGroupProperties(ProfiledNodeViewModel profiledGroup)
+        {
+            GroupGUID = profiledGroup.GroupGUID;
+            GroupName = profiledGroup.GroupName;
+            GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
+            BackgroundBrush = profiledGroup.BackgroundBrush;
+        }
 
         /// <summary>
         /// Create a Profiled Node View Model from a NodeModel
