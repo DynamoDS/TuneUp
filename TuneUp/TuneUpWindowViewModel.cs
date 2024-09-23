@@ -18,7 +18,6 @@ using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using ProtoCore.AST.AssociativeAST;
 
 namespace TuneUp
 {
@@ -372,10 +371,6 @@ namespace TuneUp
 
             ApplyGroupNodeFilter();
             ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
-
-            //RefreshAllCollectionViews();
-            //RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
-
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
 
             // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
@@ -764,8 +759,6 @@ namespace TuneUp
                             profiledNode.ExecutionMilliseconds = totalExecutionMilliseconds;
                         }
                     }
-                    var c = existingProfiledNodesInGroup;
-                    var b = groupDictionary[groupModel.GUID];
 
                     hasChanges = true;
                 }
@@ -896,7 +889,7 @@ namespace TuneUp
 
         #endregion
 
-        #region Helpers        
+        #region Helpers
 
         private ProfiledNodeViewModel CreateGroupTotalTimeNode(ProfiledNodeViewModel profiledGroup)
         {
