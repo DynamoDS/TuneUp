@@ -1054,6 +1054,8 @@ namespace TuneUp
             // Subscribe from workspace events 
             if (subscribe)
             {
+                SwitchToManualMode();
+
                 workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
                 workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
                 workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
