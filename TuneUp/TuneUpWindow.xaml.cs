@@ -97,6 +97,48 @@ namespace TuneUp
             isUserInitiatedSelection = false;
         }
 
+        /// <summary>
+        /// Forwards the mouse wheel scroll event from the DataGrid to the parent ScrollViewer,
+        /// enabling scrolling when the mouse is over the DataGrid.
+        /// </summary>
+        private void DataGrid_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = FindParent<ScrollViewer>((DataGrid)sender);
+
+            if (scrollViewer != null)
+            {
+                if (e.Delta > 0)
+                {
+                    scrollViewer.LineUp();
+                }
+                else
+                {
+                    scrollViewer.LineDown();
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Recursively searches the visual tree to find the parent of the specified type T for a given child element.
+        /// </summary>
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+            if (parentObject == null) return null;
+
+            T parent = parentObject as T;
+            if (parent != null)
+            {
+                return parent;
+            }
+            else
+            {
+                return FindParent<T>(parentObject);
+            }
+        }
+
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (LatestRunTable.DataContext as TuneUpWindowViewModel).ResetProfiling();

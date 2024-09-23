@@ -450,7 +450,8 @@
                               Sorting="LatestRunTable_Sorting"
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                              MouseLeave="NodeAnalysisTable_MouseLeave">
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40"
@@ -502,7 +503,8 @@
                               Sorting="LatestRunTable_Sorting"
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                              MouseLeave="NodeAnalysisTable_MouseLeave">
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="40"
@@ -552,7 +554,8 @@
                               Sorting="NotExecutedTable_Sorting"
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                              MouseLeave="NodeAnalysisTable_MouseLeave">                       
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">                       
                         <DataGrid.Columns>
                             <!--Execution Order-->
                             <DataGridTextColumn Width="40"/>
