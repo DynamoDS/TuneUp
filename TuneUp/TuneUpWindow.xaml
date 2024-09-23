@@ -177,7 +177,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" MinWidth="8" />
                     </Grid.ColumnDefinitions>
-                    <!--  Group indicator  -->
+                    <!-- Group indicator -->
                     <Border Grid.Column="0" Margin="5,0,0,0">
                         <Border.Background>
                             <MultiBinding Converter="{StaticResource IsInGroupToColorBrushMultiConverter}" Mode="OneWay">
