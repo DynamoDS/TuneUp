@@ -345,7 +345,8 @@ namespace TuneUp
                     {
                         GroupGUID = groupGUID,
                         GroupName = group.AnnotationText,
-                        BackgroundBrush = groupBackgroundBrush
+                        BackgroundBrush = groupBackgroundBrush,
+                        ShowGroupIndicator = ShowGroups
                     };
                     ProfiledNodesNotExecuted.Add(profiledNode);
                     nodeDictionary[node.GUID] = profiledNode;
@@ -370,12 +371,11 @@ namespace TuneUp
 
             ApplyGroupNodeFilter();
             ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
-
-            RefreshAllCollectionViews();
-
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            RaisePropertyChanged(nameof(ProfiledNodesNotExecuted));
 
+            // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
+            RaisePropertyChanged(nameof(LatestRunTableVisibility));
+            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
             RaisePropertyChanged(nameof(NotExecutedTableVisibility));
         }
 
@@ -568,6 +568,7 @@ namespace TuneUp
                                 profiledGroup.GroupExecutionTime += node.ExecutionTime; // accurate, for sorting
                                 profiledGroup.ExecutionMilliseconds += node.ExecutionMilliseconds; // rounded, for display in UI
                                 node.GroupExecutionOrderNumber = groupExecutionCounter;
+                                node.ShowGroupIndicator = ShowGroups;
                                 if (groupIsRenamed)
                                 {
                                     node.GroupName = profiledGroup.GroupName;
@@ -603,6 +604,14 @@ namespace TuneUp
                     profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
             }
+
+            // Additional sorting to prevent group nodes from appearing at the bottom of the DataGrid
+            // when consecutive graphs are opened while TuneUp is enabled.
+            ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
+            {
+                ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
+                RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+            });
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
@@ -693,10 +702,71 @@ namespace TuneUp
                     hasChanges = true;
                 }
 
+                // Detect if a node is removed from the group
+                if (e.PropertyName == nameof(groupModel.Nodes))
+                {
+                    var existingProfiledNodesInGroup = groupDictionary[groupModel.GUID].ToList();
+                    var currentGroupNodeGuids = groupModel.Nodes
+                        .OfType<NodeModel>()
+                        .Select(node => node.GUID)
+                        .ToList();
+
+                    // REMOVE nodes that are no longer in the group
+                    var profiledNodesToRemove = existingProfiledNodesInGroup
+                        .Where(profiledNode => !profiledNode.IsGroupExecutionTime && !currentGroupNodeGuids.Contains(profiledNode.NodeModel.GUID))
+                        .ToList();
+
+                    foreach (var profiledNode in profiledNodesToRemove)
+                    {
+                        profiledNode.ResetGroupProperties();
+                        existingProfiledNodesInGroup.Remove(profiledNode);
+                        groupDictionary[groupModel.GUID].Remove(profiledNode);
+                    }
+
+                    // ADD new nodes that are in the updated group but not in the logged group
+                    var profiledNodesToAdd = nodeDictionary
+                        .Where(kvp => currentGroupNodeGuids.Contains(kvp.Key) && !existingProfiledNodesInGroup.Contains(kvp.Value))
+                        .Select(kvp => kvp.Value)
+                        .ToList();
+
+                    foreach (var profiledNode in profiledNodesToAdd)
+                    {
+                        profiledNode.ApplyGroupProperties(profiledGroup);
+                        profiledNode.ShowGroupIndicator = ShowGroups;
+                        existingProfiledNodesInGroup.Add(profiledNode);
+                        groupDictionary[groupModel.GUID].Add(profiledNode);
+                    }
+
+                    // Update group execution time
+                    var totalExecutionMilliseconds = existingProfiledNodesInGroup
+                        .Where(n => !n.IsGroupExecutionTime)
+                        .Sum(n => n.ExecutionMilliseconds);
+                    var totalExecutionTime = existingProfiledNodesInGroup
+                        .Where(n => !n.IsGroupExecutionTime)
+                        .Select(n => n.ExecutionTime)
+                        .Aggregate(TimeSpan.Zero, (sum, next) => sum + next);
+
+                    profiledGroup.ExecutionMilliseconds = totalExecutionMilliseconds;
+                    profiledGroup.GroupExecutionTime = totalExecutionTime;
+
+                    // update the grouped nodes
+                    foreach (var profiledNode in existingProfiledNodesInGroup)
+                    {
+                        profiledNode.GroupExecutionTime = totalExecutionTime;
+                        if (profiledNode.IsGroupExecutionTime)
+                        {
+                            profiledNode.ExecutionMilliseconds = totalExecutionMilliseconds;
+                        }
+                    }
+
+                    hasChanges = true;
+                }
+
                 // Refresh UI if any changes were made
                 if (hasChanges)
                 {
                     NotifyProfilingCollectionsChanged();
+                    // Refresh all collections as a group may contain nodes from multiple collections.
                     RefreshAllCollectionViews();
                 }
             }
@@ -758,12 +828,8 @@ namespace TuneUp
                         nodeDictionary[node.GUID] = profiledNode;
                         ProfiledNodesNotExecuted.Add(profiledNode);
                     }
-                    profiledNode.GroupGUID = group.GUID;
-                    profiledNode.GroupName = group.AnnotationText;
-                    profiledNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
-                    profiledNode.BackgroundBrush = profiledGroup.BackgroundBrush;
+                    profiledNode.ApplyGroupProperties(profiledGroup);
                     profiledNode.ShowGroupIndicator = ShowGroups;
-
                     groupDictionary[group.GUID].Add(profiledNode);
                 }
             }
@@ -798,10 +864,7 @@ namespace TuneUp
                     }
 
                     // Reset properties for each grouped node
-                    profiledNode.GroupGUID = Guid.Empty;
-                    profiledNode.GroupName = string.Empty;
-                    profiledNode.ExecutionOrderNumber = null;
-                    profiledNode.GroupExecutionTime = TimeSpan.Zero;
+                    profiledNode.ResetGroupProperties();
                 }
             }
 
@@ -886,6 +949,7 @@ namespace TuneUp
             ProfiledNodesCollectionPreviousRun?.View?.Refresh();
             ProfiledNodesCollectionNotExecuted?.View?.Refresh();
         }
+
         /// <summary>
         /// Notifies the system that all profiling node collections have changed,
         /// triggering any necessary updates in the user interface.
@@ -1053,6 +1117,8 @@ namespace TuneUp
             // Subscribe from workspace events 
             if (subscribe)
             {
+                SwitchToManualMode();
+
                 workspace.NodeAdded += CurrentWorkspaceModel_NodeAdded;
                 workspace.NodeRemoved += CurrentWorkspaceModel_NodeRemoved;
                 workspace.EvaluationStarted += CurrentWorkspaceModel_EvaluationStarted;
