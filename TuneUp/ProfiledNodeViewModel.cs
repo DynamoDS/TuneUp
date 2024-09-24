@@ -333,6 +333,7 @@ namespace TuneUp
         internal Stopwatch Stopwatch { get; set; }
 
         internal NodeModel NodeModel { get; set; }
+        internal AnnotationModel GroupModel { get; set; }
 
         #endregion
 
@@ -367,7 +368,7 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(AnnotationModel group)
         {
-            NodeModel = null;
+            GroupModel = group;
             Name = $"{GroupNodePrefix}{group.AnnotationText}";
             GroupName = group.AnnotationText;
             GroupGUID = group.GUID;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using Dynamo.Extensions;
-using Dynamo.Graph.Nodes;
+using Dynamo.Graph;
 using Dynamo.Models;
 using Dynamo.UI;
 using Dynamo.Utilities;
@@ -56,26 +55,20 @@ namespace TuneUp
         {
             if (!isUserInitiatedSelection) return;
 
-            // Get NodeModel(s) that correspond to selected row(s)
-            var selectedNodes = new List<NodeModel>();
-            foreach (var item in e.AddedItems)
-            {
-                // Check NodeModel valid before actual selection
-                var nodeModel = (item as ProfiledNodeViewModel).NodeModel;
-                if (nodeModel != null)
-                {
-                    selectedNodes.Add(nodeModel);
-                }
-            }
+            var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
+            if (selectedItem == null) return;
 
-            if (selectedNodes.Count() > 0)
+            // Extract the GUID and type (NodeModel or GroupModel)
+            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
+
+            if (modelBase != null)
             {
-                // Select
-                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
+                // Execute selection command
+                var command = new DynamoModel.SelectModelCommand(new[] { modelBase.GUID }, ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
-                // Focus on selected
-                viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
+                // Focus on selected element
+                viewModelCommandExecutive.FindByIdCommand(modelBase.GUID.ToString());
             }
         }
 
