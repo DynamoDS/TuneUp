@@ -128,10 +128,7 @@ namespace TuneUp
             get
             {
                 // For virtual row, do not attempt to grab node or group name if it's already handled
-                //if (!name.Contains(ExecutionTimelString) &&
-                //    !name.StartsWith(GroupNodePrefix) &&
-                //    !name.Equals(GroupExecutionTimeString))
-                if (this.ModelBase !=null)
+                if (!this.IsGroupExecutionTime)
                 {
 
                     // Check the type of BaseModel and assign the appropriate name
