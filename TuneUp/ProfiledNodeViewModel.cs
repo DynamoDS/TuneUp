@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Media;
 using Dynamo.Core;
-using Dynamo.Graph;
 using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Nodes.CustomNodes;
@@ -115,7 +114,7 @@ namespace TuneUp
         /// </summary>
         public string Name
         {
-            get
+            get 
             {
                 // For virtual row, do not attempt to grab node or group name if it's already handled
                 if (!this.IsGroupExecutionTime)

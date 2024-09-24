@@ -52,7 +52,7 @@ namespace TuneUp
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        {   
             if (!isUserInitiatedSelection) return;
 
             var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
