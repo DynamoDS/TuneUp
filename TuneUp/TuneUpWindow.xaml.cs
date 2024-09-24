@@ -58,8 +58,7 @@ namespace TuneUp
             var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
             if (selectedItem == null) return;
 
-            // Extract the GUID and type (NodeModel or GroupModel)
-            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
+            var modelBase = selectedItem.ModelBase;
 
             if (modelBase != null)
             {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Media;
 using Dynamo.Core;
+using Dynamo.Graph;
 using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Nodes.CustomNodes;
@@ -15,7 +16,7 @@ namespace TuneUp
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
-        
+
         /// <summary>
         /// Checks if the Node has been Renamed after its creation
         /// </summary>
@@ -23,11 +24,10 @@ namespace TuneUp
         {
             get
             {
-                if (NodeModel == null)
+                if (ModelBase is NodeModel node)
                 {
-                    return false;
+                    isRenamed = GetOriginalName(node) != node.Name;
                 }
-                isRenamed = GetOriginalName(NodeModel) != NodeModel.Name;
                 return isRenamed;
             }
             internal set
@@ -46,9 +46,11 @@ namespace TuneUp
         {
             get
             {
-                //string originalName = NodeModel.GetOriginalName();
-                string originalName = GetOriginalName(NodeModel);
-                return originalName;
+                if (ModelBase is NodeModel node)
+                {
+                    return GetOriginalName(node);
+                }
+                return string.Empty;
             }
             internal set
             {
@@ -76,8 +78,6 @@ namespace TuneUp
         /// <summary>
         /// Getting the original name before graph author renamed the node
         /// </summary>
-        /// <param name="node">target NodeModel</param>
-        /// <returns>Original node name as string</returns>
         private static string GetOriginalName(NodeModel node)
         {
             if (node == null) return string.Empty;
@@ -125,13 +125,25 @@ namespace TuneUp
         /// </summary>
         public string Name
         {
-            get 
+            get
             {
-                // For virtual row, do not attempt to grab node name
-                if (!name.Contains(ExecutionTimelString) &&
-                    !name.StartsWith(GroupNodePrefix) &&
-                    !name.Equals(GroupExecutionTimeString))
-                    name = NodeModel?.Name;
+                // For virtual row, do not attempt to grab node or group name if it's already handled
+                //if (!name.Contains(ExecutionTimelString) &&
+                //    !name.StartsWith(GroupNodePrefix) &&
+                //    !name.Equals(GroupExecutionTimeString))
+                if (this.ModelBase !=null)
+                {
+
+                    // Check the type of BaseModel and assign the appropriate name
+                    if (ModelBase is NodeModel node)
+                    {
+                        name = node.Name;
+                    }
+                    else if (ModelBase is AnnotationModel group)
+                    {
+                        name = group.AnnotationText; // Get AnnotationModel (group) name
+                    }
+                }
                 return name;
             }
             internal set { name = value; }
@@ -332,8 +344,7 @@ namespace TuneUp
         /// </summary>
         internal Stopwatch Stopwatch { get; set; }
 
-        internal NodeModel NodeModel { get; set; }
-        internal AnnotationModel GroupModel { get; set; }
+        internal ModelBase ModelBase { get; set; }
 
         #endregion
 
@@ -343,7 +354,7 @@ namespace TuneUp
         /// <param name="node"></param>
         public ProfiledNodeViewModel(NodeModel node)
         {
-            NodeModel = node;
+            ModelBase = node;
             State = ProfiledNodeState.NotExecuted;
             Stopwatch = new Stopwatch();
         }
@@ -356,7 +367,7 @@ namespace TuneUp
         /// <param name="state">state which determine grouping</param>
         public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
         {
-            NodeModel = null;
+            ModelBase = null;
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
@@ -368,7 +379,7 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(AnnotationModel group)
         {
-            GroupModel = group;
+            ModelBase = group;
             Name = $"{GroupNodePrefix}{group.AnnotationText}";
             GroupName = group.AnnotationText;
             GroupGUID = group.GUID;

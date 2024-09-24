@@ -53,7 +53,7 @@ namespace TuneUpTests
             var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesNotExecuted;
             foreach (var node in nodes)
             {
-                Assert.Contains(node.GUID, profiledNodes.Select(n => n.NodeModel.GUID).ToList());
+                Assert.Contains(node.GUID, profiledNodes.Select(n => n.ModelBase.GUID).ToList());
             }
 
             RunCurrentModel();
@@ -94,7 +94,7 @@ namespace TuneUpTests
                 Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
             }
 
-            // Mark downstream node as modified so that it gets reexecuted on the next graph run
+            // Mark downstream node as modified so that it gets re-executed on the next graph run
             var modifiedNodeID = new Guid("1e49be233be846688122ac48d70ce961");
             var homespace = Model.CurrentWorkspace as HomeWorkspaceModel;
             homespace.Nodes.Where(n => n.GUID == modifiedNodeID).First().MarkNodeAsModified(true);
@@ -104,7 +104,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
             foreach (var node in profiledNodes)
             {
-                if (node.NodeModel.GUID == modifiedNodeID)
+                if (node.ModelBase.GUID == modifiedNodeID)
                 {
                     Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
                 }
@@ -159,7 +159,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
             foreach (var node in profiledNodes)
             {
-                var expected = executionOrderDict[node.NodeModel.GUID];
+                var expected = executionOrderDict[node.ModelBase.GUID];
                 Assert.AreEqual(expected, node.ExecutionOrderNumber);
             }
         }
