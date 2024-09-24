@@ -63,41 +63,6 @@ namespace TuneUp
         public bool IsGroupExecutionTime => NodeModel == null && GroupModel == null;
 
         /// <summary>
-        /// Getting the original name before graph author renamed the node
-        /// </summary>
-        private static string GetOriginalName(NodeModel node)
-        {
-            if (node == null) return string.Empty;
-            // For dummy node, return the current name so that does not appear to be renamed
-            if (node is DummyNode)
-            {
-                return node.Name;
-            }
-            if (node.IsCustomFunction)
-            {
-                // If the custom node is not loaded, return the current name so that does not appear to be renamed
-                if ((node as Function).State == ElementState.Error && (node as Function).Definition.IsProxy)
-                {
-                    return node.Name;
-                }
-                // If the custom node is loaded, return original name as usual
-                var customNodeFunction = node as Function;
-                return customNodeFunction?.Definition.DisplayName;
-            }
-
-            var function = node as DSFunctionBase;
-            if (function != null)
-                return function.Controller.Definition.DisplayName;
-
-            var nodeType = node.GetType();
-            var elNameAttrib = nodeType.GetCustomAttributes<NodeNameAttribute>(false).FirstOrDefault();
-            if (elNameAttrib != null)
-                return elNameAttrib.Name;
-
-            return nodeType.FullName;
-        }
-
-        /// <summary>
         /// Prefix string of execution time.
         /// </summary>
         internal const string ExecutionTimelString = "Execution Time";
