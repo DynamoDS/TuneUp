@@ -898,7 +898,6 @@ namespace TuneUp
                 GroupGUID = profiledGroup.GroupGUID,
                 GroupName = profiledGroup.GroupName,
                 BackgroundBrush = profiledGroup.BackgroundBrush,
-                IsGroupExecutionTime = true,
                 ShowGroupIndicator = true
             };
 

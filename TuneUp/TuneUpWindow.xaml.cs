@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using Dynamo.Extensions;
-using Dynamo.Graph.Nodes;
+using Dynamo.Graph;
 using Dynamo.Models;
 using Dynamo.UI;
 using Dynamo.Utilities;
@@ -53,29 +52,39 @@ namespace TuneUp
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+        {   
             if (!isUserInitiatedSelection) return;
 
-            // Get NodeModel(s) that correspond to selected row(s)
-            var selectedNodes = new List<NodeModel>();
-            foreach (var item in e.AddedItems)
-            {
-                // Check NodeModel valid before actual selection
-                var nodeModel = (item as ProfiledNodeViewModel).NodeModel;
-                if (nodeModel != null)
-                {
-                    selectedNodes.Add(nodeModel);
-                }
-            }
+            var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
 
-            if (selectedNodes.Count() > 0)
+            if (selectedItem == null) return;
+
+            // Extract the GUID and type (NodeModel or GroupModel)
+            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
+
+            if (modelBase != null)
             {
-                // Select
-                var command = new DynamoModel.SelectModelCommand(selectedNodes.Select(nm => nm.GUID), ModifierKeys.None);
+                // Clear the selection in other DataGrids based on the sender
+                if (sender == LatestRunTable)
+                {
+                    NotExecutedTable.SelectedItem = null;
+                    PreviousRunTable.SelectedItem = null;
+                }
+                else if (sender == NotExecutedTable)
+                {
+                    LatestRunTable.SelectedItem = null;
+                    PreviousRunTable.SelectedItem = null;
+                }
+                else if (sender == PreviousRunTable)
+                {
+                    LatestRunTable.SelectedItem = null;
+                    NotExecutedTable.SelectedItem = null;
+                }
+
+                var command = new DynamoModel.SelectModelCommand(new[] { modelBase.GUID }, ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
-                // Focus on selected
-                viewModelCommandExecutive.FindByIdCommand(selectedNodes.First().GUID.ToString());
+                viewModelCommandExecutive.FindByIdCommand(modelBase.GUID.ToString());
             }
         }
 

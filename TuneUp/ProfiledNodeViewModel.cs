@@ -15,7 +15,7 @@ namespace TuneUp
     public class ProfiledNodeViewModel : NotificationObject
     {
         #region Properties
-        
+
         /// <summary>
         /// Checks if the Node has been Renamed after its creation
         /// </summary>
@@ -46,9 +46,7 @@ namespace TuneUp
         {
             get
             {
-                //string originalName = NodeModel.GetOriginalName();
-                string originalName = GetOriginalName(NodeModel);
-                return originalName;
+                return GetOriginalName(NodeModel);
             }
             internal set
             {
@@ -62,23 +60,16 @@ namespace TuneUp
         /// <summary>
         /// Indicates whether this node represents the total execution time for its group
         /// </summary>
-        public bool IsGroupExecutionTime
-        {
-            get => isGroupExecutionTime;
-            set
-            {
-                isGroupExecutionTime = value;
-                RaisePropertyChanged(nameof(IsGroupExecutionTime));
-            }
-        }
-        private bool isGroupExecutionTime = false;        
+        public bool IsGroupExecutionTime => NodeModel == null && GroupModel == null;
 
         /// <summary>
         /// Prefix string of execution time.
         /// </summary>
-        public static readonly string ExecutionTimelString = "Execution Time";
-        public static readonly string GroupNodePrefix = "Group: ";
-        public static readonly string GroupExecutionTimeString = "Group total";
+        internal const string ExecutionTimelString = "Execution Time";
+        internal const string GroupNodePrefix = "Group: ";
+        internal const string GroupExecutionTimeString = "Group total";
+        private const string DefaultGroupName = "Title <Double click here to edit group title>";
+        private const string DefaultDisplayGroupName = "Title";
 
         private string name = String.Empty;
         /// <summary>
@@ -90,11 +81,19 @@ namespace TuneUp
         {
             get 
             {
-                // For virtual row, do not attempt to grab node name
-                if (!name.Contains(ExecutionTimelString) &&
-                    !name.StartsWith(GroupNodePrefix) &&
-                    !name.Equals(GroupExecutionTimeString))
-                    name = NodeModel?.Name;
+                // For virtual row, do not attempt to grab node or group name if it's already handled
+                if (!this.IsGroupExecutionTime)
+                {
+                    if (NodeModel != null)
+                    {
+                        return NodeModel.Name;
+                    }
+                    else if (GroupModel != null)
+                    {
+                        return GroupModel.AnnotationText == DefaultGroupName ?
+                            $"{GroupNodePrefix}{DefaultDisplayGroupName}" : GroupModel.AnnotationText;
+                    }
+                }
                 return name;
             }
             internal set { name = value; }
@@ -233,16 +232,7 @@ namespace TuneUp
         /// <summary>
         /// Indicates if this node is a group
         /// </summary>
-        public bool IsGroup
-        {
-            get => isGroup;
-            set
-            {
-                isGroup = value;
-                RaisePropertyChanged(nameof(IsGroup));
-            }
-        }
-        private bool isGroup;
+        public bool IsGroup => NodeModel == null && GroupModel != null;
 
         public bool ShowGroupIndicator
         {
@@ -296,6 +286,8 @@ namespace TuneUp
         internal Stopwatch Stopwatch { get; set; }
 
         internal NodeModel NodeModel { get; set; }
+
+        internal AnnotationModel GroupModel { get; set; }
 
         #endregion
 
@@ -371,7 +363,6 @@ namespace TuneUp
         /// <param name="state">state which determine grouping</param>
         public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
         {
-            NodeModel = null;
             this.Name = name;
             this.ExecutionTime = exTimeSum;
             State = state;
@@ -383,12 +374,10 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(AnnotationModel group)
         {
-            NodeModel = null;
-            Name = $"{GroupNodePrefix}{group.AnnotationText}";
+            GroupModel = group;
             GroupName = group.AnnotationText;
             GroupGUID = group.GUID;
             BackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background));
-            IsGroup = true;
             State = ProfiledNodeState.NotExecuted;
             ShowGroupIndicator = true;
         }
