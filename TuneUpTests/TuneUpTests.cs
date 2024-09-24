@@ -53,7 +53,7 @@ namespace TuneUpTests
             var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesNotExecuted;
             foreach (var node in nodes)
             {
-                Assert.Contains(node.GUID, profiledNodes.Select(n => n.ModelBase.GUID).ToList());
+                Assert.Contains(node.GUID, profiledNodes.Select(n => n.NodeModel.GUID).ToList());
             }
 
             RunCurrentModel();
@@ -104,7 +104,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
             foreach (var node in profiledNodes)
             {
-                if (node.ModelBase.GUID == modifiedNodeID)
+                if (node.NodeModel.GUID == modifiedNodeID)
                 {
                     Assert.AreEqual(ProfiledNodeState.ExecutedOnCurrentRun, node.State);
                 }
@@ -159,7 +159,7 @@ namespace TuneUpTests
             DispatcherUtil.DoEvents();
             foreach (var node in profiledNodes)
             {
-                var expected = executionOrderDict[node.ModelBase.GUID];
+                var expected = executionOrderDict[node.NodeModel.GUID];
                 Assert.AreEqual(expected, node.ExecutionOrderNumber);
             }
         }

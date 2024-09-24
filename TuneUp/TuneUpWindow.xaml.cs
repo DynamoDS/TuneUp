@@ -56,17 +56,34 @@ namespace TuneUp
             if (!isUserInitiatedSelection) return;
 
             var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
+
             if (selectedItem == null) return;
 
-            var modelBase = selectedItem.ModelBase;
+            // Extract the GUID and type (NodeModel or GroupModel)
+            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
 
             if (modelBase != null)
             {
-                // Execute selection command
+                // Clear the selection in other DataGrids based on the sender
+                if (sender == LatestRunTable)
+                {
+                    NotExecutedTable.SelectedItem = null;
+                    PreviousRunTable.SelectedItem = null;
+                }
+                else if (sender == NotExecutedTable)
+                {
+                    LatestRunTable.SelectedItem = null;
+                    PreviousRunTable.SelectedItem = null;
+                }
+                else if (sender == PreviousRunTable)
+                {
+                    LatestRunTable.SelectedItem = null;
+                    NotExecutedTable.SelectedItem = null;
+                }
+
                 var command = new DynamoModel.SelectModelCommand(new[] { modelBase.GUID }, ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
-                // Focus on selected element
                 viewModelCommandExecutive.FindByIdCommand(modelBase.GUID.ToString());
             }
         }
