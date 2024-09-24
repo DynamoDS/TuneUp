@@ -454,21 +454,20 @@
             Grid.Column="0"
             Grid.ColumnSpan="2">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <!--  Latest Run  -->
-                    <TextBlock
-                        Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                        Text="Latest run"
-                        Visibility="{Binding LatestRunTableVisibility}" />
-                    <DataGrid
-                        x:Name="LatestRunTable"
-                        AlternatingRowBackground="#434343"
-                        ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
-                        MouseLeave="NodeAnalysisTable_MouseLeave"
-                        PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                        SelectionChanged="NodeAnalysisTable_SelectionChanged"
-                        Sorting="LatestRunTable_Sorting"
-                        Style="{StaticResource DataGridStyleTuneUpCombined}">
+                <StackPanel >
+                    <!-- Latest Run -->
+                    <TextBlock Text="Latest run"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding LatestRunTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
+                              x:Name="LatestRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternatingRowBackground="#434343"
+                              Sorting="LatestRunTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" Header="#">
@@ -514,21 +513,20 @@
                             Style="{StaticResource CollectionFooterTextBlockStyle}"
                             Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" />
                     </StackPanel>
-                    <!--  Previous Run  -->
-                    <TextBlock
-                        Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                        Text="Previous run"
-                        Visibility="{Binding PreviousRunTableVisibility}" />
-                    <DataGrid
-                        x:Name="PreviousRunTable"
-                        AlternatingRowBackground="#434343"
-                        HeadersVisibility="None"
-                        ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
-                        MouseLeave="NodeAnalysisTable_MouseLeave"
-                        PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                        SelectionChanged="NodeAnalysisTable_SelectionChanged"
-                        Sorting="LatestRunTable_Sorting"
-                        Style="{StaticResource DataGridStyleTuneUpCombined}">
+                    <!-- Previous Run -->
+                    <TextBlock Text="Previous run"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding PreviousRunTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
+                              x:Name="PreviousRunTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None"
+                              Sorting="LatestRunTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}">
@@ -570,23 +568,22 @@
                             Style="{StaticResource CollectionFooterTextBlockStyle}"
                             Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" />
                     </StackPanel>
-                    <!--  Not Executed  -->
-                    <TextBlock
-                        Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                        Text="Not executed"
-                        Visibility="{Binding NotExecutedTableVisibility}" />
-                    <DataGrid
-                        x:Name="NotExecutedTable"
-                        AlternatingRowBackground="#434343"
-                        AlternationCount="2"
-                        CanUserSortColumns="False"
-                        HeadersVisibility="None"
-                        ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
-                        MouseLeave="NodeAnalysisTable_MouseLeave"
-                        PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
-                        SelectionChanged="NodeAnalysisTable_SelectionChanged"
-                        Sorting="NotExecutedTable_Sorting"
-                        Style="{StaticResource DataGridStyleTuneUpCombined}">
+                    <!-- Not Executed -->
+                    <TextBlock Text="Not executed"
+                               Style="{StaticResource CollectionHeaderTextBlockStyle}"
+                               Visibility="{Binding NotExecutedTableVisibility}"/>
+                    <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
+                              x:Name="NotExecutedTable"
+                              Style="{StaticResource DataGridStyleTuneUpCombined}"
+                              AlternationCount="2"
+                              AlternatingRowBackground="#434343"
+                              HeadersVisibility="None"
+                              CanUserSortColumns="False"
+                              Sorting="NotExecutedTable_Sorting"
+                              SelectionChanged="NodeAnalysisTable_SelectionChanged"
+                              PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
+                              MouseLeave="NodeAnalysisTable_MouseLeave"
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">   
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" />
