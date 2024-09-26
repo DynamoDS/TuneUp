@@ -453,7 +453,8 @@
             Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="2">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Focusable="True">
                 <StackPanel >
                     <!-- Latest Run -->
                     <TextBlock Text="Latest run"
@@ -467,7 +468,8 @@
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                               MouseLeave="NodeAnalysisTable_MouseLeave"
-                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                              Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" Header="#">
@@ -526,7 +528,8 @@
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                               MouseLeave="NodeAnalysisTable_MouseLeave"
-                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                              Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}">
@@ -583,7 +586,8 @@
                               SelectionChanged="NodeAnalysisTable_SelectionChanged"
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                               MouseLeave="NodeAnalysisTable_MouseLeave"
-                              PreviewMouseWheel="DataGrid_PreviewMouseWheel">   
+                              PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                              Loaded="ScrollViewer_Loaded">   
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" />
