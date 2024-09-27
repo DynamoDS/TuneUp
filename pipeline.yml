@@ -1,0 +1,38 @@
+version: 1.4.0
+pipeline_os: windows
+#update_changelog_on_release: true
+create_github_release: true
+create_pr_release_to_master: true
+
+env:
+  - GITHUB_ACCESS_TOKEN_ID: github_access_token_acsbuildguy
+  - JENKINS_NODE_WIN: DynamoWinBuild
+
+code_analysis:
+  sonarqube:
+    source_encoding: UTF-8
+    src: .
+    coverage_reports:
+      - coverage.info
+
+build:
+  -
+    scripts:
+      - dotnet msbuild TuneUp.sln -p:Configuration=Release -restore
+
+deployment:
+  -
+    type: sign
+    files_to_sign:
+      - TuneUp/bin/Debug/net8.0-windows/TuneUp.dll
+  -
+    type: customized
+    scripts:
+      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path TuneUp/bin/Debug/net8.0-windows/TuneUp.dll -DestinationPath TuneUp.zip"
+  -
+    type: artifacts
+    publish_to_jenkins: true
+    publish_to_artifactory: false
+    allow_branches: ".*"
+    outputs:
+      - TuneUp.zip
