@@ -25,7 +25,6 @@ deployment:
     type: sign
     files_to_sign:
       - TuneUp/bin/Debug/net8.0-windows/TuneUp.dll
-      - package_output/DSPythonNet3/**/Python.*.dll
   -
     type: customized
     scripts:
