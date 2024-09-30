@@ -148,6 +148,18 @@ namespace TuneUp
             }
         }
 
+        /// <summary>
+        /// Sets focus on the ScrollViewer when it is loaded to ensure immediate scroll functionality.
+        /// </summary>
+        private void ScrollViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                scrollViewer.Focus();
+            }
+        }
+
         private void RecomputeGraph_Click(object sender, RoutedEventArgs e)
         {
             (LatestRunTable.DataContext as TuneUpWindowViewModel).ResetProfiling();
