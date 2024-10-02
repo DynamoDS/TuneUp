@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DynamoPackageVersion>3.2.1.5366</DynamoPackageVersion>
+    <DynamoPackageVersion>3.4.0-beta6405</DynamoPackageVersion>
     <MSTestVersion>1.3.2</MSTestVersion>
   </PropertyGroup>
 

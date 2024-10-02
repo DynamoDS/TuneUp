@@ -37,9 +37,6 @@
     <Reference Include="System">
       <Private>True</Private>
     </Reference>
-    <Reference Include="DynamoCoreWpfTests">
-      <HintPath>..\..\Dynamo\bin\AnyCPU\Debug\DynamoCoreWpfTests.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core">
       <Private>True</Private>
     </Reference>
