@@ -540,9 +540,10 @@ namespace TuneUp
                         ProfiledNodeViewModel groupTotalTimeNode = null;
                         bool groupIsRenamed = false;
 
-                        // Reset group state and execution time
+                        // Reset group state
                         profiledGroup.State = profiledNode.State;
-                        profiledGroup.GroupExecutionMilliseconds = 0;
+                        profiledGroup.GroupExecutionTime = TimeSpan.Zero; // Reset execution time
+                        profiledGroup.ExecutionMilliseconds = 0; // Reset UI execution time
                         MoveNodeToCollection(profiledGroup, ProfiledNodesLatestRun); // Ensure the profiledGroup is in latest run
 
                         // Check if the group has been renamed
@@ -564,7 +565,8 @@ namespace TuneUp
                             else if (processedNodes.Add(node))
                             {
                                 // Update group state, execution order, and execution time
-                                profiledGroup.GroupExecutionMilliseconds += node.ExecutionMilliseconds;
+                                profiledGroup.GroupExecutionTime += node.ExecutionTime; // accurate, for sorting
+                                profiledGroup.ExecutionMilliseconds += node.ExecutionMilliseconds; // rounded, for display in UI
                                 node.GroupExecutionOrderNumber = groupExecutionCounter;
                                 node.ShowGroupIndicator = ShowGroups;
                                 if (groupIsRenamed)
@@ -576,6 +578,7 @@ namespace TuneUp
 
                         // Update the properties of the group node
                         profiledGroup.GroupExecutionOrderNumber = groupExecutionCounter++;
+                        profiledGroup.ExecutionTime = profiledGroup.GroupExecutionTime;
                         profiledGroup.WasExecutedOnLastRun = true;
 
 
@@ -588,7 +591,7 @@ namespace TuneUp
                         // Update the groupExecutionTime for all nodes of the group for the purposes of sorting
                         foreach (var node in nodesInGroup)
                         {
-                            node.GroupExecutionMilliseconds = profiledGroup.GroupExecutionMilliseconds;
+                            node.GroupExecutionTime = profiledGroup.GroupExecutionTime;
                         }
                     }
                 }
@@ -598,7 +601,7 @@ namespace TuneUp
                     !profiledNode.IsGroupExecutionTime)
                 {
                     profiledNode.GroupExecutionOrderNumber = groupExecutionCounter++;
-                    profiledNode.GroupExecutionMilliseconds = profiledNode.ExecutionMilliseconds;
+                    profiledNode.GroupExecutionTime = profiledNode.ExecutionTime;
                 }
             }
 
@@ -625,11 +628,11 @@ namespace TuneUp
             var executionTime = profiledNode.Stopwatch.Elapsed;
 
             if (executionTime > TimeSpan.Zero)
-            {                
+            {
+                profiledNode.ExecutionTime = executionTime;
                 // Assign execution time and manually set the execution milliseconds value
                 // so that group node execution time is based on rounded millisecond values.
-                // Nodes should display at least 1ms execution time if they are executed.
-                profiledNode.ExecutionMilliseconds = Math.Max(1, (int)Math.Round(executionTime.TotalMilliseconds));
+                profiledNode.ExecutionMilliseconds = (int)Math.Round(executionTime.TotalMilliseconds);
 
                 if (!profiledNode.WasExecutedOnLastRun)
                 {
@@ -734,17 +737,22 @@ namespace TuneUp
                         groupDictionary[groupModel.GUID].Add(profiledNode);
                     }
 
-                    // Update group execution times
+                    // Update group execution time
                     var totalExecutionMilliseconds = existingProfiledNodesInGroup
                         .Where(n => !n.IsGroupExecutionTime)
                         .Sum(n => n.ExecutionMilliseconds);
+                    var totalExecutionTime = existingProfiledNodesInGroup
+                        .Where(n => !n.IsGroupExecutionTime)
+                        .Select(n => n.ExecutionTime)
+                        .Aggregate(TimeSpan.Zero, (sum, next) => sum + next);
 
-                    profiledGroup.ExecutionMilliseconds = profiledGroup.GroupExecutionMilliseconds = totalExecutionMilliseconds;
+                    profiledGroup.ExecutionMilliseconds = totalExecutionMilliseconds;
+                    profiledGroup.GroupExecutionTime = totalExecutionTime;
 
                     // update the grouped nodes
                     foreach (var profiledNode in existingProfiledNodesInGroup)
                     {
-                        profiledNode.GroupExecutionMilliseconds = totalExecutionMilliseconds;
+                        profiledNode.GroupExecutionTime = totalExecutionTime;
                         if (profiledNode.IsGroupExecutionTime)
                         {
                             profiledNode.ExecutionMilliseconds = totalExecutionMilliseconds;
@@ -885,7 +893,7 @@ namespace TuneUp
         private ProfiledNodeViewModel CreateGroupTotalTimeNode(ProfiledNodeViewModel profiledGroup)
         {
             var groupTotalTimeNode = new ProfiledNodeViewModel(
-                ProfiledNodeViewModel.GroupExecutionTimeString, ProfiledNodeState.NotExecuted)
+                ProfiledNodeViewModel.GroupExecutionTimeString, TimeSpan.Zero, ProfiledNodeState.NotExecuted)
             {
                 GroupGUID = profiledGroup.GroupGUID,
                 GroupName = profiledGroup.GroupName,
@@ -904,7 +912,8 @@ namespace TuneUp
         private void UpdateGroupTotalTimeNodeProperties(ProfiledNodeViewModel groupTotalTimeNode, ProfiledNodeViewModel profiledGroup)
         {
             groupTotalTimeNode.State = profiledGroup.State;
-            groupTotalTimeNode.GroupExecutionMilliseconds = groupTotalTimeNode.ExecutionMilliseconds = profiledGroup.GroupExecutionMilliseconds;
+            groupTotalTimeNode.GroupExecutionTime = profiledGroup.GroupExecutionTime; // Accurate, for sorting
+            groupTotalTimeNode.ExecutionMilliseconds = profiledGroup.ExecutionMilliseconds; // Rounded, for display in UI
             groupTotalTimeNode.GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
             groupTotalTimeNode.WasExecutedOnLastRun = true;
 
@@ -1025,15 +1034,15 @@ namespace TuneUp
                 case SortByTime:
                     if (showGroups)
                     {
-                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupExecutionMilliseconds), sortDirection));
+                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupExecutionTime), sortDirection));
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.GroupGUID), sortDirection));
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroup), ListSortDirection.Descending));
                         collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.IsGroupExecutionTime), ListSortDirection.Ascending));
-                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionMilliseconds), sortDirection));
+                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection));
                     }
                     else
                     {
-                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionMilliseconds), sortDirection));
+                        collection.SortDescriptions.Add(new SortDescription(nameof(ProfiledNodeViewModel.ExecutionTime), sortDirection));
                     }
                     break;
                 case SortByName:
