@@ -24,11 +24,11 @@ deployment:
   -
     type: sign
     files_to_sign:
-      - TuneUp/bin/Debug/net8.0-windows/TuneUp.dll
+      - TuneUp/bin/Release/net8.0-windows/TuneUp.dll
   -
     type: customized
     scripts:
-      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path TuneUp/bin/Debug/net8.0-windows/TuneUp.dll -DestinationPath TuneUp.zip"
+      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path TuneUp/bin/Release/net8.0-windows/TuneUp.dll -DestinationPath TuneUp.zip"
   -
     type: artifacts
     publish_to_jenkins: true
