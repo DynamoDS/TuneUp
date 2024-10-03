@@ -173,6 +173,20 @@ namespace TuneUp
         private int executionMilliseconds;
 
         /// <summary>
+        /// The total execution time of this group in milliseconds
+        /// </summary>
+        public int GroupExecutionMilliseconds
+        {
+            get => groupExecutionMilliseconds;
+            set
+            {
+                groupExecutionMilliseconds = value;
+                RaisePropertyChanged(nameof(GroupExecutionMilliseconds));
+            }
+        }
+        private int groupExecutionMilliseconds;
+
+        /// <summary>
         /// Indicates whether this node was executed on the most recent graph run
         /// </summary>
         public bool WasExecutedOnLastRun
@@ -244,7 +258,6 @@ namespace TuneUp
             }
         }
         private bool showGroupIndicator;
-
 
         /// <summary>
         /// The background brush for this node
@@ -333,7 +346,7 @@ namespace TuneUp
             GroupGUID = Guid.Empty;
             GroupName = string.Empty;
             GroupExecutionOrderNumber = null;
-            GroupExecutionTime = TimeSpan.Zero;
+            GroupExecutionMilliseconds = 0;
         }
 
         internal void ApplyGroupProperties(ProfiledNodeViewModel profiledGroup)
@@ -359,12 +372,10 @@ namespace TuneUp
         /// An alternative constructor which we can customize data for display in TuneUp datagrid
         /// </summary>
         /// <param name="name">row display name</param>
-        /// <param name="exTimeSum">execution time in ms</param>
         /// <param name="state">state which determine grouping</param>
-        public ProfiledNodeViewModel(string name, TimeSpan exTimeSum, ProfiledNodeState state)
+        public ProfiledNodeViewModel(string name, ProfiledNodeState state)
         {
             this.Name = name;
-            this.ExecutionTime = exTimeSum;
             State = state;
         }
 
