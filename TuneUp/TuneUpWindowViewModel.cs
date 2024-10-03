@@ -1187,52 +1187,93 @@ namespace TuneUp
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                using (var writer = new StreamWriter(saveFileDialog.FileName))
+                // Check if the .csv file locked or in use
+                if (IsFileLocked(new FileInfo(saveFileDialog.FileName)))
                 {
-                    writer.WriteLine("Execution Order,Name,Execution Time (ms)");
+                    MessageBox.Show("The file is currently in use by another application. Please close the file before trying to overwrite it.",
+                        "File in Use", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-                    var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
+                try
+                {
+                    using (var writer = new StreamWriter(saveFileDialog.FileName))
                     {
+                        writer.WriteLine("Execution Order,Name,Execution Time (ms)");
+
+                        var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
+                        {
                         ("Latest Run", ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
                         ("Previous Run", ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
                         ("Not Executed", ProfiledNodesCollectionNotExecuted, null)
-                    };
+                        };
 
-                    foreach (var (label, collection, totalTime) in collections)
-                    {
-                        var nodes = collection.View.Cast<ProfiledNodeViewModel>().ToList();
-                        if (!nodes.Any()) continue;
-
-                        writer.WriteLine(label);
-
-                        foreach (var node in nodes)
+                        foreach (var (label, collection, totalTime) in collections)
                         {
-                            if (showGroups)
+                            var nodes = collection.View.Cast<ProfiledNodeViewModel>().ToList();
+                            if (!nodes.Any()) continue;
+
+                            writer.WriteLine(label);
+
+                            foreach (var node in nodes)
                             {
-                                if (node.IsGroup || node.GroupGUID == Guid.Empty)
+                                if (showGroups)
                                 {
-                                    writer.WriteLine($"{node.GroupExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
+                                    if (node.IsGroup || node.GroupGUID == Guid.Empty)
+                                    {
+                                        writer.WriteLine($"{node.GroupExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
+                                    }
+                                    else
+                                    {
+                                        writer.WriteLine($",{node.Name},{node.ExecutionMilliseconds}");
+                                    }
                                 }
-                                else
+                                else if (!node.IsGroup || !node.IsGroupExecutionTime)
                                 {
-                                    writer.WriteLine($",{node.Name},{node.ExecutionMilliseconds}");
+                                    writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
                                 }
                             }
-                            else if (!node.IsGroup || !node.IsGroupExecutionTime)
-                            {
-                                writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
-                            }
-                        }
 
-                        // Write total execution time, if applicable
-                        if (!string.IsNullOrEmpty(totalTime))
-                        {
-                            writer.WriteLine($",Total, {totalTime}");
+                            // Write total execution time, if applicable
+                            if (!string.IsNullOrEmpty(totalTime))
+                            {
+                                writer.WriteLine($",Total, {totalTime}");
+                            }
+                            writer.WriteLine();
                         }
-                        writer.WriteLine();
                     }
                 }
+                catch (IOException ex)
+                {
+                    MessageBox.Show($"An error occurred while trying to write the file: {ex.Message}",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }                
             }
+        }
+
+        /// <summary>
+        /// Checks if the specified file is locked by another process or application.
+        /// </summary>
+        private bool IsFileLocked(FileInfo file)
+        {
+            if (!file.Exists) return false;
+
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            finally
+            {
+                stream?.Close();
+            }
+
+            return false;
         }
 
         /// <summary>
