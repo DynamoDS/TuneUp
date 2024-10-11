@@ -178,7 +178,7 @@ namespace TuneUp
                 {
                     "#" => TuneUpWindowViewModel.SortByNumber,
                     "Name" => TuneUpWindowViewModel.SortByName,
-                    "Execution Time (ms)" => TuneUpWindowViewModel.SortByTime,
+                    "Execution time (ms)" => TuneUpWindowViewModel.SortByTime,
                     _ => viewModel.SortingOrder
                 };
 
@@ -188,7 +188,7 @@ namespace TuneUp
                     : ListSortDirection.Ascending;
 
                 // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplyCustomSorting();
+                viewModel.ApplyCustomSortingToAllCollections();
                 e.Handled = true;
             }
         }
