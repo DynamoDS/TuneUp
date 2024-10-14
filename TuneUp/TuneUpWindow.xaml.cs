@@ -11,7 +11,8 @@ using Dynamo.Graph;
 using Dynamo.Models;
 using Dynamo.UI;
 using Dynamo.Utilities;
-using Dynamo.Wpf.Extensions;
+    using Dynamo.Wpf.Extensions;
+    using TuneUpResources = TuneUp.Properties.Resources;
 
 namespace TuneUp
 {
@@ -174,11 +175,13 @@ namespace TuneUp
             var viewModel = LatestRunTable.DataContext as TuneUpWindowViewModel;
             if (viewModel != null)
             {
-                viewModel.SortingOrder = e.Column.Header switch
+                string headerText = e.Column.Header.ToString();
+
+                viewModel.SortingOrder = headerText switch
                 {
-                    "#" => TuneUpWindowViewModel.SortByNumber,
-                    "Name" => TuneUpWindowViewModel.SortByName,
-                    "Execution Time (ms)" => TuneUpWindowViewModel.SortByTime,
+                    var h when h == TuneUpResources.Header_ExecutionOrder => TuneUpWindowViewModel.SortByNumber,
+                    var h when h == TuneUpResources.Header_Name => TuneUpWindowViewModel.SortByName,
+                    var h when h == TuneUpResources.Header_ExecutionTime => TuneUpWindowViewModel.SortByTime,
                     _ => viewModel.SortingOrder
                 };
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Controls;
 using Dynamo.Wpf.Extensions;
 using Dynamo.Wpf.Properties;
+using TuneUpResources = TuneUp.Properties.Resources;
 
 namespace TuneUp
 {
@@ -41,7 +42,7 @@ namespace TuneUp
                 Owner = p.DynamoWindow
             };
 
-            TuneUpMenuItem = new MenuItem { Header = "Show TuneUp", IsCheckable = true, IsChecked = false };
+            TuneUpMenuItem = new MenuItem { Header = TuneUpResources.Button_ShowTuneUp, IsCheckable = true, IsChecked = false };
             TuneUpMenuItem.Click += (sender, args) =>
             {
                 if (TuneUpMenuItem.IsChecked)
@@ -68,7 +69,7 @@ namespace TuneUp
             if (extensionsMenuItem.Count() > 0)
             {
                 dp.AddExtensionMenuItem(TuneUpMenuItem);
-            }
+            }   
             else
             {
                 dp.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
