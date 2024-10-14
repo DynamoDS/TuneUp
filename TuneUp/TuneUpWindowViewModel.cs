@@ -1182,7 +1182,6 @@ namespace TuneUp
                 // Check if the .csv file locked or in use
                 if (IsFileLocked(new FileInfo(saveFileDialog.FileName)))
                 {
-                    // now in resources
                     MessageBox.Show(Resources.Message_FileInUse,
                         Resources.Title_FileInUse, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -1192,7 +1191,6 @@ namespace TuneUp
                 {
                     using (var writer = new StreamWriter(saveFileDialog.FileName))
                     {
-                        // now in resources
                         writer.WriteLine($"{Resources.Header_ExecutionOrder},{Resources.Header_Name},{Resources.Header_ExecutionTime}");
 
                         var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
