@@ -41,7 +41,7 @@ namespace TuneUp
                 Owner = p.DynamoWindow
             };
 
-            TuneUpMenuItem = new MenuItem { Header = "Show TuneUp", IsCheckable = true, IsChecked = false };
+            TuneUpMenuItem = new MenuItem { Header = Properties.Resources.Button_ShowTuneUp, IsCheckable = true, IsChecked = false };
             TuneUpMenuItem.Click += (sender, args) =>
             {
                 if (TuneUpMenuItem.IsChecked)
@@ -68,7 +68,7 @@ namespace TuneUp
             if (extensionsMenuItem.Count() > 0)
             {
                 dp.AddExtensionMenuItem(TuneUpMenuItem);
-            }
+            }   
             else
             {
                 dp.AddMenuItem(MenuBarType.View, TuneUpMenuItem);
@@ -97,13 +97,7 @@ namespace TuneUp
         /// <summary>
         /// Name of this extension
         /// </summary>
-        public override string Name
-        {
-            get
-            {
-                return "TuneUp";
-            }
-        }
+        public override string Name => Properties.Resources.ExtensionName;
 
         public override void Closed()
         {

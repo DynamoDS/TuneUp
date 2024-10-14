@@ -9,6 +9,7 @@ using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Nodes.CustomNodes;
 using Dynamo.Graph.Nodes.ZeroTouch;
+using TuneUp.Properties;
 
 namespace TuneUp
 {
@@ -74,11 +75,11 @@ namespace TuneUp
         /// <summary>
         /// Prefix string of execution time.
         /// </summary>
-        internal const string ExecutionTimelString = "Execution Time";
-        internal const string GroupNodePrefix = "Group: ";
-        internal const string GroupExecutionTimeString = "Group total";
-        private const string DefaultGroupName = "Title <Double click here to edit group title>";
-        private const string DefaultDisplayGroupName = "Title";
+        internal static readonly string ExecutionTimelString = Resources.Label_ExecutionTime;
+        internal static readonly string GroupNodePrefix = Resources.Label_GroupNodePrefix;
+        internal static readonly string GroupExecutionTimeString = Resources.Label_GroupTotalExecutionTime;
+        private static readonly string DefaultGroupName = Resources.Label_DefaultGroupName;
+        private static readonly string DefaultDisplayGroupName = Resources.Label_DefaultDisplayGroupName;
 
         private string name = String.Empty;
         /// <summary>
