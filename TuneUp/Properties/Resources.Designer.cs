@@ -304,7 +304,7 @@ namespace TuneUp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Original node name:&amp;#x0a;{0}.
+        ///   Looks up a localized string similar to Original node name: {0}.
         /// </summary>
         public static string ToolTip_OriginalName {
             get {

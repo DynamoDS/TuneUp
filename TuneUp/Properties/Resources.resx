@@ -199,6 +199,6 @@
     <value>File in Use</value>
   </data>
   <data name="ToolTip_OriginalName" xml:space="preserve">
-    <value>Original node name:&amp;#x0a;{0}</value>
+    <value>Original node name:&#x0A;{0}</value>
   </data>
 </root>

@@ -244,8 +244,7 @@
                             <ToolTip Style="{StaticResource GenericToolTipLight}">
                                 <TextBlock>
                                     <TextBlock.Text>
-                                        <Binding Path="OriginalName"
-                                                 StringFormat="{x:Static resx:Resources.ToolTip_OriginalName}"/>
+                                        <Binding Path="OriginalName" StringFormat="{x:Static resx:Resources.ToolTip_OriginalName}" />
                                     </TextBlock.Text>
                                 </TextBlock>
                             </ToolTip>
@@ -382,28 +381,31 @@
             Grid.Column="0"
             HorizontalAlignment="Left"
             Orientation="Vertical">
-            <TextBlock Height="20"
-                       Margin="5,0,0,0"
-                       Text="{x:Static resx:Resources.Label_GraphExecutionTime}" />
+            <TextBlock
+                Height="20"
+                Margin="5,0,0,0"
+                Text="{x:Static resx:Resources.Label_GraphExecutionTime}" />
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70" 
-                           Margin="5,0,0,0"
-                           Text="{x:Static resx:Resources.Label_Latest}" />
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    Text="{x:Static resx:Resources.Label_Latest}" />
                 <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70"
-                           Margin="5,0,0,0"
-                           Text="{x:Static resx:Resources.Label_Previous}" />
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    Text="{x:Static resx:Resources.Label_Previous}" />
                 <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
-                <TextBlock Width="70"
-                           Margin="5,0,0,0"
-                           FontFamily="{StaticResource ArtifaktElementBold}"
-                           Text="{x:Static resx:Resources.Label_Total}" />
-                <TextBlock FontFamily="{StaticResource ArtifaktElementBold}"
-                           Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" />
+                <TextBlock
+                    Width="70"
+                    Margin="5,0,0,0"
+                    FontFamily="{StaticResource ArtifaktElementBold}"
+                    Text="{x:Static resx:Resources.Label_Total}" />
+                <TextBlock FontFamily="{StaticResource ArtifaktElementBold}" Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
         </StackPanel>
         <!--  Show Groups Button  -->
@@ -586,7 +588,7 @@
                               PreviewMouseDown="NodeAnalysisTable_PreviewMouseDown"
                               MouseLeave="NodeAnalysisTable_MouseLeave"
                               PreviewMouseWheel="DataGrid_PreviewMouseWheel"
-                              Loaded="ScrollViewer_Loaded">   
+                              Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" />
@@ -632,9 +634,9 @@
                             <MenuItem
                                 Name="JSONItem"
                                 Padding="10"
-                                Click="{x:Static resx:Resources.Button_ExportJson}"
+                                Click="ExportToJson_Click"
                                 FontSize="12"
-                                Header="Export as JSON" />
+                                Header="{x:Static resx:Resources.Button_ExportJson}" />
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
