@@ -16,6 +16,7 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
+using Dynamo.Wpf.Utilities;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using TuneUp.Properties;
@@ -1182,8 +1183,12 @@ namespace TuneUp
                 // Check if the .csv file locked or in use
                 if (IsFileLocked(new FileInfo(saveFileDialog.FileName)))
                 {
-                    MessageBox.Show(Resources.Message_FileInUse,
-                        Resources.Title_FileInUse, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxService.Show(
+                        Resources.Message_FileInUse,
+                        Resources.Title_FileInUse,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
                     return;
                 }
 
@@ -1239,7 +1244,11 @@ namespace TuneUp
                 {
                     string errorMessage = string.Format(Resources.Message_FileWriteError, ex.Message);
 
-                    MessageBox.Show(errorMessage, Resources.Title_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBoxService.Show(
+                        errorMessage,
+                        Resources.Title_Error,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }                
             }
         }
