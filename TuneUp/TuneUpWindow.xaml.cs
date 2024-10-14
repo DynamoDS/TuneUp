@@ -190,7 +190,7 @@ namespace TuneUp
                     : ListSortDirection.Ascending;
 
                 // Apply custom sorting to ensure total times are at the bottom
-                viewModel.ApplyCustomSorting();
+                viewModel.ApplyCustomSortingToAllCollections();
                 e.Handled = true;
             }
         }

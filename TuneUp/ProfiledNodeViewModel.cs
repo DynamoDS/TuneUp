@@ -61,7 +61,16 @@ namespace TuneUp
         /// <summary>
         /// Indicates whether this node represents the total execution time for its group
         /// </summary>
-        public bool IsGroupExecutionTime => NodeModel == null && GroupModel == null;
+        public bool IsGroupExecutionTime
+        {
+            get => isGroupExecutionTime;
+            set
+            {
+                isGroupExecutionTime = value;
+                RaisePropertyChanged(nameof(IsGroupExecutionTime));
+            }
+        }
+        private bool isGroupExecutionTime;
 
         /// <summary>
         /// Prefix string of execution time.
@@ -230,6 +239,20 @@ namespace TuneUp
         private Guid groupGIUD;
 
         /// <summary>
+        /// The GUID of this node
+        /// </summary>
+        public Guid NodeGUID
+        {
+            get => nodeGIUD;
+            set
+            {
+                nodeGIUD = value;
+                RaisePropertyChanged(nameof(NodeGUID));
+            }
+        }
+        private Guid nodeGIUD;
+
+        /// <summary>
         /// The name of the group to which this node belongs
         /// This property is also applied to individual nodes and is used when sorting by name
         /// </summary>
@@ -247,7 +270,16 @@ namespace TuneUp
         /// <summary>
         /// Indicates if this node is a group
         /// </summary>
-        public bool IsGroup => NodeModel == null && GroupModel != null;
+        public bool IsGroup
+        {
+            get => isGroup;
+            set
+            {
+                isGroup = value;
+                RaisePropertyChanged(nameof(IsGroup));
+            }
+        }
+        private bool isGroup;
 
         public bool ShowGroupIndicator
         {
@@ -342,22 +374,6 @@ namespace TuneUp
             return nodeType.FullName;
         }
 
-        internal void ResetGroupProperties()
-        {
-            GroupGUID = Guid.Empty;
-            GroupName = string.Empty;
-            GroupExecutionOrderNumber = null;
-            GroupExecutionMilliseconds = 0;
-        }
-
-        internal void ApplyGroupProperties(ProfiledNodeViewModel profiledGroup)
-        {
-            GroupGUID = profiledGroup.GroupGUID;
-            GroupName = profiledGroup.GroupName;
-            GroupExecutionOrderNumber = profiledGroup.GroupExecutionOrderNumber;
-            BackgroundBrush = profiledGroup.BackgroundBrush;
-        }
-
         /// <summary>
         /// Create a Profiled Node View Model from a NodeModel
         /// </summary>
@@ -367,6 +383,7 @@ namespace TuneUp
             NodeModel = node;
             State = ProfiledNodeState.NotExecuted;
             Stopwatch = new Stopwatch();
+            NodeGUID = node.GUID;
         }
 
         /// <summary>
@@ -378,6 +395,8 @@ namespace TuneUp
         {
             this.Name = name;
             State = state;
+            NodeGUID = Guid.NewGuid();
+            IsGroupExecutionTime = true;
         }
 
         /// <summary>
@@ -391,6 +410,24 @@ namespace TuneUp
             GroupGUID = group.GUID;
             BackgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(group.Background));
             State = ProfiledNodeState.NotExecuted;
+            ShowGroupIndicator = true;
+            NodeGUID = Guid.NewGuid();
+            IsGroup = true;
+        }
+
+        /// <summary>
+        /// An alternative constructor to create a group or time node from another profiled node.
+        /// </summary>
+        /// <param name="group">the annotation model</param>
+        public ProfiledNodeViewModel(ProfiledNodeViewModel pNode)
+        {
+            Name = pNode.GroupName == DefaultGroupName ? DefaultDisplayGroupName : pNode.GroupName;
+            GroupName = pNode.GroupName;
+            State = pNode.State;
+            NodeGUID = Guid.NewGuid();
+            GroupGUID = pNode.GroupGUID;
+            IsGroup = true;
+            BackgroundBrush = pNode.BackgroundBrush;
             ShowGroupIndicator = true;
         }
     }
