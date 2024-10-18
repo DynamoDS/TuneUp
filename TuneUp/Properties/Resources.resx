@@ -198,7 +198,23 @@
   <data name="Title_FileInUse" xml:space="preserve">
     <value>File in Use</value>
   </data>
+  <data name="ToolTip_ExecutionOrder" xml:space="preserve">
+    <value>Execution order.</value>
+  </data>
+  <data name="ToolTip_ExecutionTime" xml:space="preserve">
+    <value>Time it took to execute the node in milliseconds. Values between 0 and 1 are rounded up to 1 ms.</value>
+  </data>
+  <data name="ToolTip_NotExecuted" xml:space="preserve">
+    <value>Nodes that are not executed in the latest run because they had no change. To re-execute, press Run All.</value>
+  </data>
   <data name="ToolTip_OriginalName" xml:space="preserve">
-    <value>Original node name:&#x0A;{0}</value>
+    <value>Original node name:
+{0}</value>
+  </data>
+  <data name="ToolTip_RunAll" xml:space="preserve">
+    <value>Execure entire graph, including nodes with no change since the latest run.</value>
+  </data>
+  <data name="ToolTip_TotalExecutionTime" xml:space="preserve">
+    <value>Combined execution time of latest and previous run.</value>
   </data>
 </root>

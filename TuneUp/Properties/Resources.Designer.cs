@@ -304,11 +304,57 @@ namespace TuneUp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Original node name: {0}.
+        ///   Looks up a localized string similar to Execution order..
+        /// </summary>
+        public static string ToolTip_ExecutionOrder {
+            get {
+                return ResourceManager.GetString("ToolTip_ExecutionOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time it took to execute the node in milliseconds. Values between 0 and 1 are rounded up to 1 ms..
+        /// </summary>
+        public static string ToolTip_ExecutionTime {
+            get {
+                return ResourceManager.GetString("ToolTip_ExecutionTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nodes that are not executed in the latest run because they had no change. To re-execute, press Run All..
+        /// </summary>
+        public static string ToolTip_NotExecuted {
+            get {
+                return ResourceManager.GetString("ToolTip_NotExecuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Original node name:
+        ///{0}.
         /// </summary>
         public static string ToolTip_OriginalName {
             get {
                 return ResourceManager.GetString("ToolTip_OriginalName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Execure entire graph, including nodes with no change since the latest run..
+        /// </summary>
+        public static string ToolTip_RunAll {
+            get {
+                return ResourceManager.GetString("ToolTip_RunAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Combined execution time of latest and previous run..
+        /// </summary>
+        public static string ToolTip_TotalExecutionTime {
+            get {
+                return ResourceManager.GetString("ToolTip_TotalExecutionTime", resourceCulture);
             }
         }
     }

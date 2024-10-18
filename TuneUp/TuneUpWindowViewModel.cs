@@ -63,7 +63,7 @@ namespace TuneUp
         private bool isProfilingEnabled = true;
         private bool isRecomputeEnabled = true;
         private bool isTuneUpChecked = false;
-        private bool showGroups;
+        private bool showGroups = true;
         private ListSortDirection sortDirection;
         private static readonly string defaultExecutionTime = Resources.Label_DefaultExecutionTime;
         private string defaultSortingOrder = "number";        

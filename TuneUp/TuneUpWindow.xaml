@@ -299,6 +299,13 @@
                 <Setter Property="Margin" Value="5,0,0,0" />
                 <Setter Property="FontWeight" Value="Normal" />
             </Style>
+            <!-- TextBlock style for tooltip -->
+            <Style x:Key="ToolTipContent" TargetType="TextBlock">
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="Foreground" Value="{StaticResource TextBlockToolTipDescriptionColor}" />
+                <Setter Property="FontFamily" Value="{StaticResource ArtifaktElementRegular}" />
+            </Style>
             <!--  Button style ***  -->
             <!--  PackageManager\Controls\ControlColorsAndBrushes  -->
             <Style x:Key="ButtonStyleTuneUp" TargetType="{x:Type Button}">
@@ -362,6 +369,24 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!-- Generic Dynamo ToolTip with pointer to the right -->
+            <Style x:Key="ToolTipPointerTopRight" TargetType="ToolTip" BasedOn="{StaticResource GenericToolTipLight}">
+                <Setter Property="HorizontalOffset" Value="-250" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToolTip">
+                            <Grid x:Name="PopupGrid">
+                                <Grid x:Name="ShadowBackground" Background="Transparent">
+                                    <Path Margin="0 0 5 0 " Width="20" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top" Data="M0,6 L6,0 12,6Z" Stroke="Gray" Fill="White" Stretch="None" />
+                                    <Border BorderThickness="1 0 1 1" CornerRadius="3" Margin="0 5 7 7" BorderBrush="#999999" Background="White" Padding="10,8">
+                                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </Grid.Resources>
 
         <Grid.ColumnDefinitions>
@@ -405,7 +430,13 @@
                     Margin="5,0,0,0"
                     FontFamily="{StaticResource ArtifaktElementBold}"
                     Text="{x:Static resx:Resources.Label_Total}" />
-                <TextBlock FontFamily="{StaticResource ArtifaktElementBold}" Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" />
+                <TextBlock FontFamily="{StaticResource ArtifaktElementBold}" Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" >
+                    <TextBlock.ToolTip>
+                        <ToolTip Style="{StaticResource GenericToolTipLight}">
+                            <TextBlock Text="{x:Static resx:Resources.ToolTip_TotalExecutionTime}" Style="{StaticResource ToolTipContent}"/>
+                        </ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
             </StackPanel>
         </StackPanel>
         <!--  Show Groups Button  -->
@@ -447,7 +478,13 @@
             Content="{x:Static resx:Resources.Button_RunAll}"
             Cursor="Hand"
             IsEnabled="{Binding Path=IsRecomputeEnabled}"
-            Style="{StaticResource ButtonStyleTuneUp}" />
+            Style="{StaticResource ButtonStyleTuneUp}" >
+            <Button.ToolTip>
+                <ToolTip Style="{StaticResource ToolTipPointerTopRight}">
+                    <TextBlock Text="{x:Static resx:Resources.ToolTip_RunAll}" Style="{StaticResource ToolTipContent}"/>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <!--  Data Grids  -->
         <Grid
             Name="Nodes"
@@ -474,6 +511,17 @@
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
                             <DataGridTextColumn Width="40" Header="{x:Static resx:Resources.Header_ExecutionOrder}">
+                                <DataGridTextColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{x:Static resx:Resources.Header_ExecutionOrder}">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Style="{StaticResource GenericToolTipLight}">
+                                                    <TextBlock Text="{x:Static resx:Resources.ToolTip_ExecutionOrder}" Style="{StaticResource ToolTipContent}"/>
+                                                </ToolTip>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTextColumn.HeaderTemplate>
                                 <DataGridTextColumn.ElementStyle>
                                     <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
                                         <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
@@ -495,11 +543,21 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
-                            <DataGridTextColumn
-                                Width="120"
-                                Binding="{Binding ExecutionMilliseconds}"
-                                Header="{x:Static resx:Resources.Header_ExecutionTime}"
-                                IsReadOnly="True">
+                            <DataGridTextColumn Width="120"
+                                                Binding="{Binding ExecutionMilliseconds}"
+                                                Header="{x:Static resx:Resources.Header_ExecutionTime}"
+                                                IsReadOnly="True">
+                                <DataGridTextColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{x:Static resx:Resources.Header_ExecutionTime}">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip Style="{StaticResource ToolTipPointerTopRight}">
+                                                    <TextBlock Text="{x:Static resx:Resources.ToolTip_ExecutionTime}" Style="{StaticResource ToolTipContent}"/>
+                                                </ToolTip>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTextColumn.HeaderTemplate>
                                 <DataGridTextColumn.ElementStyle>
                                     <Style BasedOn="{StaticResource ExecutionTimeTextBlockStyle}" TargetType="TextBlock" />
                                 </DataGridTextColumn.ElementStyle>
@@ -575,7 +633,13 @@
                     <!-- Not Executed -->
                     <TextBlock Text="{x:Static resx:Resources.Label_NotExecuted}"
                                Style="{StaticResource CollectionHeaderTextBlockStyle}"
-                               Visibility="{Binding NotExecutedTableVisibility}"/>
+                               Visibility="{Binding NotExecutedTableVisibility}">
+                        <TextBlock.ToolTip>
+                            <ToolTip Style="{StaticResource GenericToolTipLight}">
+                                <TextBlock Text="{x:Static resx:Resources.ToolTip_NotExecuted}" Style="{StaticResource ToolTipContent}"/>
+                            </ToolTip>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
                               x:Name="NotExecutedTable"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
