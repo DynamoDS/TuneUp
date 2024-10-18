@@ -174,11 +174,13 @@ namespace TuneUp
             var viewModel = LatestRunTable.DataContext as TuneUpWindowViewModel;
             if (viewModel != null)
             {
-                viewModel.SortingOrder = e.Column.Header switch
+                string headerText = e.Column.Header.ToString();
+
+                viewModel.SortingOrder = headerText switch
                 {
-                    "#" => TuneUpWindowViewModel.SortByNumber,
-                    "Name" => TuneUpWindowViewModel.SortByName,
-                    "Execution time (ms)" => TuneUpWindowViewModel.SortByTime,
+                    var h when h == Properties.Resources.Header_ExecutionOrder => TuneUpWindowViewModel.SortByNumber,
+                    var h when h == Properties.Resources.Header_Name => TuneUpWindowViewModel.SortByName,
+                    var h when h == Properties.Resources.Header_ExecutionTime => TuneUpWindowViewModel.SortByTime,
                     _ => viewModel.SortingOrder
                 };
 
