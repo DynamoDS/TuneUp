@@ -99,13 +99,16 @@ namespace TuneUp
                     }
                     else if (GroupModel != null)
                     {
-                        return GroupModel.AnnotationText == DefaultGroupName ?
-                            $"{GroupNodePrefix}{DefaultDisplayGroupName}" : GroupModel.AnnotationText;
+                        return GetGroupName(GroupModel.AnnotationText);
                     }
                 }
                 return name;
             }
-            internal set { name = value; }
+            internal set
+            {
+                name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
         }
         
         /// <summary>
@@ -420,7 +423,7 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(ProfiledNodeViewModel pNode)
         {
-            Name = pNode.GroupName == DefaultGroupName ? DefaultDisplayGroupName : pNode.GroupName;
+            Name = GetGroupName(pNode.GroupName);
             GroupName = pNode.GroupName;
             State = pNode.State;
             NodeGUID = Guid.NewGuid();
@@ -429,5 +432,13 @@ namespace TuneUp
             BackgroundBrush = pNode.BackgroundBrush;
             ShowGroupIndicator = true;
         }
+
+        public static string GetGroupName(string groupName)
+        {
+            return groupName == DefaultGroupName
+                ? $"{GroupNodePrefix}{DefaultDisplayGroupName}"
+                : $"{GroupNodePrefix}{groupName}";
+        }
+
     }
 }
