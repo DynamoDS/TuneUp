@@ -99,7 +99,7 @@ namespace TuneUp
                     }
                     else if (GroupModel != null)
                     {
-                        return GetGroupName(GroupModel.AnnotationText);
+                        return GetProfiledGroupName(GroupModel.AnnotationText);
                     }
                 }
                 return name;
@@ -423,7 +423,7 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(ProfiledNodeViewModel pNode)
         {
-            Name = GetGroupName(pNode.GroupName);
+            Name = GetProfiledGroupName(pNode.GroupName);
             GroupName = pNode.GroupName;
             State = pNode.State;
             NodeGUID = Guid.NewGuid();
@@ -433,12 +433,15 @@ namespace TuneUp
             ShowGroupIndicator = true;
         }
 
-        public static string GetGroupName(string groupName)
+        /// <summary>
+        /// Returns the formatted profiled group name with the group prefix.
+        /// Uses a default display name if the group name matches the default.
+        /// </summary>
+        public static string GetProfiledGroupName(string groupName)
         {
             return groupName == DefaultGroupName
                 ? $"{GroupNodePrefix}{DefaultDisplayGroupName}"
                 : $"{GroupNodePrefix}{groupName}";
         }
-
     }
 }

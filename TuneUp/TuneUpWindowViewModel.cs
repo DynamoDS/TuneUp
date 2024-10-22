@@ -694,7 +694,7 @@ namespace TuneUp
                     {
                         if (pNode.IsGroup)
                         {
-                            pNode.Name = ProfiledNodeViewModel.GetGroupName(groupModel.AnnotationText);
+                            pNode.Name = ProfiledNodeViewModel.GetProfiledGroupName(groupModel.AnnotationText);
                         }
                         pNode.GroupName = groupModel.AnnotationText;
                     }
