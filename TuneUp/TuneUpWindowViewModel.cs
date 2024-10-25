@@ -362,9 +362,7 @@ namespace TuneUp
             ApplyGroupNodeFilter();
 
             // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
-            RaisePropertyChanged(nameof(LatestRunTableVisibility));
-            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
-            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+            UpdateTableVisibility();
         }
 
         /// <summary>
@@ -453,10 +451,7 @@ namespace TuneUp
 
             CalculateGroupNodes();
             UpdateExecutionTime();
-
-            RaisePropertyChanged(nameof(LatestRunTableVisibility));
-            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
-            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+            UpdateTableVisibility();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
             RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
@@ -701,7 +696,7 @@ namespace TuneUp
                     {
                         if (pNode.IsGroup)
                         {
-                            pNode.Name = $"{ProfiledNodeViewModel.GroupNodePrefix}{groupModel.AnnotationText}";
+                            pNode.Name = ProfiledNodeViewModel.GetProfiledGroupName(groupModel.AnnotationText);
                         }
                         pNode.GroupName = groupModel.AnnotationText;
                     }
@@ -889,6 +884,7 @@ namespace TuneUp
 
             //Recalculate the execution times
             UpdateExecutionTime();
+            UpdateTableVisibility();
         }
 
         private void CurrentWorkspaceModel_GroupAdded(AnnotationModel group)
@@ -1003,6 +999,7 @@ namespace TuneUp
             }
 
             RefreshAllCollectionViews();
+            UpdateTableVisibility();
         }
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
@@ -1022,6 +1019,16 @@ namespace TuneUp
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// Raises property change notifications for the visibility of the Latest Run, Previous Run, and Not Executed tables.
+        /// </summary>
+        private void UpdateTableVisibility()
+        {
+            RaisePropertyChanged(nameof(LatestRunTableVisibility));
+            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
+            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+        }
 
         /// <summary>
         /// Resets group-related properties of the node and unregisters it from the group model dictionary.
