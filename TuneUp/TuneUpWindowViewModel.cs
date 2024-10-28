@@ -1028,6 +1028,16 @@ namespace TuneUp
         #region Helpers
 
         /// <summary>
+        /// Raises property change notifications for the visibility of the Latest Run, Previous Run, and Not Executed tables.
+        /// </summary>
+        private void UpdateTableVisibility()
+        {
+            RaisePropertyChanged(nameof(LatestRunTableVisibility));
+            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
+            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+        }
+
+        /// <summary>
         /// Returns the corresponding CollectionViewSource for the given ObservableCollection of ProfiledNodeViewModel.
         /// </summary>
         internal CollectionViewSource GetCollectionViewSource(ObservableCollection<ProfiledNodeViewModel> collection)
