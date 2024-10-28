@@ -16,8 +16,10 @@ using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
+using Dynamo.Wpf.Utilities;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using TuneUp.Properties;
 
 namespace TuneUp
 {
@@ -61,9 +63,9 @@ namespace TuneUp
         private bool isProfilingEnabled = true;
         private bool isRecomputeEnabled = true;
         private bool isTuneUpChecked = false;
-        private bool showGroups;
+        private bool showGroups = true;
         private ListSortDirection sortDirection;
-        private const string defaultExecutionTime = "N/A";
+        private static readonly string defaultExecutionTime = Resources.Label_DefaultExecutionTime;
         private string defaultSortingOrder = "number";        
         private string latestGraphExecutionTime = defaultExecutionTime;
         private string previousGraphExecutionTime = defaultExecutionTime;
@@ -272,7 +274,7 @@ namespace TuneUp
             }
         }
 
-        public const  string SortByName = "name";
+        public const string SortByName = "name";
         public const string SortByNumber = "number";
         public const string SortByTime = "time";
 
@@ -367,9 +369,7 @@ namespace TuneUp
             ApplyGroupNodeFilter();
 
             // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
-            RaisePropertyChanged(nameof(LatestRunTableVisibility));
-            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
-            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+            UpdateTableVisibility();
         }
 
         /// <summary>
@@ -458,10 +458,7 @@ namespace TuneUp
 
             CalculateGroupNodes();
             UpdateExecutionTime();
-
-            RaisePropertyChanged(nameof(LatestRunTableVisibility));
-            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
-            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+            UpdateTableVisibility();
 
             RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
             RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
@@ -706,7 +703,7 @@ namespace TuneUp
                     {
                         if (pNode.IsGroup)
                         {
-                            pNode.Name = $"{ProfiledNodeViewModel.GroupNodePrefix}{groupModel.AnnotationText}";
+                            pNode.Name = ProfiledNodeViewModel.GetProfiledGroupName(groupModel.AnnotationText);
                         }
                         pNode.GroupName = groupModel.AnnotationText;
                     }
@@ -894,6 +891,7 @@ namespace TuneUp
 
             //Recalculate the execution times
             UpdateExecutionTime();
+            UpdateTableVisibility();
         }
 
         private void CurrentWorkspaceModel_GroupAdded(AnnotationModel group)
@@ -1008,6 +1006,7 @@ namespace TuneUp
             }
 
             RefreshAllCollectionViews();
+            UpdateTableVisibility();
         }
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
@@ -1394,8 +1393,12 @@ namespace TuneUp
                 // Check if the .csv file locked or in use
                 if (IsFileLocked(new FileInfo(saveFileDialog.FileName)))
                 {
-                    MessageBox.Show("The file is currently in use by another application. Please close the file before trying to overwrite it.",
-                        "File in Use", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBoxService.Show(
+                        Resources.Message_FileInUse,
+                        Resources.Title_FileInUse,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
                     return;
                 }
 
@@ -1403,13 +1406,13 @@ namespace TuneUp
                 {
                     using (var writer = new StreamWriter(saveFileDialog.FileName))
                     {
-                        writer.WriteLine("Execution Order,Name,Execution Time (ms)");
+                        writer.WriteLine($"{Resources.Header_ExecutionOrder},{Resources.Header_Name},{Resources.Header_ExecutionTime}");
 
                         var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
                         {
-                        ("Latest Run", ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
-                        ("Previous Run", ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
-                        ("Not Executed", ProfiledNodesCollectionNotExecuted, null)
+                        (Resources.Label_LatestRun, ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
+                        (Resources.Label_PreviousRun, ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
+                        (Resources.Label_NotExecuted, ProfiledNodesCollectionNotExecuted, null)
                         };
 
                         foreach (var (label, collection, totalTime) in collections)
@@ -1441,7 +1444,7 @@ namespace TuneUp
                             // Write total execution time, if applicable
                             if (!string.IsNullOrEmpty(totalTime))
                             {
-                                writer.WriteLine($",Total, {totalTime}");
+                                writer.WriteLine($",{Resources.Label_Total}, {totalTime}");
                             }
                             writer.WriteLine();
                         }
@@ -1449,8 +1452,13 @@ namespace TuneUp
                 }
                 catch (IOException ex)
                 {
-                    MessageBox.Show($"An error occurred while trying to write the file: {ex.Message}",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string errorMessage = string.Format(Resources.Message_FileWriteError, ex.Message);
+
+                    MessageBoxService.Show(
+                        errorMessage,
+                        Resources.Title_Error,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }                
             }
         }
@@ -1496,9 +1504,9 @@ namespace TuneUp
 
             var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
             {
-                ("Latest Run", ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
-                ("Previous Run", ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
-                ("Not Executed", ProfiledNodesCollectionNotExecuted, null)
+                (Resources.Label_LatestRun, ProfiledNodesCollectionLatestRun, LatestGraphExecutionTime),
+                (Resources.Label_PreviousRun, ProfiledNodesCollectionPreviousRun, PreviousGraphExecutionTime),
+                (Resources.Label_NotExecuted, ProfiledNodesCollectionNotExecuted, null)
             };
 
             foreach (var (label, collection, totalTime) in collections)

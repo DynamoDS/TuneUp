@@ -9,6 +9,7 @@ using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Nodes.CustomNodes;
 using Dynamo.Graph.Nodes.ZeroTouch;
+using TuneUp.Properties;
 
 namespace TuneUp
 {
@@ -74,11 +75,11 @@ namespace TuneUp
         /// <summary>
         /// Prefix string of execution time.
         /// </summary>
-        internal const string ExecutionTimelString = "Execution Time";
-        internal const string GroupNodePrefix = "Group: ";
-        internal const string GroupExecutionTimeString = "Group total";
-        private const string DefaultGroupName = "Title <Double click here to edit group title>";
-        private const string DefaultDisplayGroupName = "Title";
+        internal static readonly string ExecutionTimelString = Resources.Label_ExecutionTime;
+        internal static readonly string GroupNodePrefix = Resources.Label_GroupNodePrefix;
+        internal static readonly string GroupExecutionTimeString = Resources.Label_GroupTotalExecutionTime;
+        private static readonly string DefaultGroupName = Resources.Label_DefaultGroupName;
+        private static readonly string DefaultDisplayGroupName = Resources.Label_DefaultDisplayGroupName;
 
         private string name = String.Empty;
         /// <summary>
@@ -99,13 +100,16 @@ namespace TuneUp
                     }
                     else if (GroupModel != null)
                     {
-                        return GroupModel.AnnotationText == DefaultGroupName ?
-                            $"{GroupNodePrefix}{DefaultDisplayGroupName}" : GroupModel.AnnotationText;
+                        return GetProfiledGroupName(GroupModel.AnnotationText);
                     }
                 }
                 return name;
             }
-            internal set { name = value; }
+            internal set
+            {
+                name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
         }
         
         /// <summary>
@@ -420,7 +424,7 @@ namespace TuneUp
         /// <param name="group">the annotation model</param>
         public ProfiledNodeViewModel(ProfiledNodeViewModel pNode)
         {
-            Name = pNode.GroupName == DefaultGroupName ? DefaultDisplayGroupName : pNode.GroupName;
+            Name = GetProfiledGroupName(pNode.GroupName);
             GroupName = pNode.GroupName;
             State = pNode.State;
             NodeGUID = Guid.NewGuid();
@@ -428,6 +432,17 @@ namespace TuneUp
             IsGroup = true;
             BackgroundBrush = pNode.BackgroundBrush;
             ShowGroupIndicator = true;
+        }
+
+        /// <summary>
+        /// Returns the formatted profiled group name with the group prefix.
+        /// Uses a default display name if the group name matches the default.
+        /// </summary>
+        public static string GetProfiledGroupName(string groupName)
+        {
+            return groupName == DefaultGroupName
+                ? $"{GroupNodePrefix}{DefaultDisplayGroupName}"
+                : $"{GroupNodePrefix}{groupName}";
         }
     }
 }
