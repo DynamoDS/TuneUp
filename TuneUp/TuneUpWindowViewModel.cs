@@ -74,6 +74,7 @@ namespace TuneUp
         private Dictionary<Guid, ProfiledNodeViewModel> groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
         // Maps AnnotationModel GUIDs to a list of associated ProfiledNodeViewModel instances.
         private Dictionary<Guid, List<ProfiledNodeViewModel>> groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
+        private Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource> collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource>();
 
         private HomeWorkspaceModel CurrentWorkspace
         {
@@ -320,6 +321,12 @@ namespace TuneUp
             ProfiledNodesPreviousRun = ProfiledNodesPreviousRun ?? new ObservableCollection<ProfiledNodeViewModel>();
             ProfiledNodesNotExecuted = ProfiledNodesNotExecuted ?? new ObservableCollection<ProfiledNodeViewModel>();
 
+            collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource> {
+                { ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
+                {ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
+                {ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }            
+            };
+
             nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
             groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
             groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
@@ -546,7 +553,7 @@ namespace TuneUp
                     groupDictionary[pGroup.NodeGUID] = pGroup;
                     groupModelDictionary[pNode.GroupGUID].Add(pGroup);
 
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
                     {
                         ProfiledNodesNotExecuted.Add(pGroup);
                     });
@@ -612,7 +619,7 @@ namespace TuneUp
                     // Create an register a new time node
                     var timeNode = CreateAndRegisterGroupTimeNode(pGroup);
 
-                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
                     {
                         collection.Add(timeNode);
                         collection.Add(pGroup);
@@ -1031,6 +1038,14 @@ namespace TuneUp
         }
 
         /// <summary>
+        /// Returns the corresponding CollectionViewSource for the given ObservableCollection of ProfiledNodeViewModel.
+        /// </summary>
+        internal CollectionViewSource GetCollectionViewSource(ObservableCollection<ProfiledNodeViewModel> collection)
+        {
+            return collectionMapping.TryGetValue(collection, out var collectionViewSource) ? collectionViewSource : null;
+        }
+
+        /// <summary>
         /// Resets group-related properties of the node and unregisters it from the group model dictionary.
         /// </summary>
         internal void ResetGroupPropertiesAndUnregisterNode(ProfiledNodeViewModel profiledNode)
@@ -1267,7 +1282,7 @@ namespace TuneUp
         /// </summary>
         private void MoveNodeToCollection(ProfiledNodeViewModel profiledNode, ObservableCollection<ProfiledNodeViewModel> targetCollection)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            GetCollectionViewSource(targetCollection).Dispatcher.Invoke(() =>
             {
                 var collections = new[]
                 {
@@ -1292,7 +1307,7 @@ namespace TuneUp
         {
             var collection = GetObservableCollectionFromState(state);
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
             {
                 collection?.Remove(pNode);
             });
