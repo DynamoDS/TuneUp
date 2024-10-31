@@ -212,7 +212,7 @@
 {0}</value>
   </data>
   <data name="ToolTip_RunAll" xml:space="preserve">
-    <value>Execure entire graph, including nodes with no change since the latest run.</value>
+    <value>Execute entire graph, including nodes with no change since the latest run.</value>
   </data>
   <data name="ToolTip_TotalExecutionTime" xml:space="preserve">
     <value>Combined execution time of latest and previous run.</value>
