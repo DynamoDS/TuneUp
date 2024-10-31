@@ -52,6 +52,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.en-US.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.en-US.resx</DependentUpon>
+    </Compile>
     <Compile Include="TuneUpViewExtension.cs" />
     <Compile Include="TuneUpWindowViewModel.cs" />
     <Compile Include="TuneUpWindow.xaml.cs">
@@ -89,17 +94,13 @@
     <None Include="manifests\TuneUp_ViewExtensionDefinition.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.en-US.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.en-US.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="TuneUpResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TuneUpResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <!-- Including Custom Properties, PreBuildEvent, and Import -->

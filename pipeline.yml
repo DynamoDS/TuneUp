@@ -28,7 +28,7 @@ deployment:
   -
     type: customized
     scripts:
-      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path (Join-Path TuneUp/bin/Release/net8.0-windows 'TuneUp.dll', 'en-US') -DestinationPath TuneUp.zip"
+      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path 'TuneUp/bin/Release/net8.0-windows/TuneUp.dll', 'TuneUp/bin/Release/net8.0-windows/en-US' -DestinationPath 'TuneUp.zip'"
   -
     type: artifacts
     publish_to_jenkins: true
