@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -308,70 +309,74 @@ namespace TuneUp
         {
             if (CurrentWorkspace == null) return;
 
-            uiContext.Send(_ => {
-                // Clear existing collections
-                ProfiledNodesLatestRun?.Clear();
-                ProfiledNodesPreviousRun?.Clear();
-                ProfiledNodesNotExecuted?.Clear();
+            Task.Run(() =>
+            {
+                uiContext.Post(_ => {
+                    // Clear existing collections
+                    ProfiledNodesLatestRun?.Clear();
+                    ProfiledNodesPreviousRun?.Clear();
+                    ProfiledNodesNotExecuted?.Clear();
 
-                // Reset execution time stats
-                LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
+                    // Reset execution time stats
+                    LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
 
-                // Initialize observable collections and dictionaries
-                ProfiledNodesLatestRun = ProfiledNodesLatestRun ?? new ObservableCollection<ProfiledNodeViewModel>();
-                ProfiledNodesPreviousRun = ProfiledNodesPreviousRun ?? new ObservableCollection<ProfiledNodeViewModel>();
-                ProfiledNodesNotExecuted = ProfiledNodesNotExecuted ?? new ObservableCollection<ProfiledNodeViewModel>();
+                    // Initialize observable collections and dictionaries
+                    ProfiledNodesLatestRun = ProfiledNodesLatestRun ?? new ObservableCollection<ProfiledNodeViewModel>();
+                    ProfiledNodesPreviousRun = ProfiledNodesPreviousRun ?? new ObservableCollection<ProfiledNodeViewModel>();
+                    ProfiledNodesNotExecuted = ProfiledNodesNotExecuted ?? new ObservableCollection<ProfiledNodeViewModel>();
 
-                collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource> {
-                { ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
-                {ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
-                {ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }
-            };
-
-                nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-                groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-                groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
-
-                // Create a profiled node for each NodeModel
-                foreach (var node in CurrentWorkspace.Nodes)
-                {
-                    var profiledNode = new ProfiledNodeViewModel(node) { GroupName = node.Name };
-                    ProfiledNodesNotExecuted.Add(profiledNode);
-                    nodeDictionary[node.GUID] = profiledNode;
-                }
-
-                // Create a profiled node for each AnnotationModel
-                foreach (var group in CurrentWorkspace.Annotations)
-                {
-                    var pGroup = new ProfiledNodeViewModel(group);
-                    ProfiledNodesNotExecuted.Add(pGroup);
-                    groupDictionary[pGroup.NodeGUID] = (pGroup);
-                    groupModelDictionary[group.GUID] = new List<ProfiledNodeViewModel> { pGroup };
-
-                    var groupedNodeGUIDs = group.Nodes.OfType<NodeModel>().Select(n => n.GUID);
-
-                    foreach (var nodeGuid in groupedNodeGUIDs)
+                    collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource>
                     {
-                        if (nodeDictionary.TryGetValue(nodeGuid, out var pNode))
+                        { ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
+                        {ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
+                        {ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }
+                    };
+
+                    nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+                    groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+                    groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
+
+                    // Create a profiled node for each NodeModel
+                    foreach (var node in CurrentWorkspace.Nodes)
+                    {
+                        var profiledNode = new ProfiledNodeViewModel(node) { GroupName = node.Name };
+                        ProfiledNodesNotExecuted.Add(profiledNode);
+                        nodeDictionary[node.GUID] = profiledNode;
+                    }
+
+                    // Create a profiled node for each AnnotationModel
+                    foreach (var group in CurrentWorkspace.Annotations)
+                    {
+                        var pGroup = new ProfiledNodeViewModel(group);
+                        ProfiledNodesNotExecuted.Add(pGroup);
+                        groupDictionary[pGroup.NodeGUID] = (pGroup);
+                        groupModelDictionary[group.GUID] = new List<ProfiledNodeViewModel> { pGroup };
+
+                        var groupedNodeGUIDs = group.Nodes.OfType<NodeModel>().Select(n => n.GUID);
+
+                        foreach (var nodeGuid in groupedNodeGUIDs)
                         {
-                            ApplyGroupPropertiesAndRegisterNode(pNode, pGroup);
+                            if (nodeDictionary.TryGetValue(nodeGuid, out var pNode))
+                            {
+                                ApplyGroupPropertiesAndRegisterNode(pNode, pGroup);
+                            }
                         }
                     }
-                }
 
-                ProfiledNodesCollectionLatestRun = new CollectionViewSource { Source = ProfiledNodesLatestRun };
-                ProfiledNodesCollectionPreviousRun = new CollectionViewSource { Source = ProfiledNodesPreviousRun };
-                ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
+                    ProfiledNodesCollectionLatestRun = new CollectionViewSource { Source = ProfiledNodesLatestRun };
+                    ProfiledNodesCollectionPreviousRun = new CollectionViewSource { Source = ProfiledNodesPreviousRun };
+                    ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
 
-                // Refresh UI if any changes were made
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-                ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
+                    // Refresh UI if any changes were made
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+                    ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
 
-                ApplyGroupNodeFilter();
+                    ApplyGroupNodeFilter();
 
-                // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
-                UpdateTableVisibility();
-            }, null);
+                    // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
+                    UpdateTableVisibility();
+                }, null);
+            });            
         }
 
         /// <summary>
@@ -456,25 +461,27 @@ namespace TuneUp
 
         private void CurrentWorkspaceModel_EvaluationCompleted(object sender, Dynamo.Models.EvaluationCompletedEventArgs e)
         {
-            IsRecomputeEnabled = true;
-
-            CalculateGroupNodes();
-            UpdateExecutionTime();
-            UpdateTableVisibility();
-
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
-            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-
-            ProfiledNodesCollectionLatestRun.Dispatcher.InvokeAsync(() =>
+            Task.Run(() =>
             {
-                ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
-                ProfiledNodesCollectionLatestRun.View?.Refresh();
-                ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
-                ProfiledNodesCollectionPreviousRun.View?.Refresh();
-                ProfiledNodesCollectionNotExecuted.View?.Refresh();
+                IsRecomputeEnabled = true;
 
-            });
+                CalculateGroupNodes();
+                UpdateExecutionTime();
+                UpdateTableVisibility();
+
+                RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+                RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+                RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+
+                uiContext.Post(_ =>
+                {
+                    ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
+                    ProfiledNodesCollectionLatestRun.View?.Refresh();
+                    ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
+                    ProfiledNodesCollectionPreviousRun.View?.Refresh();
+                    ProfiledNodesCollectionNotExecuted.View?.Refresh();
+                }, null);
+            });            
         }
 
         /// <summary>
@@ -513,128 +520,131 @@ namespace TuneUp
         /// </summary>
         private void CalculateGroupNodes()
         {
-            // Clean the collections from all group and time nodes
-            foreach (var node in groupDictionary.Values)
+            Task.Run(() =>
             {
-                RemoveNodeFromStateCollection(node, node.State);
-
-                if (groupModelDictionary.TryGetValue(node.GroupGUID, out var groupNodes))
+                // Clean the collections from all group and time nodes
+                foreach (var node in groupDictionary.Values)
                 {
-                    groupNodes.Remove(node);
-                }
-            }
-            groupDictionary.Clear();
+                    RemoveNodeFromStateCollection(node, node.State);
 
-            // Create group and time nodes for latest and previous runs
-            CreateGroupNodesForCollection(ProfiledNodesLatestRun);
-            CreateGroupNodesForCollection(ProfiledNodesPreviousRun);
-
-            // Create group nodes for not executed 
-            var processedNodesNotExecuted = new HashSet<ProfiledNodeViewModel>();
-
-            // Create a copy of ProfiledNodesNotExecuted to iterate over
-            var profiledNodesCopy = ProfiledNodesNotExecuted.ToList();
-
-            foreach (var pNode in profiledNodesCopy)
-            {
-                if (pNode.GroupGUID != Guid.Empty && !processedNodesNotExecuted.Contains(pNode))
-                {
-                    // get the other nodes from this group
-                    var nodesInGroup = ProfiledNodesNotExecuted
-                        .Where(n => n.GroupGUID == pNode.GroupGUID)
-                        .ToList();
-
-                    foreach (var node in nodesInGroup)
+                    if (groupModelDictionary.TryGetValue(node.GroupGUID, out var groupNodes))
                     {
-                        processedNodesNotExecuted.Add(node);
+                        groupNodes.Remove(node);
                     }
-
-                    // create new group node
-                    var pGroup = new ProfiledNodeViewModel(pNode);
-
-                    groupDictionary[pGroup.NodeGUID] = pGroup;
-                    groupModelDictionary[pNode.GroupGUID].Add(pGroup);
-
-                    ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
-                    {
-                        ProfiledNodesNotExecuted.Add(pGroup);
-                    });
                 }
-            }
+                groupDictionary.Clear();
 
-            // Additional sorting to prevent group nodes from appearing at the bottom of the DataGrid
-            // when consecutive graphs are opened while TuneUp is enabled.
-            ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
-            {
-                ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
-            });
-            ProfiledNodesCollectionPreviousRun.Dispatcher.Invoke(() =>
-            {
-                ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
-            });
+                // Create group and time nodes for latest and previous runs
+                CreateGroupNodesForCollection(ProfiledNodesLatestRun);
+                CreateGroupNodesForCollection(ProfiledNodesPreviousRun);
+
+                // Create group nodes for not executed 
+                var processedNodesNotExecuted = new HashSet<ProfiledNodeViewModel>();
+
+                // Create a copy of ProfiledNodesNotExecuted to iterate over
+                var profiledNodesCopy = ProfiledNodesNotExecuted.ToList();
+
+                foreach (var pNode in profiledNodesCopy)
+                {
+                    if (pNode.GroupGUID != Guid.Empty && !processedNodesNotExecuted.Contains(pNode))
+                    {
+                        // get the other nodes from this group
+                        var nodesInGroup = ProfiledNodesNotExecuted
+                            .Where(n => n.GroupGUID == pNode.GroupGUID)
+                            .ToList();
+
+                        foreach (var node in nodesInGroup)
+                        {
+                            processedNodesNotExecuted.Add(node);
+                        }
+
+                        // create new group node
+                        var pGroup = new ProfiledNodeViewModel(pNode);
+
+                        groupDictionary[pGroup.NodeGUID] = pGroup;
+                        groupModelDictionary[pNode.GroupGUID].Add(pGroup);
+
+                        uiContext.Post(_ =>
+                        {
+                            ProfiledNodesNotExecuted.Add(pGroup);
+                        }, null);
+                    }
+                }
+
+                // Additional sorting to prevent group nodes from appearing at the bottom of the DataGrid
+                // when consecutive graphs are opened while TuneUp is enabled.
+                uiContext.Post(_ =>
+                {
+                    ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+                    ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+                }, null);
+            });            
         }
 
         private void CreateGroupNodesForCollection(ObservableCollection<ProfiledNodeViewModel> collection)
         {
-            int executionCounter = 1;
-            var processedNodes = new HashSet<ProfiledNodeViewModel>();
-
-            var sortedNodes = collection.OrderBy(n => n.ExecutionOrderNumber).ToList();
-
-            foreach (var pNode in sortedNodes)
+            Task.Run(() =>
             {
-                // Process the standalone nodes
-                if (pNode.GroupGUID == Guid.Empty && !processedNodes.Contains(pNode))
+                int executionCounter = 1;
+                var processedNodes = new HashSet<ProfiledNodeViewModel>();
+
+                var sortedNodes = collection.OrderBy(n => n.ExecutionOrderNumber).ToList();
+
+                foreach (var pNode in sortedNodes)
                 {
-                    pNode.GroupExecutionMilliseconds = pNode.ExecutionMilliseconds;
-                    pNode.ExecutionOrderNumber = executionCounter;
-                    pNode.GroupExecutionOrderNumber = executionCounter++;
-
-                    processedNodes.Add(pNode);
-                }
-
-                // Process the grouped nodes
-                else if (pNode.GroupGUID != Guid.Empty && !processedNodes.Contains(pNode))
-                {
-                    // Get all nodes in the same group and calculate the group execution time
-                    int groupExecTime = 0;
-                    var nodesInGroup = sortedNodes.Where(n => n.GroupGUID == pNode.GroupGUID).ToList();
-
-                    foreach (var node in nodesInGroup)
+                    // Process the standalone nodes
+                    if (pNode.GroupGUID == Guid.Empty && !processedNodes.Contains(pNode))
                     {
-                        processedNodes.Add(node);
-                        groupExecTime += node.ExecutionMilliseconds;
+                        pNode.GroupExecutionMilliseconds = pNode.ExecutionMilliseconds;
+                        pNode.ExecutionOrderNumber = executionCounter;
+                        pNode.GroupExecutionOrderNumber = executionCounter++;
+
+                        processedNodes.Add(pNode);
                     }
 
-                    // Create and register a new group node using the current profiled node
-                    var pGroup = new ProfiledNodeViewModel(pNode)
+                    // Process the grouped nodes
+                    else if (pNode.GroupGUID != Guid.Empty && !processedNodes.Contains(pNode))
                     {
-                        GroupExecutionOrderNumber = executionCounter++,
-                        GroupExecutionMilliseconds = groupExecTime
-                    };
+                        // Get all nodes in the same group and calculate the group execution time
+                        int groupExecTime = 0;
+                        var nodesInGroup = sortedNodes.Where(n => n.GroupGUID == pNode.GroupGUID).ToList();
 
-                    groupDictionary[pGroup.NodeGUID] = pGroup;
-                    groupModelDictionary[pNode.GroupGUID].Add(pGroup);
+                        foreach (var node in nodesInGroup)
+                        {
+                            processedNodes.Add(node);
+                            groupExecTime += node.ExecutionMilliseconds;
+                        }
 
-                    // Create an register a new time node
-                    var timeNode = CreateAndRegisterGroupTimeNode(pGroup);
+                        // Create and register a new group node using the current profiled node
+                        var pGroup = new ProfiledNodeViewModel(pNode)
+                        {
+                            GroupExecutionOrderNumber = executionCounter++,
+                            GroupExecutionMilliseconds = groupExecTime
+                        };
 
-                    GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
-                    {
-                        collection.Add(timeNode);
-                        collection.Add(pGroup);
-                    });
+                        groupDictionary[pGroup.NodeGUID] = pGroup;
+                        groupModelDictionary[pNode.GroupGUID].Add(pGroup);
 
-                    // Update group-related properties for all nodes in the group
-                    foreach (var node in nodesInGroup)
-                    {
-                        node.GroupExecutionOrderNumber = pGroup.GroupExecutionOrderNumber;
-                        node.GroupExecutionMilliseconds = pGroup.GroupExecutionMilliseconds;
+                        // Create an register a new time node
+                        var timeNode = CreateAndRegisterGroupTimeNode(pGroup);
+
+                        uiContext.Post(_ =>
+                        {
+                            collection.Add(timeNode);
+                            collection.Add(pGroup);
+                        }, null);
+
+                        // Update group-related properties for all nodes in the group
+                        foreach (var node in nodesInGroup)
+                        {
+                            node.GroupExecutionOrderNumber = pGroup.GroupExecutionOrderNumber;
+                            node.GroupExecutionMilliseconds = pGroup.GroupExecutionMilliseconds;
+                        }
                     }
                 }
-            }
+            });            
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
@@ -1284,22 +1294,25 @@ namespace TuneUp
         /// </summary>
         private void MoveNodeToCollection(ProfiledNodeViewModel profiledNode, ObservableCollection<ProfiledNodeViewModel> targetCollection)
         {
-            GetCollectionViewSource(targetCollection).Dispatcher.Invoke(() =>
+            Task.Run(() =>
             {
-                var collections = new[]
+                uiContext.Post(_ =>
                 {
+                    var collections = new[]
+                    {
                     ProfiledNodesLatestRun,
                     ProfiledNodesPreviousRun,
                     ProfiledNodesNotExecuted
                 };
 
-                foreach (var collection in collections)
-                {
-                    collection?.Remove(profiledNode);
-                }
+                    foreach (var collection in collections)
+                    {
+                        collection?.Remove(profiledNode);
+                    }
 
-                targetCollection?.Add(profiledNode);
-            });
+                    targetCollection?.Add(profiledNode);
+                }, null);
+            });            
         }
 
         /// <summary>
@@ -1307,12 +1320,15 @@ namespace TuneUp
         /// </summary>
         private void RemoveNodeFromStateCollection(ProfiledNodeViewModel pNode, ProfiledNodeState state)
         {
-            var collection = GetObservableCollectionFromState(state);
-
-            GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
+            Task.Run(() =>
             {
-                collection?.Remove(pNode);
-            });
+                var collection = GetObservableCollectionFromState(state);
+
+                uiContext.Post(_ =>
+                {
+                    collection?.Remove(pNode);
+                }, null);
+            });            
         }
 
         #endregion
