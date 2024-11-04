@@ -327,7 +327,7 @@ namespace TuneUp
 
                     collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource>
                     {
-                        { ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
+                        {ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
                         {ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
                         {ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }
                     };
@@ -370,10 +370,7 @@ namespace TuneUp
                     // Refresh UI if any changes were made
                     RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
                     ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
-
                     ApplyGroupNodeFilter();
-
-                    // Ensure table visibility is updated in case TuneUp was closed and reopened with the same graph.
                     UpdateTableVisibility();
                 }, null);
             });            
@@ -467,17 +464,18 @@ namespace TuneUp
 
                 CalculateGroupNodes();
                 UpdateExecutionTime();
-                UpdateTableVisibility();
-
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
-                RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+                UpdateTableVisibility();                
 
                 uiContext.Post(_ =>
                 {
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+                    RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+
                     ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
-                    ProfiledNodesCollectionLatestRun.View?.Refresh();
                     ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
+
+                    ProfiledNodesCollectionLatestRun.View?.Refresh();
                     ProfiledNodesCollectionPreviousRun.View?.Refresh();
                     ProfiledNodesCollectionNotExecuted.View?.Refresh();
                 }, null);
@@ -534,9 +532,17 @@ namespace TuneUp
                 }
                 groupDictionary.Clear();
 
+                var a1 = ProfiledNodesLatestRun;
+                var a2 = ProfiledNodesPreviousRun;
+                var a3 = ProfiledNodesNotExecuted;
+
                 // Create group and time nodes for latest and previous runs
                 CreateGroupNodesForCollection(ProfiledNodesLatestRun);
                 CreateGroupNodesForCollection(ProfiledNodesPreviousRun);
+
+                var b1 = ProfiledNodesLatestRun;
+                var b2 = ProfiledNodesPreviousRun;
+                var b3 = ProfiledNodesNotExecuted;
 
                 // Create group nodes for not executed 
                 var processedNodesNotExecuted = new HashSet<ProfiledNodeViewModel>();
@@ -1298,12 +1304,7 @@ namespace TuneUp
             {
                 uiContext.Post(_ =>
                 {
-                    var collections = new[]
-                    {
-                    ProfiledNodesLatestRun,
-                    ProfiledNodesPreviousRun,
-                    ProfiledNodesNotExecuted
-                };
+                    var collections = new[] { ProfiledNodesLatestRun, ProfiledNodesPreviousRun, ProfiledNodesNotExecuted };
 
                     foreach (var collection in collections)
                     {
