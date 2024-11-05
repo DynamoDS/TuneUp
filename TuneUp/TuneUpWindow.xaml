@@ -391,7 +391,7 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="100"/>
-            <ColumnDefinition Width="120" MinWidth="60"/>
+            <ColumnDefinition Width="120"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -474,7 +474,7 @@
             Grid.Column="1"
             Width="60"
             Height="24"
-            Margin="0,0,7,0"
+            Margin="0,0,7,8"
             Padding="5,2,5,2"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
