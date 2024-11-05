@@ -565,10 +565,11 @@ namespace TuneUp
                             groupDictionary[pGroup.NodeGUID] = pGroup;
                             groupModelDictionary[pNode.GroupGUID].Add(pGroup);
 
-                            ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
-                            {
-                                ProfiledNodesNotExecuted.Add(pGroup);
-                            });
+                            //ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
+                            //{
+                            //    ProfiledNodesNotExecuted.Add(pGroup);
+                            //});
+                            uiContext.Send(_ => ProfiledNodesNotExecuted.Add(pGroup), null);
                         }
                     }
 
@@ -627,11 +628,16 @@ namespace TuneUp
                     // Create an register a new time node
                     var timeNode = CreateAndRegisterGroupTimeNode(pGroup);
 
-                    GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
+                    //GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
+                    //{
+                    //    collection.Add(timeNode);
+                    //    collection.Add(pGroup);
+                    //});
+                    uiContext.Post(_ =>
                     {
                         collection.Add(timeNode);
                         collection.Add(pGroup);
-                    });
+                    }, null);
 
                     // Update group-related properties for all nodes in the group
                     foreach (var node in nodesInGroup)
