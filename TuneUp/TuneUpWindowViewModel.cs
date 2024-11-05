@@ -550,7 +550,6 @@ namespace TuneUp
         {
             int executionCounter = 1;
             var processedNodes = new HashSet<ProfiledNodeViewModel>();
-            var nodesToAdd = new HashSet<ProfiledNodeViewModel>();
 
             var sortedNodes = collection.OrderBy(n => n.ExecutionOrderNumber).ToList();
 
@@ -602,15 +601,7 @@ namespace TuneUp
                         node.GroupExecutionMilliseconds = pGroup.GroupExecutionMilliseconds;
                     }
                 }
-            }
-
-            GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
-            {
-                foreach (var node in nodesToAdd)
-                {
-                    collection.Add(node);
-                }
-            });
+            }            
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
