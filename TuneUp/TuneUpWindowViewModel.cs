@@ -312,29 +312,8 @@ namespace TuneUp
             Task.Run(() =>
             {
                 uiContext.Post(_ => {
-                    // Clear existing collections
-                    ProfiledNodesLatestRun?.Clear();
-                    ProfiledNodesPreviousRun?.Clear();
-                    ProfiledNodesNotExecuted?.Clear();
-
-                    // Reset execution time stats
-                    LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
-
-                    // Initialize observable collections and dictionaries
-                    ProfiledNodesLatestRun = ProfiledNodesLatestRun ?? new ObservableCollection<ProfiledNodeViewModel>();
-                    ProfiledNodesPreviousRun = ProfiledNodesPreviousRun ?? new ObservableCollection<ProfiledNodeViewModel>();
-                    ProfiledNodesNotExecuted = ProfiledNodesNotExecuted ?? new ObservableCollection<ProfiledNodeViewModel>();
-
-                    collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource>
-                    {
-                        {ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
-                        {ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
-                        {ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }
-                    };
-
-                    nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-                    groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
-                    groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
+                    // Initialize collections and dictionaries
+                    InitializeCollectionsAndDictionaries();
 
                     // Create a profiled node for each NodeModel
                     foreach (var node in CurrentWorkspace.Nodes)
@@ -363,15 +342,8 @@ namespace TuneUp
                         }
                     }
 
-                    ProfiledNodesCollectionLatestRun = new CollectionViewSource { Source = ProfiledNodesLatestRun };
-                    ProfiledNodesCollectionPreviousRun = new CollectionViewSource { Source = ProfiledNodesPreviousRun };
-                    ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
-
-                    // Refresh UI if any changes were made
-                    RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-                    ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
-                    ApplyGroupNodeFilter();
-                    UpdateTableVisibility();
+                    // Refresh UI after reset
+                    RefreshUIAfterReset();
                 }, null);
             });            
         }
@@ -565,20 +537,11 @@ namespace TuneUp
                             groupDictionary[pGroup.NodeGUID] = pGroup;
                             groupModelDictionary[pNode.GroupGUID].Add(pGroup);
 
-                            //ProfiledNodesCollectionLatestRun.Dispatcher.Invoke(() =>
-                            //{
-                            //    ProfiledNodesNotExecuted.Add(pGroup);
-                            //});
                             uiContext.Send(_ => ProfiledNodesNotExecuted.Add(pGroup), null);
                         }
                     }
 
-                    // Additional sorting to prevent group nodes from appearing at the bottom of the DataGrid
-                    // when consecutive graphs are opened while TuneUp is enabled.
-                    ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
-                    RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
-                    ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
-                    RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+                    RefreshGroupNodeUI();
                 }, null);
             });            
         }
@@ -621,23 +584,14 @@ namespace TuneUp
                         GroupExecutionOrderNumber = executionCounter++,
                         GroupExecutionMilliseconds = groupExecTime
                     };
+                    collection.Add(pGroup);
 
                     groupDictionary[pGroup.NodeGUID] = pGroup;
                     groupModelDictionary[pNode.GroupGUID].Add(pGroup);
 
                     // Create an register a new time node
                     var timeNode = CreateAndRegisterGroupTimeNode(pGroup);
-
-                    //GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
-                    //{
-                    //    collection.Add(timeNode);
-                    //    collection.Add(pGroup);
-                    //});
-                    uiContext.Post(_ =>
-                    {
-                        collection.Add(timeNode);
-                        collection.Add(pGroup);
-                    }, null);
+                    collection.Add(timeNode);
 
                     // Update group-related properties for all nodes in the group
                     foreach (var node in nodesInGroup)
@@ -1048,26 +1002,38 @@ namespace TuneUp
             CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
         }
 
-        #endregion
+        #endregion        
 
         #region Helpers
 
         /// <summary>
-        /// Raises property change notifications for the visibility of the Latest Run, Previous Run, and Not Executed tables.
+        /// Clears and initializes profiling collections and dictionaries to their default states.
         /// </summary>
-        private void UpdateTableVisibility()
+        private void InitializeCollectionsAndDictionaries()
         {
-            RaisePropertyChanged(nameof(LatestRunTableVisibility));
-            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
-            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
-        }
+            // Clear existing collections
+            ProfiledNodesLatestRun?.Clear();
+            ProfiledNodesPreviousRun?.Clear();
+            ProfiledNodesNotExecuted?.Clear();
 
-        /// <summary>
-        /// Returns the corresponding CollectionViewSource for the given ObservableCollection of ProfiledNodeViewModel.
-        /// </summary>
-        internal CollectionViewSource GetCollectionViewSource(ObservableCollection<ProfiledNodeViewModel> collection)
-        {
-            return collectionMapping.TryGetValue(collection, out var collectionViewSource) ? collectionViewSource : null;
+            // Reset execution time stats
+            LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
+
+            // Initialize observable collections and dictionaries
+            ProfiledNodesLatestRun = ProfiledNodesLatestRun ?? new ObservableCollection<ProfiledNodeViewModel>();
+            ProfiledNodesPreviousRun = ProfiledNodesPreviousRun ?? new ObservableCollection<ProfiledNodeViewModel>();
+            ProfiledNodesNotExecuted = ProfiledNodesNotExecuted ?? new ObservableCollection<ProfiledNodeViewModel>();
+
+            collectionMapping = new Dictionary<ObservableCollection<ProfiledNodeViewModel>, CollectionViewSource>
+            {
+                { ProfiledNodesLatestRun, ProfiledNodesCollectionLatestRun },
+                { ProfiledNodesPreviousRun, ProfiledNodesCollectionPreviousRun },
+                { ProfiledNodesNotExecuted, ProfiledNodesCollectionNotExecuted }
+            };
+
+            nodeDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+            groupDictionary = new Dictionary<Guid, ProfiledNodeViewModel>();
+            groupModelDictionary = new Dictionary<Guid, List<ProfiledNodeViewModel>>();
         }
 
         /// <summary>
@@ -1127,25 +1093,6 @@ namespace TuneUp
         }
 
         /// <summary>
-        /// Refreshes the profiling node collection that contains a given node and updates the view.
-        /// </summary>
-        private void RefreshCollectionViewContainingNode(ProfiledNodeViewModel profiledNode)
-        {
-            switch (profiledNode.State)
-            {
-                case ProfiledNodeState.ExecutedOnCurrentRun:
-                    ProfiledNodesCollectionLatestRun.View.Refresh();
-                    break;
-                case ProfiledNodeState.ExecutedOnPreviousRun:
-                    ProfiledNodesCollectionPreviousRun.View.Refresh();
-                    break;
-                case ProfiledNodeState.NotExecuted:
-                    ProfiledNodesCollectionNotExecuted.View.Refresh();
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Returns the appropriate ObservableCollection based on the node's profiling state.
         /// </summary>
         private ObservableCollection<ProfiledNodeViewModel> GetObservableCollectionFromState(ProfiledNodeState state)
@@ -1153,16 +1100,6 @@ namespace TuneUp
             if (state == ProfiledNodeState.ExecutedOnCurrentRun) return ProfiledNodesLatestRun;
             else if (state == ProfiledNodeState.ExecutedOnPreviousRun) return ProfiledNodesPreviousRun;
             else return ProfiledNodesNotExecuted;
-        }
-
-        /// <summary>
-        /// Refreshes all profiling node collections and updates the view.
-        /// </summary>
-        private void RefreshAllCollectionViews()
-        {
-            ProfiledNodesCollectionLatestRun?.View?.Refresh();
-            ProfiledNodesCollectionPreviousRun?.View?.Refresh();
-            ProfiledNodesCollectionNotExecuted?.View?.Refresh();
         }
 
         /// <summary>
@@ -1331,6 +1268,77 @@ namespace TuneUp
             var collection = GetObservableCollectionFromState(state);
 
             collection?.Remove(pNode);
+        }
+
+        #endregion
+
+        #region Refresh UI
+
+        /// <summary>
+        /// Raises property change notifications for the visibility of the Latest Run, Previous Run, and Not Executed tables.
+        /// </summary>
+        private void UpdateTableVisibility()
+        {
+            RaisePropertyChanged(nameof(LatestRunTableVisibility));
+            RaisePropertyChanged(nameof(PreviousRunTableVisibility));
+            RaisePropertyChanged(nameof(NotExecutedTableVisibility));
+        }
+
+        /// <summary>
+        /// Refreshes the profiling node collection that contains a given node and updates the view.
+        /// </summary>
+        private void RefreshCollectionViewContainingNode(ProfiledNodeViewModel profiledNode)
+        {
+            switch (profiledNode.State)
+            {
+                case ProfiledNodeState.ExecutedOnCurrentRun:
+                    ProfiledNodesCollectionLatestRun.View.Refresh();
+                    break;
+                case ProfiledNodeState.ExecutedOnPreviousRun:
+                    ProfiledNodesCollectionPreviousRun.View.Refresh();
+                    break;
+                case ProfiledNodeState.NotExecuted:
+                    ProfiledNodesCollectionNotExecuted.View.Refresh();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Refreshes all profiling node collections and updates the view.
+        /// </summary>
+        private void RefreshAllCollectionViews()
+        {
+            ProfiledNodesCollectionLatestRun?.View?.Refresh();
+            ProfiledNodesCollectionPreviousRun?.View?.Refresh();
+            ProfiledNodesCollectionNotExecuted?.View?.Refresh();
+        }
+
+        /// <summary>
+        /// Refreshes the UI after resetting the profiled nodes
+        /// </summary>
+        private void RefreshUIAfterReset()
+        {
+            // Assign CollectionViewSource and set up UI properties
+            ProfiledNodesCollectionLatestRun = new CollectionViewSource { Source = ProfiledNodesLatestRun };
+            ProfiledNodesCollectionPreviousRun = new CollectionViewSource { Source = ProfiledNodesPreviousRun };
+            ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
+
+            // Refresh UI by raising property changes and applying sorting/filtering
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
+            ApplyGroupNodeFilter();
+            UpdateTableVisibility();
+        }
+
+        /// <summary>
+        /// Refreshes the UI after group nodes are re-calculated
+        /// </summary>
+        private void RefreshGroupNodeUI()
+        {
+            ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+            ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
         }
 
         #endregion
