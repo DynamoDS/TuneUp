@@ -550,6 +550,7 @@ namespace TuneUp
         {
             int executionCounter = 1;
             var processedNodes = new HashSet<ProfiledNodeViewModel>();
+            var nodesToAdd = new HashSet<ProfiledNodeViewModel>();
 
             var sortedNodes = collection.OrderBy(n => n.ExecutionOrderNumber).ToList();
 
@@ -582,7 +583,8 @@ namespace TuneUp
                     var pGroup = new ProfiledNodeViewModel(pNode)
                     {
                         GroupExecutionOrderNumber = executionCounter++,
-                        GroupExecutionMilliseconds = groupExecTime
+                        GroupExecutionMilliseconds = groupExecTime,
+                        GroupModel = CurrentWorkspace.Annotations.First(n => n.GUID.Equals(pNode.GroupGUID))
                     };
                     collection.Add(pGroup);
 
@@ -601,6 +603,14 @@ namespace TuneUp
                     }
                 }
             }
+
+            GetCollectionViewSource(collection).Dispatcher.Invoke(() =>
+            {
+                foreach (var node in nodesToAdd)
+                {
+                    collection.Add(node);
+                }
+            });
         }
 
         internal void OnNodeExecutionBegin(NodeModel nm)
