@@ -15,6 +15,7 @@ using Dynamo.Engine.Profiling;
 using Dynamo.Graph.Annotations;
 using Dynamo.Graph.Nodes;
 using Dynamo.Graph.Workspaces;
+using Dynamo.Models;
 using Dynamo.ViewModels;
 using Dynamo.Wpf.Extensions;
 using Dynamo.Wpf.Utilities;
@@ -356,13 +357,22 @@ namespace TuneUp
             // Put the graph into manual mode as there is no guarantee that nodes will be marked
             // dirty in topologically sorted order during a reset.
             SwitchToManualMode();
-            // TODO: need a way to do this from an extension and not cause a run.
-            // DynamoModel interface or a more specific reset command.
-            (viewLoadedParams.DynamoWindow.DataContext as DynamoViewModel).Model.ResetEngine(true);
+
             // Enable profiling on the new engine controller after the reset.
             CurrentWorkspace.EngineController.EnableProfiling(true, currentWorkspace, currentWorkspace.Nodes);
-            // run the graph now that profiling is enabled.
-            CurrentWorkspace.Run();
+
+            // Ensure all nodes are marked as modified
+            foreach (var node in viewLoadedParams.CurrentWorkspaceModel.Nodes)
+            {
+                node.RegisterAllPorts();
+                node.MarkNodeAsModified(true);
+            }
+
+            // Execute the Run command
+            viewLoadedParams.CommandExecutive.ExecuteCommand(
+                new DynamoModel.RunCancelCommand(true, false),
+                Guid.NewGuid().ToString(),
+                "TuneUp Run All");
 
             isProfilingEnabled = true;
             executionTimeData = CurrentWorkspace.EngineController.ExecutionTimeData;
