@@ -327,18 +327,25 @@ namespace TuneUp
                     // Create a profiled node for each AnnotationModel
                     foreach (var group in CurrentWorkspace.Annotations)
                     {
-                        var pGroup = new ProfiledNodeViewModel(group);
-                        ProfiledNodesNotExecuted.Add(pGroup);
-                        groupDictionary[pGroup.NodeGUID] = (pGroup);
-                        groupModelDictionary[group.GUID] = new List<ProfiledNodeViewModel> { pGroup };
+                        // Initialize an empty entry for each group in groupModelDictionary
+                        groupModelDictionary[group.GUID] = new List<ProfiledNodeViewModel> ();
 
-                        var groupedNodeGUIDs = group.Nodes.OfType<NodeModel>().Select(n => n.GUID);
-
-                        foreach (var nodeGuid in groupedNodeGUIDs)
+                        // Only create and add groups to ProfiledNodesNotExecuted if they contain NodeModel instances
+                        if (group.Nodes.Any(n => n is NodeModel))
                         {
-                            if (nodeDictionary.TryGetValue(nodeGuid, out var pNode))
+                            var pGroup = new ProfiledNodeViewModel(group);
+                            ProfiledNodesNotExecuted.Add(pGroup);
+                            groupDictionary[pGroup.NodeGUID] = pGroup;
+                            groupModelDictionary[group.GUID].Add(pGroup);
+
+                            var groupedNodeGUIDs = group.Nodes.OfType<NodeModel>().Select(n => n.GUID);
+
+                            foreach (var nodeGuid in groupedNodeGUIDs)
                             {
-                                ApplyGroupPropertiesAndRegisterNode(pNode, pGroup);
+                                if (nodeDictionary.TryGetValue(nodeGuid, out var pNode))
+                                {
+                                    ApplyGroupPropertiesAndRegisterNode(pNode, pGroup);
+                                }
                             }
                         }
                     }
@@ -699,20 +706,19 @@ namespace TuneUp
                     }
                 }
 
+                // Detect change of nodes
                 if (e.PropertyName == nameof(groupModel.Nodes))
                 {
-                    var allNodesInGroup = groupModelDictionary[groupModel.GUID];
-
                     var modelNodeGuids = groupModel.Nodes
                         .OfType<NodeModel>()
                         .Select(n => n.GUID)
                         .ToHashSet();
 
                     // Determine if we adding or removing a node
-                    var pNodeToRemove = allNodesInGroup
+                    var pNodeToRemove = nodesInGroup
                         .FirstOrDefault(n => !n.IsGroup && !n.IsGroupExecutionTime && !modelNodeGuids.Contains(n.NodeGUID));
-
-                    var pNodeToAdd = nodeDictionary.FirstOrDefault(kvp => modelNodeGuids.Contains(kvp.Key) && !allNodesInGroup.Contains(kvp.Value)).Value;
+                    var pNodeToAdd = nodeDictionary
+                        .FirstOrDefault(kvp => modelNodeGuids.Contains(kvp.Key) && !nodesInGroup.Contains(kvp.Value)).Value;
 
                     var (pNodeModified, addNode) = pNodeToRemove == null ? (pNodeToAdd, true) : (pNodeToRemove, false);
 
@@ -723,7 +729,7 @@ namespace TuneUp
                     collection = GetObservableCollectionFromState(state);
 
                     // Get all nodes for this group in the same state
-                    var allNodesInGroupForState = allNodesInGroup.Where(n => n.State == state).ToList();
+                    var allNodesInGroupForState = nodesInGroup.Where(n => n.State == state).ToList();
                     var pGroupToModify = allNodesInGroupForState.FirstOrDefault(n => n.IsGroup);
                     var timeNodeToModify = allNodesInGroupForState.FirstOrDefault(n => n.IsGroupExecutionTime);
                     var pNodesOfSameState = allNodesInGroupForState.Where(n => !n.IsGroupExecutionTime && !n.IsGroup).ToList();
@@ -734,9 +740,16 @@ namespace TuneUp
                         ResetGroupPropertiesAndUnregisterNode(pNodeModified);
                         pNodesOfSameState.Remove(pNodeModified);
 
-                        // Update group execution time
-                        if (state != ProfiledNodeState.NotExecuted && pGroupToModify != null && timeNodeToModify != null)
+                        // check if there are any nodes left of the same state
+                        if (!pNodesOfSameState.Any())
                         {
+                            // remove the group node and time node from the collection
+                            collection.Remove(pGroupToModify);
+                            collection.Remove(timeNodeToModify);
+                        }
+                        else if (state != ProfiledNodeState.NotExecuted && pGroupToModify != null && timeNodeToModify != null)
+                        {
+                            // Update group execution time
                             pGroupToModify.GroupExecutionMilliseconds -= pNodeModified.ExecutionMilliseconds;
                             pGroupToModify.ExecutionMilliseconds = pGroupToModify.GroupExecutionMilliseconds;
                             timeNodeToModify.GroupExecutionMilliseconds = pGroupToModify.GroupExecutionMilliseconds;
@@ -754,10 +767,7 @@ namespace TuneUp
                             groupDictionary[pGroupToModify.NodeGUID] = pGroupToModify;
                             groupModelDictionary[groupModel.GUID].Add(pGroupToModify);
 
-                            if (timeNodeToModify == null)
-                            {
-                                timeNodeToModify = CreateAndRegisterGroupTimeNode(pGroupToModify);
-                            }
+                            timeNodeToModify ??= CreateAndRegisterGroupTimeNode(pGroupToModify);
                         }
 
                         ApplyGroupPropertiesAndRegisterNode(pNodeModified, pGroupToModify);
@@ -798,6 +808,7 @@ namespace TuneUp
                 if (collection != null)
                 {
                     SortCollectionViewForProfiledNodesCollection(collection);
+                    UpdateTableVisibility();
                 }
             }
         }
