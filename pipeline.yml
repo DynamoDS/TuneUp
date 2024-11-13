@@ -25,6 +25,7 @@ deployment:
     type: sign
     files_to_sign:
       - TuneUp/bin/Release/net8.0-windows/TuneUp.dll
+      - TuneUp/bin/Release/net8.0-windows/en-US/TuneUp.resources.dll
   -
     type: customized
     scripts:
