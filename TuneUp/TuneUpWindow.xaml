@@ -345,6 +345,9 @@
                             </BeginStoryboard>
                         </Trigger.EnterActions>
                     </Trigger>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}" />
+                    </Trigger>
                 </Style.Triggers>
             </Style>
             <!--  Context Menu style for Export button *  -->
@@ -483,10 +486,11 @@
             Content="{x:Static resx:Resources.Button_RunAll}"
             Cursor="Hand"
             IsEnabled="{Binding Path=IsRecomputeEnabled}"
-            Style="{StaticResource ButtonStyleTuneUp}" >
+            Style="{StaticResource ButtonStyleTuneUp}"
+            ToolTipService.ShowOnDisabled="True" >
             <Button.ToolTip>
                 <ToolTip Style="{StaticResource ToolTipPointerTopRight}">
-                    <TextBlock Text="{x:Static resx:Resources.ToolTip_RunAll}" Style="{StaticResource ToolTipContent}"/>
+                    <TextBlock Style="{StaticResource ToolTipContent}" Text="{Binding RunAllTooltipMessage}" />
                 </ToolTip>
             </Button.ToolTip>
         </Button>

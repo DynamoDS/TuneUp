@@ -350,6 +350,15 @@ namespace TuneUp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom Node mode does not support Run All..
+        /// </summary>
+        public static string ToolTip_RunAllDisabled {
+            get {
+                return ResourceManager.GetString("ToolTip_RunAllDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Combined execution time of latest and previous run..
         /// </summary>
         public static string ToolTip_TotalExecutionTime {

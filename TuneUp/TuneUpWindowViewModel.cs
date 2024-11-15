@@ -119,6 +119,7 @@ namespace TuneUp
                 {
                     isRecomputeEnabled = value;
                     RaisePropertyChanged(nameof(IsRecomputeEnabled));
+                    RaisePropertyChanged(nameof(RunAllTooltipMessage));
                 }
             }
         }
@@ -279,6 +280,7 @@ namespace TuneUp
         public const string SortByName = "name";
         public const string SortByNumber = "number";
         public const string SortByTime = "time";
+        public string RunAllTooltipMessage => IsRecomputeEnabled ? Resources.ToolTip_RunAll : Resources.ToolTip_RunAllDisabled;
 
         #endregion
 
@@ -998,6 +1000,17 @@ namespace TuneUp
         {
             // Profiling needs to be enabled per workspace so mark it false after switching
             isProfilingEnabled = false;
+
+            // Disable IsRecomputeEnabled if the workspace is a CustomNodeWorkspaceModel
+            IsRecomputeEnabled = !(workspace is CustomNodeWorkspaceModel);
+
+            if (workspace is CustomNodeWorkspaceModel)
+            {
+                ResetForCustomNodeWorkspace();
+                CurrentWorkspace = null;
+                return;
+            }
+
             CurrentWorkspace = workspace as HomeWorkspaceModel;
         }
 
@@ -1374,6 +1387,27 @@ namespace TuneUp
             RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
             ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
             RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+        }
+
+        /// <summary>
+        /// Resets the UI and profiling state when the workspace is a custom node.
+        /// </summary>
+        private void ResetForCustomNodeWorkspace()
+        {
+            // Clear node data for custom nodes
+            ProfiledNodesLatestRun.Clear();
+            ProfiledNodesPreviousRun.Clear();
+            ProfiledNodesNotExecuted.Clear();
+
+            // Trigger UI refresh
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
+
+            // Reset execution time stats
+            LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
+
+            UpdateTableVisibility();
         }
 
         #endregion
