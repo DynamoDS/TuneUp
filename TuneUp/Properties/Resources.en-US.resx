@@ -214,6 +214,9 @@
   <data name="ToolTip_RunAll" xml:space="preserve">
     <value>Execute entire graph, including nodes with no change since the latest run.</value>
   </data>
+  <data name="ToolTip_RunAllDisabled" xml:space="preserve">
+    <value>Custom Node mode does not support Run All.</value>
+  </data>
   <data name="ToolTip_TotalExecutionTime" xml:space="preserve">
     <value>Combined execution time of latest and previous run.</value>
   </data>

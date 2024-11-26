@@ -79,6 +79,9 @@ namespace TuneUp
         private HashSet<ProfiledNodeViewModel> tempProfiledNodesLatestRun = new HashSet<ProfiledNodeViewModel>();
         private HashSet<ProfiledNodeViewModel> tempProfiledNodesPreviousRun = new HashSet<ProfiledNodeViewModel>();
         private HashSet<ProfiledNodeViewModel> tempProfiledNodesNotExecuted = new HashSet<ProfiledNodeViewModel>();
+        private bool suppressNodeReset = false;
+        private IWorkspaceModel previousWorkspace;
+        private readonly WorkspaceProfilingData cachedData = new WorkspaceProfilingData();
 
         private HomeWorkspaceModel CurrentWorkspace
         {
@@ -121,6 +124,7 @@ namespace TuneUp
                 {
                     isRecomputeEnabled = value;
                     RaisePropertyChanged(nameof(IsRecomputeEnabled));
+                    RaisePropertyChanged(nameof(RunAllTooltipMessage));
                 }
             }
         }
@@ -281,6 +285,7 @@ namespace TuneUp
         public const string SortByName = "name";
         public const string SortByNumber = "number";
         public const string SortByTime = "time";
+        public string RunAllTooltipMessage => IsRecomputeEnabled ? Resources.ToolTip_RunAll : Resources.ToolTip_RunAllDisabled;
 
         #endregion
 
@@ -315,6 +320,14 @@ namespace TuneUp
             Task.Run(() =>
             {
                 uiContext.Post(_ => {
+                    if (suppressNodeReset)
+                    {
+                        // Skip resetting nodes and directly refresh the UI
+                        isProfilingEnabled = true;
+                        RefreshUIAfterReset();
+                        return;
+                    }
+
                     // Initialize collections and dictionaries
                     InitializeCollectionsAndDictionaries();
 
@@ -1013,8 +1026,36 @@ namespace TuneUp
 
         private void OnCurrentWorkspaceChanged(IWorkspaceModel workspace)
         {
-            // Profiling needs to be enabled per workspace so mark it false after switching
+            // Reset suppression flag
+            suppressNodeReset = false;
+
+            // Handle transitions based on the types of the current and previous workspaces
+            if (workspace is CustomNodeWorkspaceModel)
+            {
+                if (previousWorkspace is HomeWorkspaceModel)
+                {
+                    // Cache data when moving from HomeWorkspace to CustomNodeWorkspace
+                    CacheWorkspaceData();
+                }
+            }
+            else if (workspace is HomeWorkspaceModel)
+            {
+                if (previousWorkspace is CustomNodeWorkspaceModel)
+                {
+                    // Restore data when moving from CustomNodeWorkspace to HomeWorkspace
+                    suppressNodeReset = true;
+                    RestoreWorkspaceData();
+                }
+            }
+
+            // Profiling needs to be enabled per workspace, so mark it false after switching
             isProfilingEnabled = false;
+
+            // Disable IsRecomputeEnabled if the workspace is a CustomNodeWorkspaceModel
+            IsRecomputeEnabled = !(workspace is CustomNodeWorkspaceModel);
+
+            // Update the previous and current workspace references
+            previousWorkspace = workspace;
             CurrentWorkspace = workspace as HomeWorkspaceModel;
         }
 
@@ -1022,10 +1063,126 @@ namespace TuneUp
         {
             // Profiling needs to be enabled per workspace so mark it false after closing
             isProfilingEnabled = false;
+            suppressNodeReset = false;
+            ClearCacheWorkspaceData();
             CurrentWorkspace = viewLoadedParams.CurrentWorkspaceModel as HomeWorkspaceModel;
         }
 
         #endregion        
+
+        #region Cache
+
+        /// <summary>
+        /// Represents cached profiling data for a workspace. Includes node collections and execution times.
+        /// </summary>
+        private class WorkspaceProfilingData
+        {
+            /// <summary>
+            /// Guid to map graphs with cached data
+            /// </summary>
+            public Guid GraphGuid { get; set; }
+            /// <summary>
+            /// Collection to cache nodes executed in the latest run of the graph.
+            /// </summary>
+            public ObservableCollection<ProfiledNodeViewModel> LatestRunNodes { get; set; } = new();
+            /// <summary>
+            /// Collection to cache nodes executed in the previous run of the graph.
+            /// </summary>
+            public ObservableCollection<ProfiledNodeViewModel> PreviousRunNodes { get; set; } = new();
+            // <summary>
+            /// Collection to cache nodes that were not executed in the graph.
+            /// </summary>
+            public ObservableCollection<ProfiledNodeViewModel> NotExecutedNodes { get; set; } = new();
+            /// <summary>
+            /// String to cache the Total execution time for the graph across all runs.
+            /// </summary>
+            public string TotalGraphExecutionTime { get; set; }
+            /// <summary>
+            /// String to cache the Execution time for the latest graph run.
+            /// </summary>
+            public string LatestGraphExecutionTime { get; set; }
+            /// <summary>
+            /// String to cache the Execution time for the previous graph run.
+            /// </summary>
+            public string PreviousGraphExecutionTime { get; set; }
+        }
+
+        /// <summary>
+        /// Caches the current workspace data, including nodes, execution times, and clears old collections.
+        /// </summary>
+        private void CacheWorkspaceData()
+        {
+            // Ensure collections are initialized
+            if (ProfiledNodesLatestRun == null)
+                ProfiledNodesLatestRun = new ObservableCollection<ProfiledNodeViewModel>();
+            if (ProfiledNodesPreviousRun == null)
+                ProfiledNodesPreviousRun = new ObservableCollection<ProfiledNodeViewModel>();
+            if (ProfiledNodesNotExecuted == null)
+                ProfiledNodesNotExecuted = new ObservableCollection<ProfiledNodeViewModel>();
+
+            // Save the current data into the cache
+            cachedData.GraphGuid = CurrentWorkspace?.Guid ?? Guid.Empty;
+            cachedData.LatestRunNodes = new ObservableCollection<ProfiledNodeViewModel>(ProfiledNodesLatestRun);
+            cachedData.PreviousRunNodes = new ObservableCollection<ProfiledNodeViewModel>(ProfiledNodesPreviousRun);
+            cachedData.NotExecutedNodes = new ObservableCollection<ProfiledNodeViewModel>(ProfiledNodesNotExecuted);
+            cachedData.LatestGraphExecutionTime = LatestGraphExecutionTime ?? Resources.Label_DefaultExecutionTime;
+            cachedData.PreviousGraphExecutionTime = PreviousGraphExecutionTime ?? Resources.Label_DefaultExecutionTime;
+            cachedData.TotalGraphExecutionTime = TotalGraphExecutionTime ?? Resources.Label_DefaultExecutionTime;
+
+            // Clear the old collections
+            ProfiledNodesLatestRun.Clear();
+            ProfiledNodesPreviousRun.Clear();
+            ProfiledNodesNotExecuted.Clear();
+            LatestGraphExecutionTime = PreviousGraphExecutionTime = TotalGraphExecutionTime = defaultExecutionTime;
+
+            // Refresh the UI
+            RefreshAllCollectionViews();
+            UpdateTableVisibility();
+        }
+
+        /// <summary>
+        /// Restores cached workspace data to the current workspace and updates the UI.
+        /// </summary>
+        private void RestoreWorkspaceData()
+        {
+            // Safety check: Ensure cached data is not null
+            cachedData.LatestRunNodes ??= new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.PreviousRunNodes ??= new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.NotExecutedNodes ??= new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.LatestGraphExecutionTime ??= Resources.Label_DefaultExecutionTime;
+            cachedData.PreviousGraphExecutionTime ??= Resources.Label_DefaultExecutionTime;
+            cachedData.TotalGraphExecutionTime ??= Resources.Label_DefaultExecutionTime;
+
+            // Restore cached data
+            ProfiledNodesLatestRun = new ObservableCollection<ProfiledNodeViewModel>(cachedData.LatestRunNodes);
+            ProfiledNodesPreviousRun = new ObservableCollection<ProfiledNodeViewModel>(cachedData.PreviousRunNodes);
+            ProfiledNodesNotExecuted = new ObservableCollection<ProfiledNodeViewModel>(cachedData.NotExecutedNodes);
+            LatestGraphExecutionTime = cachedData.LatestGraphExecutionTime;
+            PreviousGraphExecutionTime = cachedData.PreviousGraphExecutionTime;
+            TotalGraphExecutionTime = cachedData.TotalGraphExecutionTime;
+
+            ClearCacheWorkspaceData();
+
+            // Refresh the UI
+            RefreshAllCollectionViews();
+            UpdateTableVisibility();
+        }
+
+        /// <summary>
+        /// Clears the cached workspace data, resetting all collections and execution times to default values.
+        /// </summary>
+        private void ClearCacheWorkspaceData()
+        {
+            cachedData.GraphGuid = Guid.Empty;
+            cachedData.LatestRunNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.PreviousRunNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.NotExecutedNodes = new ObservableCollection<ProfiledNodeViewModel>();
+            cachedData.LatestGraphExecutionTime = defaultExecutionTime;
+            cachedData.PreviousGraphExecutionTime = defaultExecutionTime;
+            cachedData.TotalGraphExecutionTime = defaultExecutionTime;
+        }
+
+        #endregion
 
         #region Helpers
 
@@ -1214,11 +1371,7 @@ namespace TuneUp
         {
             ApplyCustomSorting(ProfiledNodesCollectionLatestRun);
             ApplyCustomSorting(ProfiledNodesCollectionPreviousRun);
-            // Apply custom sorting to NotExecuted collection only if sortingOrder is "name"
-            if (defaultSortingOrder == SortByName)
-            {
-                ApplyCustomSorting(ProfiledNodesCollectionNotExecuted);
-            }
+            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
         }
 
         /// <summary>
@@ -1377,8 +1530,12 @@ namespace TuneUp
             ProfiledNodesCollectionNotExecuted = new CollectionViewSource { Source = ProfiledNodesNotExecuted };
 
             // Refresh UI by raising property changes and applying sorting/filtering
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionLatestRun));
+            RaisePropertyChanged(nameof(ProfiledNodesCollectionPreviousRun));
             RaisePropertyChanged(nameof(ProfiledNodesCollectionNotExecuted));
-            ApplyCustomSorting(ProfiledNodesCollectionNotExecuted, SortByName);
+
+            ApplyCustomSortingToAllCollections();
+
             ApplyGroupNodeFilter();
             UpdateTableVisibility();
         }
