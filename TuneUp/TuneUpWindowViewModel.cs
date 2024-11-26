@@ -1077,12 +1077,33 @@ namespace TuneUp
         /// </summary>
         private class WorkspaceProfilingData
         {
+            /// <summary>
+            /// Guid to map graphs with cached data
+            /// </summary>
             public Guid GraphGuid { get; set; }
+            /// <summary>
+            /// Collection to cache nodes executed in the latest run of the graph.
+            /// </summary>
             public ObservableCollection<ProfiledNodeViewModel> LatestRunNodes { get; set; } = new();
+            /// <summary>
+            /// Collection to cache nodes executed in the previous run of the graph.
+            /// </summary>
             public ObservableCollection<ProfiledNodeViewModel> PreviousRunNodes { get; set; } = new();
+            // <summary>
+            /// Collection to cache nodes that were not executed in the graph.
+            /// </summary>
             public ObservableCollection<ProfiledNodeViewModel> NotExecutedNodes { get; set; } = new();
+            /// <summary>
+            /// String to cache the Total execution time for the graph across all runs.
+            /// </summary>
             public string TotalGraphExecutionTime { get; set; }
+            /// <summary>
+            /// String to cache the Execution time for the latest graph run.
+            /// </summary>
             public string LatestGraphExecutionTime { get; set; }
+            /// <summary>
+            /// String to cache the Execution time for the previous graph run.
+            /// </summary>
             public string PreviousGraphExecutionTime { get; set; }
         }
 
