@@ -1,7 +1,5 @@
-version: 1.4.0
+version: 2.0.1
 pipeline_os: windows
-#update_changelog_on_release: true
-create_github_release: true
 create_pr_release_to_master: true
 
 env:
@@ -34,6 +32,7 @@ deployment:
     type: artifacts
     publish_to_jenkins: true
     publish_to_artifactory: false
+    publish_to_package_manager: true
     allow_branches: ".*"
     outputs:
       - TuneUp.zip
