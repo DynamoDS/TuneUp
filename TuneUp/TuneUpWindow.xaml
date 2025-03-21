@@ -416,7 +416,7 @@
                 Text="{x:Static resx:Resources.Label_GraphExecutionTime}" />
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="110"
+                    Width="100"
                     Margin="5,0,0,0"
                     TextWrapping="Wrap"
                     Text="{x:Static resx:Resources.Label_Latest}" />
@@ -424,7 +424,7 @@
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="110"
+                    Width="100"
                     Margin="5,0,0,0"
                     TextWrapping="Wrap"
                     Text="{x:Static resx:Resources.Label_Previous}" />
@@ -432,7 +432,7 @@
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="110"
+                    Width="100"
                     Margin="5,0,0,0"
                     TextWrapping="Wrap"
                     FontFamily="{StaticResource ArtifaktElementBold}"
