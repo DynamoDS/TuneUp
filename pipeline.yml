@@ -27,7 +27,7 @@ deployment:
   -
     type: customized
     scripts:
-      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path 'TuneUp/bin/Release/net8.0-windows/TuneUp.dll', 'TuneUp/bin/Release/net8.0-windows/en-US' -DestinationPath 'TuneUp.zip'"
+      - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path 'TuneUp/bin/Release/net8.0-windows/TuneUp.dll', 'TuneUp/bin/Release/net8.0-windows/en-US', 'TuneUp/bin/Release/net8.0-windows/cs-CZ', 'TuneUp/bin/Release/net8.0-windows/de-DE', 'TuneUp/bin/Release/net8.0-windows/es-ES', 'TuneUp/bin/Release/net8.0-windows/fr-FR', 'TuneUp/bin/Release/net8.0-windows/it-IT', 'TuneUp/bin/Release/net8.0-windows/ja-JA', 'TuneUp/bin/Release/net8.0-windows/ko-KR', 'TuneUp/bin/Release/net8.0-windows/pl-PL', 'TuneUp/bin/Release/net8.0-windows/pt-BR', 'TuneUp/bin/Release/net8.0-windows/ru-RU', 'TuneUp/bin/Release/net8.0-windows/zh-CN', 'TuneUp/bin/Release/net8.0-windows/zh-Hans', 'TuneUp/bin/Release/net8.0-windows/zh-Hant', 'TuneUp/bin/Release/net8.0-windows/zh-TW' -DestinationPath 'TuneUp.zip'"
   -
     type: artifacts
     publish_to_jenkins: true
