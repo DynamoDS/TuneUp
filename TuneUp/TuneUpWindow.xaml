@@ -394,7 +394,7 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="100"/>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="*" MinWidth="120"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -416,22 +416,25 @@
                 Text="{x:Static resx:Resources.Label_GraphExecutionTime}" />
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="70"
+                    Width="100"
                     Margin="5,0,0,0"
+                    TextWrapping="Wrap"
                     Text="{x:Static resx:Resources.Label_Latest}" />
                 <TextBlock Text="{Binding Path=LatestGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="70"
+                    Width="100"
                     Margin="5,0,0,0"
+                    TextWrapping="Wrap"
                     Text="{x:Static resx:Resources.Label_Previous}" />
                 <TextBlock Text="{Binding Path=PreviousGraphExecutionTime, Mode=OneWay}" />
             </StackPanel>
             <StackPanel Style="{StaticResource TotalTimeHeaderStackPanelStyle}">
                 <TextBlock
-                    Width="70"
+                    Width="100"
                     Margin="5,0,0,0"
+                    TextWrapping="Wrap"
                     FontFamily="{StaticResource ArtifaktElementBold}"
                     Text="{x:Static resx:Resources.Label_Total}" />
                 <TextBlock FontFamily="{StaticResource ArtifaktElementBold}" Text="{Binding Path=TotalGraphExecutionTime, Mode=OneWay}" >
@@ -447,7 +450,7 @@
         <StackPanel
             Grid.Row="0"
             Grid.Column="1"
-            HorizontalAlignment="Stretch"
+            HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Horizontal">
             <ToggleButton
@@ -458,36 +461,30 @@
                 IsChecked="{Binding ShowGroups, Mode=TwoWay}"
                 IsEnabled="True"
                 Style="{StaticResource EllipseToggleButton1}" />
-            <TextBlock Margin="5,0,7,0"
+            <TextBlock Margin="5,0,0,0"
                        TextWrapping="Wrap"
                        TextTrimming="CharacterEllipsis"
                        Text="{x:Static resx:Resources.Button_ShowGroups}" />
-            <!--<Rectangle Width="16"
-                       Height="16"
-                       Margin="10,0,7,0"
-                       VerticalAlignment="Center">
-                <Rectangle.Fill>
-                    <ImageBrush ImageSource="/DynamoCoreWpf;component/UI/Images/help-16px.png" />
-                </Rectangle.Fill>
-            </Rectangle>-->
         </StackPanel>
         <!--  Run All Button  -->
         <Button
             Grid.Row="0"
             Grid.Column="1"
-            Width="60"
             Height="24"
             Margin="0,0,7,8"
-            Padding="5,2,5,2"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
             BorderBrush="{StaticResource BorderMediumColorBrush}"
             Click="RecomputeGraph_Click"
-            Content="{x:Static resx:Resources.Button_RunAll}"
             Cursor="Hand"
             IsEnabled="{Binding Path=IsRecomputeEnabled}"
             Style="{StaticResource ButtonStyleTuneUp}"
             ToolTipService.ShowOnDisabled="True" >
+            <ContentPresenter>
+                <ContentPresenter.Content>
+                    <TextBlock Padding="5,2,5,2" Text="{x:Static resx:Resources.Button_RunAll}" />
+                </ContentPresenter.Content>
+            </ContentPresenter>
             <Button.ToolTip>
                 <ToolTip Style="{StaticResource ToolTipPointerTopRight}">
                     <TextBlock Style="{StaticResource ToolTipContent}" Text="{Binding RunAllTooltipMessage}" />
@@ -553,7 +550,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
-                            <DataGridTextColumn Width="120"
+                            <DataGridTextColumn Width="145"
                                                 Binding="{Binding ExecutionMilliseconds}"
                                                 Header="{x:Static resx:Resources.Header_ExecutionTime}"
                                                 IsReadOnly="True">
@@ -621,7 +618,7 @@
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
                             <DataGridTextColumn
-                                Width="120"
+                                Width="145"
                                 Binding="{Binding ExecutionMilliseconds}"
                                 IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
@@ -673,7 +670,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
-                            <DataGridTextColumn Width="120" />
+                            <DataGridTextColumn Width="145" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>
