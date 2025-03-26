@@ -6,7 +6,8 @@
     <AssemblyName>TuneUp</AssemblyName>
     <OutputType>Library</OutputType>
     <StartAction>Program</StartAction>
-	<StartProgram>C:\Program Files\Dynamo\Dynamo Core\3.2\DynamoSandbox.exe</StartProgram>
+	<StartProgram>C:\Program Files\Dynamo\Dynamo Core\3.4\DynamoSandbox.exe</StartProgram>
+	<DynamoPackageVersion>3.4.2.7731</DynamoPackageVersion>
 	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <!-- Properties specific to Debug configuration -->
@@ -105,52 +106,74 @@
   </ItemGroup>
   <!-- Including Custom Properties, PreBuildEvent, and Import -->
   <PropertyGroup>
-    <DynamoVersion>3.2</DynamoVersion>
-    <PackageName>TuneUp</PackageName>
-    <PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
-    <BinFolder>$(PackageFolder)bin\</BinFolder>
-    <ExtraFolder>$(PackageFolder)extra\</ExtraFolder>
-    <DyfFolder>$(PackageFolder)dyf\</DyfFolder>
+	<DynamoVersion>3.5</DynamoVersion>
+	<PackageName>TuneUp</PackageName>
+	<PackageFolder>$(ProjectDir)dist\$(PackageName)\</PackageFolder>
+	<BinFolder>$(PackageFolder)bin\</BinFolder>
+	<ExtraFolder>$(PackageFolder)extra\</ExtraFolder>
+	<DyfFolder>$(PackageFolder)dyf\</DyfFolder>
   </PropertyGroup>
-  <!-- Pre-build events -->
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
-  <!-- Post-build events to handle package deployment -->
-  <Target Name="AfterBuild">
-    <ItemGroup>
-      <Dlls Include="$(OutDir)TuneUp.dll" />
-      <Xmls Include="$(OutDir)*.xml" />
-      <ViewExtensionDefs Include="$(ProjectDir)manifests\*ViewExtensionDefinition.xml" />
-      <Xmls Include="$(ProjectDir)manifests\*.xml" Exclude="@(ViewExtensionDefs)" />
-      <PackageJson Include="$(ProjectDir)manifests\pkg.json" />
-    </ItemGroup>
-    <Copy SourceFiles="@(Dlls)" DestinationFolder="$(BinFolder)" />
-    <Copy SourceFiles="@(Xmls)" DestinationFolder="$(BinFolder)" />
-    <Copy SourceFiles="@(ViewExtensionDefs)" DestinationFolder="$(ExtraFolder)" />
-    <Copy SourceFiles="@(PackageJson)" DestinationFolder="$(PackageFolder)" />
-    <MakeDir Directories="$(ExtraFolder)" Condition="!Exists($(ExtraFolder))" />
-    <MakeDir Directories="$(DyfFolder)" Condition="!Exists($(DyfFolder))" />
-    <CallTarget Condition="'$(Configuration)' == 'Debug'" Targets="PackageDeploy" />
+  <Target Name="CustomAfterBuild" AfterTargets="Build">
+	<ItemGroup>
+		<Dlls Include="$(OutDir)TuneUp.dll" />
+		<Xmls Include="$(OutDir)*.xml" />
+		<ViewExtensionDefs Include="$(ProjectDir)manifests\*ViewExtensionDefinition.xml" />
+		<Xmls Include="$(ProjectDir)manifests\*.xml" Exclude="@(ViewExtensionDefs)" />
+		<PackageJson Include="$(ProjectDir)manifests\pkg.json" />
+		<LocalizationENUS Include="$(OutDir)en-US\*" />
+		<LocalizationCSCZ Include="$(OutDir)cs-CZ\*" />
+		<LocalizationDEDE Include="$(OutDir)de-DE\*" />
+		<LocalizationESES Include="$(OutDir)es-ES\*" />
+		<LocalizationFRFR Include="$(OutDir)fr-FR\*" />
+		<LocalizationITIT Include="$(OutDir)it-IT\*" />
+		<LocalizationJAJP Include="$(OutDir)ja-JP\*" />
+		<LocalizationKOKR Include="$(OutDir)ko-KR\*" />
+		<LocalizationPLPL Include="$(OutDir)pl-PL\*" />
+		<LocalizationPTBR Include="$(OutDir)pt-BR\*" />
+		<LocalizationRURU Include="$(OutDir)ru-RU\*" />
+		<LocalizationZHCN Include="$(OutDir)zh-CN\*" />
+		<LocalizationZHHANS Include="$(OutDir)zh-Hans\*" />
+		<LocalizationZHHANT Include="$(OutDir)zh-Hant\*" />
+		<LocalizationZHTW Include="$(OutDir)zh-TW\*" />
+	</ItemGroup>
+	<Copy SourceFiles="@(Dlls)" DestinationFolder="$(BinFolder)" />
+	<Copy SourceFiles="@(Xmls)" DestinationFolder="$(BinFolder)" />
+	<Copy SourceFiles="@(ViewExtensionDefs)" DestinationFolder="$(ExtraFolder)" />
+	<Copy SourceFiles="@(PackageJson)" DestinationFolder="$(PackageFolder)" />
+	<Copy SourceFiles="@(LocalizationENUS)" DestinationFolder="$(BinFolder)\en-US" />
+	<Copy SourceFiles="@(LocalizationCSCZ)" DestinationFolder="$(BinFolder)\cs-CZ" />
+	<Copy SourceFiles="@(LocalizationDEDE)" DestinationFolder="$(BinFolder)\de-DE" />
+	<Copy SourceFiles="@(LocalizationESES)" DestinationFolder="$(BinFolder)\es-ES" />
+	<Copy SourceFiles="@(LocalizationFRFR)" DestinationFolder="$(BinFolder)\fr-FR" />
+	<Copy SourceFiles="@(LocalizationITIT)" DestinationFolder="$(BinFolder)\it-IT" />
+	<Copy SourceFiles="@(LocalizationJAJP)" DestinationFolder="$(BinFolder)\ja-JP" />
+	<Copy SourceFiles="@(LocalizationKOKR)" DestinationFolder="$(BinFolder)\ko-KR" />
+	<Copy SourceFiles="@(LocalizationPLPL)" DestinationFolder="$(BinFolder)\pl-PL" />
+	<Copy SourceFiles="@(LocalizationPTBR)" DestinationFolder="$(BinFolder)\pt-BR" />
+	<Copy SourceFiles="@(LocalizationRURU)" DestinationFolder="$(BinFolder)\ru-RU" />
+	<Copy SourceFiles="@(LocalizationZHCN)" DestinationFolder="$(BinFolder)\zh-CN" />
+	<Copy SourceFiles="@(LocalizationZHHANS)" DestinationFolder="$(BinFolder)\zh-Hans" />
+	<Copy SourceFiles="@(LocalizationZHHANT)" DestinationFolder="$(BinFolder)\zh-Hant" />
+	<Copy SourceFiles="@(LocalizationZHTW)" DestinationFolder="$(BinFolder)\zh-TW" />
+	<!-- <CallTarget Condition="'$(Configuration)' == 'Debug'" Targets="PackageDeploy" /> -->
   </Target>
   <!-- Target for package deployment -->
   <Target Name="PackageDeploy">
-    <ItemGroup>
-      <SourcePackage Include="$(PackageFolder)**\*" />
-    </ItemGroup>
-    <PropertyGroup>
-      <DynamoCore>$(AppData)\Dynamo\Dynamo Core\$(DynamoVersion)\packages</DynamoCore>
-      <DynamoRevit>$(AppData)\Dynamo\Dynamo Revit\$(DynamoVersion)\packages</DynamoRevit>
-      <PackageExtraFolder>$(DynamoCore)\$(PackageName)\extra\</PackageExtraFolder>
-      <PackageDyfFolder>$(DynamoCore)\$(PackageName)\dyf\</PackageDyfFolder>
-    </PropertyGroup>
-    <!--Copying to Package Folder-->
-    <Message Importance="high" Text="Dynamo Core Package Folder = $(DynamoCore)" />
-    <Message Importance="high" Text="Dynamo Revit Package Folder = $(DynamoRevit)" />
-    <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoCore))" DestinationFolder="$(DynamoCore)\$(PackageName)\%(RecursiveDir)" />
-    <Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoRevit))" DestinationFolder="$(DynamoRevit)\$(PackageName)\%(RecursiveDir)" />
-    <MakeDir Directories="$(PackageExtraFolder)" Condition="!Exists($(PackageExtraFolder))" />
-    <MakeDir Directories="$(PackageDyfFolder)" Condition="!Exists($(PackageDyfFolder))" />
+	<ItemGroup>
+	  <SourcePackage Include="$(PackageFolder)**\*" />
+	</ItemGroup>
+	<PropertyGroup>
+	  <DynamoCore>$(AppData)\Dynamo\Dynamo Core\$(DynamoVersion)\packages</DynamoCore>
+	  <DynamoRevit>$(AppData)\Dynamo\Dynamo Revit\$(DynamoVersion)\packages</DynamoRevit>
+	  <PackageExtraFolder>$(DynamoCore)\$(PackageName)\extra\</PackageExtraFolder>
+	  <PackageDyfFolder>$(DynamoCore)\$(PackageName)\dyf\</PackageDyfFolder>
+	</PropertyGroup>
+	<!--Copying to Package Folder-->
+	<Message Importance="high" Text="Dynamo Core Package Folder = $(DynamoCore)" />
+	<Message Importance="high" Text="Dynamo Revit Package Folder = $(DynamoRevit)" />
+	<Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoCore))" DestinationFolder="$(DynamoCore)\$(PackageName)\%(RecursiveDir)" />
+	<Copy SourceFiles="@(SourcePackage)" Condition="Exists($(DynamoRevit))" DestinationFolder="$(DynamoRevit)\$(PackageName)\%(RecursiveDir)" />
+	<MakeDir Directories="$(PackageExtraFolder)" Condition="!Exists($(PackageExtraFolder))" />
+	<MakeDir Directories="$(PackageDyfFolder)" Condition="!Exists($(PackageDyfFolder))" />
   </Target>
 </Project>

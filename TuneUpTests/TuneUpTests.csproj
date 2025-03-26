@@ -10,6 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
+	<DynamoPackageVersion>3.4.2.7731</DynamoPackageVersion>
   </PropertyGroup>
   <!-- Properties specific to Debug configuration -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
