@@ -4,7 +4,7 @@ create_pr_release_to_master: true
 
 env:
   - GITHUB_ACCESS_TOKEN_ID: github_access_token_acsbuildguy
-  - JENKINS_NODE_WIN: CDA-VS22-SVC
+  - JENKINS_NODE_WIN: CDA-VS22-DT
 
 code_analysis:
   sonarqube:
@@ -22,23 +22,21 @@ deployment:
   -
     type: sign
     files_to_sign:
-      - TuneUp/bin/Release/net8.0-windows/TuneUp.dll
-      - TuneUp/bin/Release/net8.0-windows/en-US/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/en-US/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/cs-CZ/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/de-DE/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/es-ES/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/fr-FR/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/it-IT/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/ja-JP/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/ko-KR/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/pl-PL/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/pt-BR/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/ru-RU/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/zh-CN/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/zh-Hans/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/zh-Hant/TuneUp.resources.dll
-      - TuneUp/bin/Release/net8.0-windows/zh-TW/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/TuneUp.dll
+      - TuneUp/dist/TuneUp/bin/en-US/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/en-US/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/cs-CZ/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/de-DE/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/es-ES/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/fr-FR/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/it-IT/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/ja-JP/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/ko-KR/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/pl-PL/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/pt-BR/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/ru-RU/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/zh-CN/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/zh-TW/TuneUp.resources.dll
   -
     type: customized
     scripts:
@@ -48,6 +46,7 @@ deployment:
     publish_to_jenkins: true
     publish_to_artifactory: false
     publish_to_package_manager: true
+    use_dev_pm: false
     allow_branches: ".*"
     outputs:
       - TuneUp.zip
