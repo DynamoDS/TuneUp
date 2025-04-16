@@ -58,10 +58,10 @@ Please check out known issues before trying to setup testing.
 - Click the target test to run or run them all.
 
 ### How to publish a new version
-We currently can't use the release PR option when making releases on mirrored respories. There is a propsed follow-up improvment filed that would allow CILibrary to create a PR against the public repository instead (DYN-8724). But until that is done, our release process will be:
+We currently can't use the release PR option when making releases on mirrored repositories. There is a propsed follow-up improvment filed that would allow CILibrary to create a PR against the public repository instead (DYN-8724). But until that is done, our release process will be:
 
-- Create a release branch on the internal respository
+- Create a release branch on the internal repository
 - Build the branch to publish
-- Manually create a PR on the public repsoitory with the changes introduced by the release branch (the updated version number in the pipeline file). 
+- Manually create a PR on the public repository with the changes introduced by the release branch (the updated version number in the pipeline file). 
 - Review and merge this PR
-- Delete the release branch on the internal respository
+- Delete the release branch on the internal repository
