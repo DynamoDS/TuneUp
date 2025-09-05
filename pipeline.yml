@@ -1,4 +1,4 @@
-version: 2.0.4
+version: 2.0.5
 pipeline_os: windows
 
 env:
@@ -23,7 +23,7 @@ deployment:
     files_to_sign:
       - TuneUp/dist/TuneUp/bin/TuneUp.dll
       - TuneUp/dist/TuneUp/bin/en-US/TuneUp.resources.dll
-      - TuneUp/dist/TuneUp/bin/en-US/TuneUp.resources.dll
+      - TuneUp/dist/TuneUp/bin/en-GB/TuneUp.resources.dll
       - TuneUp/dist/TuneUp/bin/cs-CZ/TuneUp.resources.dll
       - TuneUp/dist/TuneUp/bin/de-DE/TuneUp.resources.dll
       - TuneUp/dist/TuneUp/bin/es-ES/TuneUp.resources.dll
