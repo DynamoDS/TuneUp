@@ -121,10 +121,10 @@
     <value>Export</value>
   </data>
   <data name="Button_ExportCsv" xml:space="preserve">
-    <value>Exportovat jako soubor CSV</value>
+    <value>Exportovat jako CSV</value>
   </data>
   <data name="Button_ExportJson" xml:space="preserve">
-    <value>Exportovat jako soubor JSON</value>
+    <value>Exportovat jako JSON</value>
   </data>
   <data name="Button_RunAll" xml:space="preserve">
     <value>Spustit vše</value>
