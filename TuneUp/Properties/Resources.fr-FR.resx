@@ -127,7 +127,7 @@
     <value>Exporter au format JSON</value>
   </data>
   <data name="Button_RunAll" xml:space="preserve">
-    <value>Tout exécuter</value>
+    <value>Exécuter tout</value>
   </data>
   <data name="Button_ShowGroups" xml:space="preserve">
     <value>Afficher les groupes</value>
