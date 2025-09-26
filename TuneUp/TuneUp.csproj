@@ -121,6 +121,7 @@
 		<Xmls Include="$(ProjectDir)manifests\*.xml" Exclude="@(ViewExtensionDefs)" />
 		<PackageJson Include="$(ProjectDir)manifests\pkg.json" />
 		<LocalizationENUS Include="$(OutDir)en-US\*" />
+		<LocalizationENGB Include="$(OutDir)en-GB\*" />
 		<LocalizationCSCZ Include="$(OutDir)cs-CZ\*" />
 		<LocalizationDEDE Include="$(OutDir)de-DE\*" />
 		<LocalizationESES Include="$(OutDir)es-ES\*" />
@@ -141,6 +142,7 @@
 	<Copy SourceFiles="@(ViewExtensionDefs)" DestinationFolder="$(ExtraFolder)" />
 	<Copy SourceFiles="@(PackageJson)" DestinationFolder="$(PackageFolder)" />
 	<Copy SourceFiles="@(LocalizationENUS)" DestinationFolder="$(BinFolder)\en-US" />
+	<Copy SourceFiles="@(LocalizationENGB)" DestinationFolder="$(BinFolder)\en-GB" />
 	<Copy SourceFiles="@(LocalizationCSCZ)" DestinationFolder="$(BinFolder)\cs-CZ" />
 	<Copy SourceFiles="@(LocalizationDEDE)" DestinationFolder="$(BinFolder)\de-DE" />
 	<Copy SourceFiles="@(LocalizationESES)" DestinationFolder="$(BinFolder)\es-ES" />
