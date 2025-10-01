@@ -47,7 +47,7 @@ Please check out known issues before trying to setup testing.
 - Download DynamoCoreRuntime 3.0.0 (or higher) from [dynamobuilds.com](https://dynamobuilds.com/). Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently.
 - Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`. If you are building Dynamo locally, copy all contents of Dynamo from `Dynamo/bin/AnyCPU/Debug` to `TuneUp\TuneUpTests\bin\Debug\`
 - Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Debug\viewExtensions\`
-- Open the copied `TuneUp_ViewExtensionDefinition.xml` and change the assemply path to `..\TuneUp.dll`
+- Open the copied `TuneUp_ViewExtensionDefinition.xml` and change the assembly path to `..\TuneUp.dll`
 - Remove `TuneUp` from your Dynamo packages folder if you have it installed from package manager (otherwise `TuneUp.dll` will get loaded twice). This won't work well.
 - Launch DynamoSandbox.exe, then click `View-> Open Tune Up` and use while a graph runs.
 
@@ -58,10 +58,11 @@ Please check out known issues before trying to setup testing.
 - Click the target test to run or run them all.
 
 ### How to publish a new version
-We currently can't use the release PR option when making releases on mirrored repositories. There is a propsed follow-up improvment filed that would allow CILibrary to create a PR against the public repository instead (DYN-8724). But until that is done, our release process will be:
+
+We currently can't use the release PR option when making releases on mirrored repositories. There is a proposed follow-up improvement filed that would allow CILibrary to create a PR against the public repository instead (DYN-8724). But until that is done, our release process will be:
 
 - Create a release branch on the internal repository
 - Build the branch to publish
-- Manually create a PR on the public repository with the changes introduced by the release branch (the updated version number in the pipeline file). 
+- Manually create a PR on the public repository with the changes introduced by the release branch (the updated version number in the pipeline file).
 - Review and merge this PR
 - Delete the release branch on the internal repository
