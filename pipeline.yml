@@ -9,6 +9,7 @@ code_analysis:
   sonarqube:
     source_encoding: UTF-8
     src: .
+    useCommonSonar: true
     coverage_reports:
       - coverage.info
 
