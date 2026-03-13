@@ -517,7 +517,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" Header="{x:Static resx:Resources.Header_ExecutionOrder}">
+                            <DataGridTextColumn Width="40" Header="{x:Static resx:Resources.Header_ExecutionOrder}" IsReadOnly="True">
                                 <DataGridTextColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{x:Static resx:Resources.Header_ExecutionOrder}">
