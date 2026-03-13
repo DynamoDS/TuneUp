@@ -598,7 +598,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}">
+                            <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" IsReadOnly="True">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
                                         <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
@@ -662,7 +662,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" />
+                            <DataGridTextColumn Width="40" IsReadOnly="True"/>
                             <!--  Node Name  -->
                             <DataGridTemplateColumn Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -670,7 +670,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <!--  Execution Time  -->
-                            <DataGridTextColumn Width="145" />
+                            <DataGridTextColumn Width="145" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>
