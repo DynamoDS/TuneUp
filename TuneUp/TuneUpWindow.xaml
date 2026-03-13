@@ -62,6 +62,7 @@
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="Background" Value="{StaticResource ExtensionBackgroundColor}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="IsReadOnly" Value="True" />
             </Style>
             <!--  DataGridColumnHeader style  -->
             <Style x:Key="ColumnHeaderStyleTuneUp" TargetType="DataGridColumnHeader">
@@ -517,7 +518,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" Header="{x:Static resx:Resources.Header_ExecutionOrder}" IsReadOnly="True">
+                            <DataGridTextColumn Width="40" Header="{x:Static resx:Resources.Header_ExecutionOrder}">
                                 <DataGridTextColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{x:Static resx:Resources.Header_ExecutionOrder}">
@@ -598,7 +599,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" IsReadOnly="True">
+                            <DataGridTextColumn Width="40" Binding="{Binding Converter={StaticResource ExecutionOrderNumberConverter}}" >
                                 <DataGridTextColumn.ElementStyle>
                                     <Style BasedOn="{StaticResource ExecutionOrderTextBlockStyle}" TargetType="TextBlock">
                                         <Setter Property="Text" Value="{Binding ExecutionOrderNumber}" />
@@ -662,7 +663,7 @@
                               Loaded="ScrollViewer_Loaded">
                         <DataGrid.Columns>
                             <!--  Execution Order  -->
-                            <DataGridTextColumn Width="40" IsReadOnly="True"/>
+                            <DataGridTextColumn Width="40"/>
                             <!--  Node Name  -->
                             <DataGridTemplateColumn Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
