@@ -1,5 +1,6 @@
 # TuneUp
 
+[![Build Status](https://c007.cloudbees-ci.autodesk.com/buildStatus/icon?job=DYNCI%2FDynamo%2FTuneUp%2Fmaster)](https://c007.cloudbees-ci.autodesk.com/job/DYNCI/job/Dynamo/job/TuneUp/job/master/)
 ![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FDynamoDS%2FTuneUp%2Frefs%2Fheads%2Fmaster%2FTuneUp%2Fmanifests%2Fpkg.json&query=%24.version&logo=autodesk&label=dpm)
 [![Build](https://github.com/DynamoDS/TuneUp/actions/workflows/build.yml/badge.svg)](https://github.com/DynamoDS/TuneUp/actions/workflows/build.yml)
 

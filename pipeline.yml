@@ -3,7 +3,7 @@ pipeline_os: windows
 
 env:
   - GITHUB_ACCESS_TOKEN_ID: github_access_token_acsbuildguy
-  - JENKINS_NODE_WIN: CDA-VS22-DT
+  - JENKINS_NODE_WIN: CDA-VS22-CBCI-DT
 
 code_analysis:
   sonarqube:
@@ -14,13 +14,11 @@ code_analysis:
       - coverage.info
 
 build:
-  -
-    scripts:
+  - scripts:
       - dotnet msbuild TuneUp.sln -p:Configuration=Release -restore
 
 deployment:
-  -
-    type: sign
+  - type: sign
     files_to_sign:
       - TuneUp/dist/TuneUp/bin/TuneUp.dll
       - TuneUp/dist/TuneUp/bin/en-US/TuneUp.resources.dll
@@ -37,12 +35,10 @@ deployment:
       - TuneUp/dist/TuneUp/bin/ru-RU/TuneUp.resources.dll
       - TuneUp/dist/TuneUp/bin/zh-CN/TuneUp.resources.dll
       - TuneUp/dist/TuneUp/bin/zh-TW/TuneUp.resources.dll
-  -
-    type: customized
+  - type: customized
     scripts:
       - "pwsh.exe -ExecutionPolicy ByPass -Command Compress-Archive -Path 'TuneUp/dist/TuneUp/*' -DestinationPath 'TuneUp.zip'"
-  -
-    type: artifacts
+  - type: artifacts
     publish_to_jenkins: true
     publish_to_artifactory: false
     publish_to_package_manager: true
