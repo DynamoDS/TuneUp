@@ -1,4 +1,4 @@
-version: 2.0.5
+version: 2.0.7
 pipeline_os: windows
 
 env:
