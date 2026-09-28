@@ -60,10 +60,12 @@ Please check out known issues before trying to setup testing.
 
 ### How to publish a new version
 
-We currently can't use the release PR option when making releases on mirrored repositories. There is a proposed follow-up improvement filed that would allow CILibrary to create a PR against the public repository instead (DYN-8724). But until that is done, our release process will be:
+Releases are built from the internal mirror, and CILibrary opens the version bump PR against this public repository automatically (`create_pr_release_to_public_master` in `pipeline.yml`).
 
-- Create a release branch on the internal repository
-- Build the branch to publish
-- Manually create a PR on the public repository with the changes introduced by the release branch (the updated version number in the pipeline file).
-- Review and merge this PR
+- Make sure the internal repository's master is in sync with public master
+- Create a release branch on the internal repository, named for the bump type (e.g. `release/patch-7`, `release/minor-1`)
+- Build the branch to publish. CILibrary bumps the version in `pipeline.yml`, publishes that version, then opens a PR on the public repository with the bump
+- Review and merge that PR, so public master matches the published version
 - Delete the release branch on the internal repository
+
+The version in `pipeline.yml` must always be the latest published version; the release build adds one to it. If the automatic PR is not opened, create it manually with the updated version number in the pipeline file.
