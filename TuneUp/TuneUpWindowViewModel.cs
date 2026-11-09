@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -1643,7 +1644,7 @@ namespace TuneUp
                 {
                     using (var writer = new StreamWriter(saveFileDialog.FileName))
                     {
-                        writer.WriteLine($"{Resources.Header_ExecutionOrder},{Resources.Header_Name},{Resources.Header_ExecutionTime}");
+                        writer.WriteLine(string.Join(",", ExportHeaders.Select(EscapeCsvField)));
 
                         var collections = new (string Label, CollectionViewSource Collection, string TotalTime)[]
                         {
@@ -1657,31 +1658,20 @@ namespace TuneUp
                             var nodes = collection.View.Cast<ProfiledNodeViewModel>().ToList();
                             if (!nodes.Any()) continue;
 
-                            writer.WriteLine(label);
+                            writer.WriteLine(EscapeCsvField(label));
 
                             foreach (var node in nodes)
                             {
-                                if (showGroups)
+                                if (showGroups || !node.IsGroup || !node.IsGroupExecutionTime)
                                 {
-                                    if (node.IsGroup || node.GroupGUID == Guid.Empty)
-                                    {
-                                        writer.WriteLine($"{node.GroupExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
-                                    }
-                                    else
-                                    {
-                                        writer.WriteLine($",{node.Name},{node.ExecutionMilliseconds}");
-                                    }
-                                }
-                                else if (!node.IsGroup || !node.IsGroupExecutionTime)
-                                {
-                                    writer.WriteLine($"{node.ExecutionOrderNumber},{node.Name},{node.ExecutionMilliseconds}");
+                                    writer.WriteLine(string.Join(",", GetExportFields(node).Select(EscapeCsvField)));
                                 }
                             }
 
                             // Write total execution time, if applicable
                             if (!string.IsNullOrEmpty(totalTime))
                             {
-                                writer.WriteLine($",{Resources.Label_Total}, {totalTime}");
+                                writer.WriteLine($",{EscapeCsvField(Resources.Label_Total)}, {totalTime}");
                             }
                             writer.WriteLine();
                         }
@@ -1698,6 +1688,81 @@ namespace TuneUp
                         MessageBoxImage.Error);
                 }
             }
+        }
+
+        /// <summary>
+        /// Column headers shared by the CSV export and copied rows.
+        /// </summary>
+        private static string[] ExportHeaders => new[]
+        {
+            Resources.Header_ExecutionOrder,
+            Resources.Header_Name,
+            Resources.Header_ExecutionTime,
+            Resources.Header_ID
+        };
+
+        /// <summary>
+        /// Returns the exported fields of a row, in the order of ExportHeaders.
+        /// The execution order matches what the table shows, and the ID is empty for rows
+        /// that don't represent a node or group.
+        /// </summary>
+        private string[] GetExportFields(ProfiledNodeViewModel node)
+        {
+            string executionOrder;
+            if (showGroups)
+            {
+                executionOrder = node.IsGroup || node.GroupGUID == Guid.Empty
+                    ? node.GroupExecutionOrderNumber?.ToString()
+                    : string.Empty;
+            }
+            else
+            {
+                executionOrder = node.ExecutionOrderNumber?.ToString();
+            }
+
+            return new[]
+            {
+                executionOrder ?? string.Empty,
+                node.Name ?? string.Empty,
+                node.ExecutionMilliseconds.ToString(),
+                node.ModelGUID?.ToString() ?? string.Empty
+            };
+        }
+
+        /// <summary>
+        /// Quotes a CSV field if it contains a comma, quote or line break, so node names
+        /// like "Point.ByCoordinates, offset" stay in one column.
+        /// </summary>
+        private static string EscapeCsvField(string field)
+        {
+            if (string.IsNullOrEmpty(field)) return string.Empty;
+            if (field.IndexOfAny(new[] { ',', '"', '\r', '\n' }) < 0) return field;
+            return $"\"{field.Replace("\"", "\"\"")}\"";
+        }
+
+        /// <summary>
+        /// Formats rows as tab-separated text with a header line, for copying to the clipboard.
+        /// Tab-separated text pastes into separate columns in spreadsheets and stays readable as plain text.
+        /// </summary>
+        internal string GetRowsAsTabSeparatedText(IEnumerable<ProfiledNodeViewModel> nodes)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine(string.Join("\t", ExportHeaders.Select(EscapeTabSeparatedField)));
+
+            foreach (var node in nodes)
+            {
+                builder.AppendLine(string.Join("\t", GetExportFields(node).Select(EscapeTabSeparatedField)));
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Replaces tabs and line breaks with spaces, so a field can't split a row or column.
+        /// </summary>
+        private static string EscapeTabSeparatedField(string field)
+        {
+            return field.Replace("\r\n", " ").Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
         }
 
         /// <summary>
@@ -1774,6 +1839,7 @@ namespace TuneUp
                                 ExecutionOrder = currentGroup.GroupExecutionOrderNumber,
                                 Name = currentGroup.Name,
                                 ExecutionTimeMs = currentGroup.ExecutionMilliseconds,
+                                Id = currentGroup.ModelGUID,
                                 Children = currentGroupChildren
                             });
                         }
@@ -1791,7 +1857,8 @@ namespace TuneUp
                             {
                                 ExecutionOrder = node.ExecutionOrderNumber,
                                 Name = node.Name,
-                                ExecutionTimeMs = node.ExecutionMilliseconds
+                                ExecutionTimeMs = node.ExecutionMilliseconds,
+                                Id = node.ModelGUID
                             });
                         }
                         // Stand-alone node
@@ -1801,7 +1868,8 @@ namespace TuneUp
                             {
                                 ExecutionOrder = showGroups ? node.GroupExecutionOrderNumber : node.ExecutionOrderNumber,
                                 Name = node.Name,
-                                ExecutionTimeMs = node.ExecutionMilliseconds
+                                ExecutionTimeMs = node.ExecutionMilliseconds,
+                                Id = node.ModelGUID
                             });
                         }
                     }
@@ -1815,6 +1883,7 @@ namespace TuneUp
                         ExecutionOrder = currentGroup.GroupExecutionOrderNumber,
                         Name = currentGroup.Name,
                         ExecutionTimeMs = currentGroup.ExecutionMilliseconds,
+                        Id = currentGroup.ModelGUID,
                         Children = currentGroupChildren
                     });
                 }

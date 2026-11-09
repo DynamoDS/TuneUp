@@ -142,6 +142,15 @@ namespace TuneUp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ID.
+        /// </summary>
+        public static string Header_ID {
+            get {
+                return ResourceManager.GetString("Header_ID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string Header_Name {
@@ -264,6 +273,15 @@ namespace TuneUp.Properties {
         public static string Label_Total {
             get {
                 return ResourceManager.GetString("Label_Total", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        public static string MenuItem_Copy {
+            get {
+                return ResourceManager.GetString("MenuItem_Copy", resourceCulture);
             }
         }
         

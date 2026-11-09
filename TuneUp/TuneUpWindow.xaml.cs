@@ -49,43 +49,89 @@ namespace TuneUp
             commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
             uniqueId = id;
+
+            // Ctrl+C and the table context menu copy the selected rows
+            foreach (var table in new[] { LatestRunTable, PreviousRunTable, NotExecutedTable })
+            {
+                table.CommandBindings.Add(new System.Windows.Input.CommandBinding(
+                    System.Windows.Input.ApplicationCommands.Copy,
+                    CopySelectedRows_Executed,
+                    CopySelectedRows_CanExecute));
+            }
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {   
+        {
             if (!isUserInitiatedSelection) return;
 
-            var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
+            var addedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().LastOrDefault();
 
-            if (selectedItem == null) return;
+            if (addedItem == null) return;
 
             // Extract the GUID and type (NodeModel or GroupModel)
-            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
+            var addedModel = addedItem.NodeModel ?? (ModelBase)addedItem.GroupModel;
 
-            if (modelBase != null)
+            if (addedModel != null)
             {
                 // Clear the selection in other DataGrids based on the sender
                 if (sender == LatestRunTable)
                 {
-                    NotExecutedTable.SelectedItem = null;
-                    PreviousRunTable.SelectedItem = null;
+                    NotExecutedTable.UnselectAll();
+                    PreviousRunTable.UnselectAll();
                 }
                 else if (sender == NotExecutedTable)
                 {
-                    LatestRunTable.SelectedItem = null;
-                    PreviousRunTable.SelectedItem = null;
+                    LatestRunTable.UnselectAll();
+                    PreviousRunTable.UnselectAll();
                 }
                 else if (sender == PreviousRunTable)
                 {
-                    LatestRunTable.SelectedItem = null;
-                    NotExecutedTable.SelectedItem = null;
+                    LatestRunTable.UnselectAll();
+                    NotExecutedTable.UnselectAll();
                 }
 
-                var command = new DynamoModel.SelectModelCommand(new[] { modelBase.GUID }, ModifierKeys.None);
+                // Select every node and group selected in the table, and zoom to the one just added
+                var selectedGuids = ((DataGrid)sender).SelectedItems.OfType<ProfiledNodeViewModel>()
+                    .Select(item => item.NodeModel ?? (ModelBase)item.GroupModel)
+                    .Where(model => model != null)
+                    .Select(model => model.GUID)
+                    .ToArray();
+
+                // Dynamo only replaces the canvas selection when one GUID is selected, so clear it first for several
+                if (selectedGuids.Length > 1)
+                {
+                    var clearCommand = new DynamoModel.SelectModelCommand(Guid.Empty, ModifierKeys.None);
+                    commandExecutive.ExecuteCommand(clearCommand, uniqueId, "TuneUp");
+                }
+
+                var command = new DynamoModel.SelectModelCommand(selectedGuids, ModifierKeys.None);
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
-                viewModelCommandExecutive.FindByIdCommand(modelBase.GUID.ToString());
+                viewModelCommandExecutive.FindByIdCommand(addedModel.GUID.ToString());
             }
+        }
+
+        private void CopySelectedRows_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = ((DataGrid)sender).SelectedItems.Count > 0;
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Copies the selected rows to the clipboard as tab-separated text, in the order the table shows them.
+        /// Each row includes the node or group GUID, so the rows can be matched to the graph.
+        /// </summary>
+        private void CopySelectedRows_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            var table = (DataGrid)sender;
+            var viewModel = table.DataContext as TuneUpWindowViewModel;
+            if (viewModel == null) return;
+
+            var selectedRows = table.Items.OfType<ProfiledNodeViewModel>()
+                .Where(row => table.SelectedItems.Contains(row));
+
+            Clipboard.SetText(viewModel.GetRowsAsTabSeparatedText(selectedRows));
+            e.Handled = true;
         }
 
         /// <summary>

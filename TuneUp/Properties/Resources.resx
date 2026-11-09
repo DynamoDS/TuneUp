@@ -144,6 +144,10 @@
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>Execution time (ms)</value>
   </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>ID</value>
+    <comment>Column header for the GUID of the node or group. Shown in exported files and copied rows; keep the GUID values themselves untranslated.</comment>
+  </data>
   <data name="Header_Name" xml:space="preserve">
     <value>Name</value>
   </data>
@@ -185,6 +189,10 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>Total</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>Copy</value>
+    <comment>Context menu item that copies the selected TuneUp rows to the clipboard.</comment>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>The file is currently in use by another application. Please close the file before trying to overwrite it.</value>

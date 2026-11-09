@@ -256,6 +256,21 @@ namespace TuneUp
         private Guid nodeGIUD;
 
         /// <summary>
+        /// The GUID of the Dynamo node or group this row represents, used to identify it in exports and copied rows.
+        /// NodeGUID cannot be used for this because group and time rows get a random NodeGUID.
+        /// Null for rows that don't represent a node or group, such as execution time rows.
+        /// </summary>
+        public Guid? ModelGUID
+        {
+            get
+            {
+                if (NodeModel != null) return NodeModel.GUID;
+                if (IsGroup) return GroupGUID;
+                return null;
+            }
+        }
+
+        /// <summary>
         /// The name of the group to which this node belongs
         /// This property is also applied to individual nodes and is used when sorting by name
         /// </summary>

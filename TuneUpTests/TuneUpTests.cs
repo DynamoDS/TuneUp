@@ -183,5 +183,40 @@ namespace TuneUpTests
                 Assert.AreEqual(expected, node.ExecutionOrderNumber);
             }
         }
+
+        [Test, Apartment(ApartmentState.STA)]
+        public void TuneUpCopiedRowsIncludeNodeIds()
+        {
+            // Open test graph
+            var testDir = GetTestDirectory(ExecutingDirectory);
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp and run the graph
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesLatestRun.Where(n => n.NodeModel != null).ToList();
+            Assert.IsNotEmpty(profiledNodes);
+
+            var lines = tuneUpVE.ViewModel.GetRowsAsTabSeparatedText(profiledNodes)
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Header line, then one tab-separated line per row ending with the node's GUID
+            Assert.AreEqual(profiledNodes.Count + 1, lines.Length);
+            Assert.AreEqual(TuneUp.Properties.Resources.Header_ID, lines[0].Split('	').Last());
+            for (var i = 0; i < profiledNodes.Count; i++)
+            {
+                var fields = lines[i + 1].Split('	');
+                Assert.AreEqual(4, fields.Length);
+                Assert.AreEqual(profiledNodes[i].NodeModel.Name, fields[1]);
+                Assert.AreEqual(profiledNodes[i].NodeModel.GUID.ToString(), fields[3]);
+            }
+        }
     }
 }
