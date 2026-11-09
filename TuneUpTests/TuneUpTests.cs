@@ -196,6 +196,8 @@ namespace TuneUpTests
             var tuneUpVE = GetTuneUpViewExtension();
 
             // Open TuneUp and run the graph
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
             tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
             DispatcherUtil.DoEvents();
             RunCurrentModel();

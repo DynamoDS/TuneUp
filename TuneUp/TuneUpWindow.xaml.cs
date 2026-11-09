@@ -57,7 +57,27 @@ namespace TuneUp
                     System.Windows.Input.ApplicationCommands.Copy,
                     CopySelectedRows_Executed,
                     CopySelectedRows_CanExecute));
+                table.PreviewKeyDown += NodeAnalysisTable_PreviewKeyDown;
             }
+        }
+
+        /// <summary>
+        /// Copies the selected rows on Ctrl+C. The Copy command binding alone doesn't receive Ctrl+C
+        /// in Dynamo, where Ctrl+C is also bound to copying nodes, so the key is handled here first.
+        /// </summary>
+        private void NodeAnalysisTable_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != System.Windows.Input.Key.C ||
+                System.Windows.Input.Keyboard.Modifiers != System.Windows.Input.ModifierKeys.Control)
+            {
+                return;
+            }
+
+            var table = (DataGrid)sender;
+            if (table.SelectedItems.Count == 0) return;
+
+            CopySelectedRows(table);
+            e.Handled = true;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -117,13 +137,18 @@ namespace TuneUp
             e.Handled = true;
         }
 
+        private void CopySelectedRows_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            CopySelectedRows((DataGrid)sender);
+            e.Handled = true;
+        }
+
         /// <summary>
         /// Copies the selected rows to the clipboard as tab-separated text, in the order the table shows them.
         /// Each row includes the node or group GUID, so the rows can be matched to the graph.
         /// </summary>
-        private void CopySelectedRows_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        private void CopySelectedRows(DataGrid table)
         {
-            var table = (DataGrid)sender;
             var viewModel = table.DataContext as TuneUpWindowViewModel;
             if (viewModel == null) return;
 
@@ -131,7 +156,6 @@ namespace TuneUp
                 .Where(row => table.SelectedItems.Contains(row));
 
             Clipboard.SetText(viewModel.GetRowsAsTabSeparatedText(selectedRows));
-            e.Handled = true;
         }
 
         /// <summary>
