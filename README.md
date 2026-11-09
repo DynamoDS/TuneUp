@@ -45,9 +45,10 @@ Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publi
 
 Please check out known issues before trying to setup testing.
 
-- Download DynamoCoreRuntime 3.0.0 (or higher) from [dynamobuilds.com](https://dynamobuilds.com/). Alternatively, you can build Dynamo from Dynamo repository and use the bin folder equivalently.
-- Copy all contents of the DynamoCoreRuntime to `TuneUp\TuneUpTests\bin\Debug\`. If you are building Dynamo locally, copy all contents of Dynamo from `Dynamo/bin/AnyCPU/Debug` to `TuneUp\TuneUpTests\bin\Debug\`
-- Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Debug\viewExtensions\`
+- TuneUp targets .NET 10 and builds against the Dynamo 4.4 NuGet packages (`DynamoPackageVersion` in `Directory.Build.props`), because it ships built in to Dynamo 4.4. Use a Dynamo 4.x build to test it.
+- Download a Dynamo 4.x DynamoCoreRuntime from [dynamobuilds.com](https://dynamobuilds.com/), or build Dynamo from the Dynamo repository and use its `bin\AnyCPU\Release` folder.
+- Copy all contents of the Dynamo runtime to `TuneUp\TuneUpTests\bin\Release\net10.0-windows\` (or `Debug\net10.0-windows\`), except the `Built-In Packages\packages\TuneUp` folder and the NUnit and test platform files (`nunit*`, `NUnit3*`, `testhost*`, `Microsoft.TestPlatform*`, `Microsoft.VisualStudio.TestPlatform*`), so the copy doesn't replace the TuneUp build or the test runner.
+- Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Release\net10.0-windows\viewExtensions\`
 - Open the copied `TuneUp_ViewExtensionDefinition.xml` and change the assembly path to `..\TuneUp.dll`
 - Remove `TuneUp` from your Dynamo packages folder if you have it installed from package manager (otherwise `TuneUp.dll` will get loaded twice). This won't work well.
 - Launch DynamoSandbox.exe, then click `View-> Open Tune Up` and use while a graph runs.
@@ -57,6 +58,7 @@ Please check out known issues before trying to setup testing.
 - Install NUnit3TestAdapter from VisualStudio->Extensions->Manage Extensions->Online.
 - Open Test Explorer from VisualStudio->Test->Test Explorer. Now you should see a list of TuneUpTests.
 - Click the target test to run or run them all.
+- Or from the command line: `dotnet test TuneUpTests\bin\Release\net10.0-windows\TuneUpTests.dll`. All tests run on one STA thread (`TuneUpTests\Properties\AssemblyInfo.cs`), as Dynamo's own WPF tests do.
 
 ### How to publish a new version
 

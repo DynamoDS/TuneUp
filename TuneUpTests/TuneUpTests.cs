@@ -24,6 +24,20 @@ namespace TuneUpTests
             base.GetLibrariesToPreload(libraries);
         }
 
+        /// <summary>
+        /// Returns the repo's test folder, which holds the test graphs. GetTestDirectory assumes a fixed
+        /// depth below it, which no longer matches the bin\Release\net10.0-windows output folder.
+        /// </summary>
+        private string GetTuneUpTestDirectory()
+        {
+            for (var dir = new DirectoryInfo(ExecutingDirectory); dir != null; dir = dir.Parent)
+            {
+                var testDir = Path.Combine(dir.FullName, "test");
+                if (File.Exists(Path.Combine(testDir, "CBPointPointLine.dyn"))) return testDir;
+            }
+            return GetTestDirectory(ExecutingDirectory);
+        }
+
         internal TuneUpViewExtension GetTuneUpViewExtension()
         {
             DispatcherUtil.DoEvents();
@@ -35,7 +49,7 @@ namespace TuneUpTests
         public void TuneUpCreatesProfilingDataForEveryNodeInWorkspace()
         {
             // Open test graph
-            var testDir = GetTestDirectory(ExecutingDirectory);
+            var testDir = GetTuneUpTestDirectory();
             var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
             OpenDynamoDefinition(filepath);
 
@@ -43,6 +57,8 @@ namespace TuneUpTests
             var tuneUpVE = GetTuneUpViewExtension();
 
             // Open TuneUp
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
             tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
             DispatcherUtil.DoEvents();
 
@@ -68,7 +84,7 @@ namespace TuneUpTests
         public void TuneUpMaintainsProfiledNodeState()
         {
             // Open test graph
-            var testDir = GetTestDirectory(ExecutingDirectory);
+            var testDir = GetTuneUpTestDirectory();
             var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
             OpenDynamoDefinition(filepath);
 
@@ -76,6 +92,8 @@ namespace TuneUpTests
             var tuneUpVE = GetTuneUpViewExtension();
 
             // Open TuneUp
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
             tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
             DispatcherUtil.DoEvents();
 
@@ -136,7 +154,7 @@ namespace TuneUpTests
             };
 
             // Open test graph
-            var testDir = GetTestDirectory(ExecutingDirectory);
+            var testDir = GetTuneUpTestDirectory();
             var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
             OpenDynamoDefinition(filepath);
 
@@ -144,6 +162,8 @@ namespace TuneUpTests
             var tuneUpVE = GetTuneUpViewExtension();
 
             // Open TuneUp
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
             tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
             DispatcherUtil.DoEvents();
 
