@@ -106,7 +106,7 @@ namespace TuneUp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show TuneUp.
+        ///   Looks up a localized string similar to Show _TuneUp.
         /// </summary>
         public static string Button_ShowTuneUp {
             get {

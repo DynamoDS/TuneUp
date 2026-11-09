@@ -133,7 +133,7 @@
     <value>Show groups</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>Show TuneUp</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>TuneUp</value>
