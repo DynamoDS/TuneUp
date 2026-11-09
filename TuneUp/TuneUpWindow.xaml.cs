@@ -62,8 +62,7 @@ namespace TuneUp
         }
 
         /// <summary>
-        /// Copies the selected rows on Ctrl+C. The Copy command binding alone doesn't receive Ctrl+C
-        /// in Dynamo, where Ctrl+C is also bound to copying nodes, so the key is handled here first.
+        /// Copies the selected rows on Ctrl+C, before the key can reach Dynamo, where Ctrl+C copies nodes.
         /// </summary>
         private void NodeAnalysisTable_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -128,6 +127,13 @@ namespace TuneUp
                 commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
 
                 viewModelCommandExecutive.FindByIdCommand(addedModel.GUID.ToString());
+
+                // Running a Dynamo command moves keyboard focus to the Dynamo window, so keys like Ctrl+C
+                // and Ctrl+A would act on the canvas instead of this table. Give focus back to the table.
+                var table = (DataGrid)sender;
+                table.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Input,
+                    new Action(() => table.Focus()));
             }
         }
 
