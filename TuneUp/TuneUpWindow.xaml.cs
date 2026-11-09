@@ -22,15 +22,7 @@ namespace TuneUp
     {
         private ViewLoadedParams viewLoadedParams;
 
-        private ICommandExecutive commandExecutive;
-
         private ViewModelCommandExecutive viewModelCommandExecutive;
-
-        /// <summary>
-        /// The unique ID for the TuneUp view extension. 
-        /// Used to identify the view extension when sending recordable commands.
-        /// </summary>
-        private string uniqueId;
 
         /// <summary>
         /// A flag indicating whether the current selection change in the DataGrid 
@@ -46,9 +38,7 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-            commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
-            uniqueId = id;
 
             // Ctrl+C and the table context menu copy the selected rows
             foreach (var table in new[] { LatestRunTable, PreviousRunTable, NotExecutedTable })
@@ -109,31 +99,14 @@ namespace TuneUp
                     NotExecutedTable.UnselectAll();
                 }
 
-                // Select every node and group selected in the table, and zoom to the one just added
-                var selectedGuids = ((DataGrid)sender).SelectedItems.OfType<ProfiledNodeViewModel>()
-                    .Select(item => item.NodeModel ?? (ModelBase)item.GroupModel)
-                    .Where(model => model != null)
-                    .Select(model => model.GUID)
-                    .ToArray();
-
-                // Dynamo only replaces the canvas selection when one GUID is selected, so clear it first for several
-                if (selectedGuids.Length > 1)
+                // Select the node on the canvas and center the view on it. FindByIdCommand leaves keyboard focus
+                // in TuneUp, so Ctrl+C and Ctrl+A keep acting on the table. Recordable commands such as
+                // SelectModelCommand are not used here, because Dynamo moves keyboard focus to the canvas after them.
+                // Dynamo has no public way to center on a group, so group rows don't change the canvas.
+                if (addedItem.NodeModel != null)
                 {
-                    var clearCommand = new DynamoModel.SelectModelCommand(Guid.Empty, ModifierKeys.None);
-                    commandExecutive.ExecuteCommand(clearCommand, uniqueId, "TuneUp");
+                    viewModelCommandExecutive.FindByIdCommand(addedItem.NodeModel.GUID.ToString());
                 }
-
-                var command = new DynamoModel.SelectModelCommand(selectedGuids, ModifierKeys.None);
-                commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
-
-                viewModelCommandExecutive.FindByIdCommand(addedModel.GUID.ToString());
-
-                // Running a Dynamo command moves keyboard focus to the Dynamo window, so keys like Ctrl+C
-                // and Ctrl+A would act on the canvas instead of this table. Give focus back to the table.
-                var table = (DataGrid)sender;
-                table.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Input,
-                    new Action(() => table.Focus()));
             }
         }
 
