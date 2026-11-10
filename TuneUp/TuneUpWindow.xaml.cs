@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -73,7 +75,10 @@ namespace TuneUp
         {
             if (!isUserInitiatedSelection) return;
 
-            var addedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().LastOrDefault();
+            // Execution time rows have no node or group, so use the last added row that has one.
+            // Otherwise a Shift+click range ending on an execution time row would be ignored.
+            var addedItem = e.AddedItems.OfType<ProfiledNodeViewModel>()
+                .LastOrDefault(row => row.NodeModel != null || row.GroupModel != null);
 
             if (addedItem == null) return;
 
@@ -131,10 +136,22 @@ namespace TuneUp
             var viewModel = table.DataContext as TuneUpWindowViewModel;
             if (viewModel == null) return;
 
-            var selectedRows = table.Items.OfType<ProfiledNodeViewModel>()
-                .Where(row => table.SelectedItems.Contains(row));
+            // A set makes each membership check constant time; SelectedItems.Contains is a linear search.
+            var selected = new HashSet<ProfiledNodeViewModel>(table.SelectedItems.OfType<ProfiledNodeViewModel>());
+            var selectedRows = table.Items.OfType<ProfiledNodeViewModel>().Where(selected.Contains);
+            var text = viewModel.GetRowsAsTabSeparatedText(selectedRows);
 
-            Clipboard.SetText(viewModel.GetRowsAsTabSeparatedText(selectedRows));
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (ExternalException ex)
+            {
+                // Another process, such as a clipboard manager or a remote desktop client, can hold the
+                // clipboard open. WPF retries before throwing; don't let it surface as an unhandled error in Dynamo.
+                (viewLoadedParams?.DynamoWindow?.DataContext as Dynamo.ViewModels.DynamoViewModel)?.Model.Logger
+                    .Log($"TuneUp could not copy rows to the clipboard: {ex.Message}");
+            }
         }
 
         /// <summary>
