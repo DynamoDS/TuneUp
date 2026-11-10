@@ -42,7 +42,7 @@ deployment:
   - type: artifacts
     publish_to_jenkins: true
     publish_to_artifactory: false
-    publish_to_package_manager: true
+    publish_to_package_manager: false
     use_dev_pm: false
     outputs:
       - TuneUp.zip
