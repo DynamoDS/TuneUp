@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DynamoPackageVersion>4.4.0-beta6740</DynamoPackageVersion>
+    <!-- The only place the Dynamo package version is set. Don't set DynamoPackageVersion in a project file:
+         it would override this value. -->
+    <DynamoPackageVersion>4.3.0.6534</DynamoPackageVersion>
     <MSTestVersion>1.3.2</MSTestVersion>
   </PropertyGroup>
 

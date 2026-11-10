@@ -7,7 +7,6 @@
     <OutputType>Library</OutputType>
     <StartAction>Program</StartAction>
 	<StartProgram>C:\Program Files\Dynamo\Dynamo Core\3.4\DynamoSandbox.exe</StartProgram>
-	<DynamoPackageVersion>3.4.2.7731</DynamoPackageVersion>
 	<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <!-- Properties specific to Debug configuration -->
