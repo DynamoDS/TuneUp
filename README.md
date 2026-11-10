@@ -45,7 +45,7 @@ Under `TuneUp\dist\TuneUp`, there is a sample package wrapped up ready for publi
 
 Please check out known issues before trying to setup testing.
 
-- TuneUp targets .NET 10 and builds against the Dynamo 4.4 NuGet packages (`DynamoPackageVersion` in `Directory.Build.props`), because it ships built in to Dynamo 4.4. Use a Dynamo 4.x build to test it.
+- TuneUp targets .NET 10 and builds against the Dynamo 4.3 NuGet packages (`DynamoPackageVersion` in `Directory.Build.props`, the only place it is set), the latest released Dynamo. It ships built in to Dynamo 4.4. Use a Dynamo 4.x build to test it.
 - Download a Dynamo 4.x DynamoCoreRuntime from [dynamobuilds.com](https://dynamobuilds.com/), or build Dynamo from the Dynamo repository and use its `bin\AnyCPU\Release` folder.
 - Copy all contents of the Dynamo runtime to `TuneUp\TuneUpTests\bin\Release\net10.0-windows\` (or `Debug\net10.0-windows\`), except the `Built-In Packages\packages\TuneUp` folder and the NUnit and test platform files (`nunit*`, `NUnit3*`, `testhost*`, `Microsoft.TestPlatform*`, `Microsoft.VisualStudio.TestPlatform*`), so the copy doesn't replace the TuneUp build or the test runner.
 - Copy `TuneUp_ViewExtensionDefinition.xml` from `TuneUp\TuneUp\manifests\` to `TuneUp\TuneUpTests\bin\Release\net10.0-windows\viewExtensions\`
