@@ -119,22 +119,20 @@
 		<ViewExtensionDefs Include="$(ProjectDir)manifests\*ViewExtensionDefinition.xml" />
 		<Xmls Include="$(ProjectDir)manifests\*.xml" Exclude="@(ViewExtensionDefs)" />
 		<PackageJson Include="$(ProjectDir)manifests\pkg.json" />
-		<LocalizationENUS Include="$(OutDir)en-US\*" />
-		<LocalizationENGB Include="$(OutDir)en-GB\*" />
-		<LocalizationCSCZ Include="$(OutDir)cs-CZ\*" />
-		<LocalizationDEDE Include="$(OutDir)de-DE\*" />
-		<LocalizationESES Include="$(OutDir)es-ES\*" />
-		<LocalizationFRFR Include="$(OutDir)fr-FR\*" />
-		<LocalizationITIT Include="$(OutDir)it-IT\*" />
-		<LocalizationJAJP Include="$(OutDir)ja-JP\*" />
-		<LocalizationKOKR Include="$(OutDir)ko-KR\*" />
-		<LocalizationPLPL Include="$(OutDir)pl-PL\*" />
-		<LocalizationPTBR Include="$(OutDir)pt-BR\*" />
-		<LocalizationRURU Include="$(OutDir)ru-RU\*" />
-		<LocalizationZHCN Include="$(OutDir)zh-CN\*" />
-		<LocalizationZHHANS Include="$(OutDir)zh-Hans\*" />
-		<LocalizationZHHANT Include="$(OutDir)zh-Hant\*" />
-		<LocalizationZHTW Include="$(OutDir)zh-TW\*" />
+		<LocalizationENUS Include="$(OutDir)en-US\TuneUp.resources.dll" />
+		<LocalizationENGB Include="$(OutDir)en-GB\TuneUp.resources.dll" />
+		<LocalizationCSCZ Include="$(OutDir)cs-CZ\TuneUp.resources.dll" />
+		<LocalizationDEDE Include="$(OutDir)de-DE\TuneUp.resources.dll" />
+		<LocalizationESES Include="$(OutDir)es-ES\TuneUp.resources.dll" />
+		<LocalizationFRFR Include="$(OutDir)fr-FR\TuneUp.resources.dll" />
+		<LocalizationITIT Include="$(OutDir)it-IT\TuneUp.resources.dll" />
+		<LocalizationJAJP Include="$(OutDir)ja-JP\TuneUp.resources.dll" />
+		<LocalizationKOKR Include="$(OutDir)ko-KR\TuneUp.resources.dll" />
+		<LocalizationPLPL Include="$(OutDir)pl-PL\TuneUp.resources.dll" />
+		<LocalizationPTBR Include="$(OutDir)pt-BR\TuneUp.resources.dll" />
+		<LocalizationRURU Include="$(OutDir)ru-RU\TuneUp.resources.dll" />
+		<LocalizationZHCN Include="$(OutDir)zh-CN\TuneUp.resources.dll" />
+		<LocalizationZHTW Include="$(OutDir)zh-TW\TuneUp.resources.dll" />
 	</ItemGroup>
 	<Copy SourceFiles="@(Dlls)" DestinationFolder="$(BinFolder)" />
 	<Copy SourceFiles="@(Xmls)" DestinationFolder="$(BinFolder)" />
@@ -153,8 +151,6 @@
 	<Copy SourceFiles="@(LocalizationPTBR)" DestinationFolder="$(BinFolder)\pt-BR" />
 	<Copy SourceFiles="@(LocalizationRURU)" DestinationFolder="$(BinFolder)\ru-RU" />
 	<Copy SourceFiles="@(LocalizationZHCN)" DestinationFolder="$(BinFolder)\zh-CN" />
-	<Copy SourceFiles="@(LocalizationZHHANS)" DestinationFolder="$(BinFolder)\zh-Hans" />
-	<Copy SourceFiles="@(LocalizationZHHANT)" DestinationFolder="$(BinFolder)\zh-Hant" />
 	<Copy SourceFiles="@(LocalizationZHTW)" DestinationFolder="$(BinFolder)\zh-TW" />
 	<!-- <CallTarget Condition="'$(Configuration)' == 'Debug'" Targets="PackageDeploy" /> -->
   </Target>
