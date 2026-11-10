@@ -46,7 +46,7 @@
                 <Setter Property="CanUserSortColumns" Value="True" />
                 <Setter Property="FontSize" Value="11" />
                 <Setter Property="HeadersVisibility" Value="Column" />
-                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="SelectionMode" Value="Extended" />
                 <Setter Property="SelectionUnit" Value="FullRow" />
                 <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -373,6 +373,22 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!--  Context menu for the node tables: copies the selected rows  -->
+            <ContextMenu
+                x:Key="TableContextMenu"
+                x:Shared="False"
+                Width="170"
+                Height="Auto"
+                Background="{StaticResource MidGrayBrush}"
+                Style="{StaticResource ContextMenuStyleTuneUp}">
+                <MenuItem
+                    Padding="10"
+                    Command="ApplicationCommands.Copy"
+                    CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    FontSize="12"
+                    Header="{x:Static resx:Resources.MenuItem_Copy}"
+                    InputGestureText="Ctrl+C" />
+            </ContextMenu>
             <!-- Generic Dynamo ToolTip with pointer to the right -->
             <Style x:Key="ToolTipPointerTopRight" TargetType="ToolTip" BasedOn="{StaticResource GenericToolTipLight}">
                 <Setter Property="HorizontalOffset" Value="-250" />
@@ -508,6 +524,7 @@
                                Visibility="{Binding LatestRunTableVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionLatestRun.View}"
                               x:Name="LatestRunTable"
+                              ContextMenu="{StaticResource TableContextMenu}"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternatingRowBackground="#434343"
                               Sorting="LatestRunTable_Sorting"
@@ -588,6 +605,7 @@
                                Visibility="{Binding PreviousRunTableVisibility}"/>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionPreviousRun.View}"
                               x:Name="PreviousRunTable"
+                              ContextMenu="{StaticResource TableContextMenu}"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternatingRowBackground="#434343"
                               HeadersVisibility="None"
@@ -650,6 +668,7 @@
                     </TextBlock>
                     <DataGrid ItemsSource="{Binding Path=ProfiledNodesCollectionNotExecuted.View}"
                               x:Name="NotExecutedTable"
+                              ContextMenu="{StaticResource TableContextMenu}"
                               Style="{StaticResource DataGridStyleTuneUpCombined}"
                               AlternationCount="2"
                               AlternatingRowBackground="#434343"

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Graph.Workspaces;
+using Dynamo.Models;
 using DynamoCoreWpfTests.Utility;
 using NUnit.Framework;
 using SystemTestServices;
@@ -182,6 +183,130 @@ namespace TuneUpTests
                 var expected = executionOrderDict[node.NodeModel.GUID];
                 Assert.AreEqual(expected, node.ExecutionOrderNumber);
             }
+        }
+
+        [Test, Apartment(ApartmentState.STA)]
+        public void TuneUpCopiedRowsIncludeNodeIds()
+        {
+            // Open test graph
+            var testDir = GetTuneUpTestDirectory();
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp and run the graph
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesLatestRun.Where(n => n.NodeModel != null).ToList();
+            Assert.IsNotEmpty(profiledNodes);
+
+            var lines = tuneUpVE.ViewModel.GetRowsAsTabSeparatedText(profiledNodes)
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Header line, then one tab-separated line per row ending with the node's GUID
+            Assert.AreEqual(profiledNodes.Count + 1, lines.Length);
+            Assert.AreEqual(TuneUp.Properties.Resources.Header_ID, lines[0].Split('	').Last());
+            for (var i = 0; i < profiledNodes.Count; i++)
+            {
+                var fields = lines[i + 1].Split('	');
+                Assert.AreEqual(4, fields.Length);
+                Assert.AreEqual(profiledNodes[i].NodeModel.Name, fields[1]);
+                Assert.AreEqual(profiledNodes[i].NodeModel.GUID.ToString(), fields[3]);
+            }
+        }
+
+        [Test, Apartment(ApartmentState.STA)]
+        public void TuneUpCopiedRowsReplaceTabsAndLineBreaksInNames()
+        {
+            // Open test graph
+            var testDir = GetTuneUpTestDirectory();
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Rename a node so its name contains a tab and line breaks
+            var renamedNodeID = new Guid("1e49be233be846688122ac48d70ce961");
+            var renamedNode = Model.CurrentWorkspace.Nodes.First(n => n.GUID == renamedNodeID);
+            renamedNode.Name = "Line\tfrom\r\ntwo\npoints";
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp and run the graph
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+
+            var profiledNodes = tuneUpVE.ViewModel.ProfiledNodesLatestRun.Where(n => n.NodeModel != null).ToList();
+            var renamedRow = profiledNodes.IndexOf(profiledNodes.First(n => n.NodeModel.GUID == renamedNodeID));
+
+            var lines = tuneUpVE.ViewModel.GetRowsAsTabSeparatedText(profiledNodes)
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // The name can't add lines or columns: each becomes a space
+            Assert.AreEqual(profiledNodes.Count + 1, lines.Length);
+            foreach (var line in lines.Skip(1))
+            {
+                Assert.AreEqual(4, line.Split('\t').Length);
+            }
+
+            var fields = lines[renamedRow + 1].Split('\t');
+            Assert.AreEqual("Line from two points", fields[1]);
+            Assert.AreEqual(renamedNodeID.ToString(), fields[3]);
+        }
+
+        [Test, Apartment(ApartmentState.STA)]
+        public void TuneUpCopiedGroupRowsIncludeGroupIds()
+        {
+            // Open test graph
+            var testDir = GetTuneUpTestDirectory();
+            var filepath = Path.Combine(testDir, "CBPointPointLine.dyn");
+            OpenDynamoDefinition(filepath);
+
+            // Group the two Point.ByCoordinates nodes. TuneUp reads groups when it starts profiling,
+            // so the group has to exist before TuneUp opens.
+            var pointNodeIDs = new[]
+            {
+                new Guid("929a63211eef44639173531bff38f723"),
+                new Guid("2194fee1c7374aae9694e490854f70f8"),
+            };
+            Model.ExecuteCommand(new DynamoModel.SelectModelCommand(pointNodeIDs, Dynamo.Utilities.ModifierKeys.None));
+            Model.ExecuteCommand(new DynamoModel.CreateAnnotationCommand(Guid.NewGuid(), "Points", string.Empty, 0, 0, true));
+            var group = Model.CurrentWorkspace.Annotations.Single();
+
+            // Get TuneUp view extension
+            var tuneUpVE = GetTuneUpViewExtension();
+
+            // Open TuneUp with groups shown and run the graph
+            // The menu item is checkable, and a raised Click doesn't toggle it, so check it first
+            tuneUpVE.TuneUpMenuItem.IsChecked = true;
+            tuneUpVE.TuneUpMenuItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            DispatcherUtil.DoEvents();
+            tuneUpVE.ViewModel.ShowGroups = true;
+            RunCurrentModel();
+            DispatcherUtil.DoEvents();
+
+            var groupRows = tuneUpVE.ViewModel.ProfiledNodesLatestRun.Where(n => n.GroupGUID == group.GUID).ToList();
+            var groupRow = groupRows.Single(n => n.IsGroup);
+            var groupTimeRow = groupRows.Single(n => n.IsGroupExecutionTime);
+
+            var lines = tuneUpVE.ViewModel.GetRowsAsTabSeparatedText(new[] { groupRow, groupTimeRow })
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // The group row's ID is the group's GUID. The group's execution time row doesn't
+            // represent a node or group, so its ID is empty.
+            Assert.AreEqual(3, lines.Length);
+            Assert.AreEqual(group.GUID.ToString(), lines[1].Split('\t')[3]);
+            Assert.AreEqual(string.Empty, lines[2].Split('\t')[3]);
         }
     }
 }

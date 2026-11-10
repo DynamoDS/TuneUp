@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,15 +24,7 @@ namespace TuneUp
     {
         private ViewLoadedParams viewLoadedParams;
 
-        private ICommandExecutive commandExecutive;
-
         private ViewModelCommandExecutive viewModelCommandExecutive;
-
-        /// <summary>
-        /// The unique ID for the TuneUp view extension. 
-        /// Used to identify the view extension when sending recordable commands.
-        /// </summary>
-        private string uniqueId;
 
         /// <summary>
         /// A flag indicating whether the current selection change in the DataGrid 
@@ -46,45 +40,117 @@ namespace TuneUp
         {
             InitializeComponent();
             viewLoadedParams = vlp;
-            commandExecutive = vlp.CommandExecutive;
             viewModelCommandExecutive = vlp.ViewModelCommandExecutive;
-            uniqueId = id;
+
+            // Ctrl+C and the table context menu copy the selected rows
+            foreach (var table in new[] { LatestRunTable, PreviousRunTable, NotExecutedTable })
+            {
+                table.CommandBindings.Add(new System.Windows.Input.CommandBinding(
+                    System.Windows.Input.ApplicationCommands.Copy,
+                    CopySelectedRows_Executed,
+                    CopySelectedRows_CanExecute));
+                table.PreviewKeyDown += NodeAnalysisTable_PreviewKeyDown;
+            }
+        }
+
+        /// <summary>
+        /// Copies the selected rows on Ctrl+C, before the key can reach Dynamo, where Ctrl+C copies nodes.
+        /// </summary>
+        private void NodeAnalysisTable_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != System.Windows.Input.Key.C ||
+                System.Windows.Input.Keyboard.Modifiers != System.Windows.Input.ModifierKeys.Control)
+            {
+                return;
+            }
+
+            var table = (DataGrid)sender;
+            if (table.SelectedItems.Count == 0) return;
+
+            CopySelectedRows(table);
+            e.Handled = true;
         }
 
         private void NodeAnalysisTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {   
+        {
             if (!isUserInitiatedSelection) return;
 
-            var selectedItem = e.AddedItems.OfType<ProfiledNodeViewModel>().FirstOrDefault();
+            // Execution time rows have no node or group, so use the last added row that has one.
+            // Otherwise a Shift+click range ending on an execution time row would be ignored.
+            var addedItem = e.AddedItems.OfType<ProfiledNodeViewModel>()
+                .LastOrDefault(row => row.NodeModel != null || row.GroupModel != null);
 
-            if (selectedItem == null) return;
+            if (addedItem == null) return;
 
             // Extract the GUID and type (NodeModel or GroupModel)
-            var modelBase = selectedItem.NodeModel ?? (ModelBase)selectedItem.GroupModel;
+            var addedModel = addedItem.NodeModel ?? (ModelBase)addedItem.GroupModel;
 
-            if (modelBase != null)
+            if (addedModel != null)
             {
                 // Clear the selection in other DataGrids based on the sender
                 if (sender == LatestRunTable)
                 {
-                    NotExecutedTable.SelectedItem = null;
-                    PreviousRunTable.SelectedItem = null;
+                    NotExecutedTable.UnselectAll();
+                    PreviousRunTable.UnselectAll();
                 }
                 else if (sender == NotExecutedTable)
                 {
-                    LatestRunTable.SelectedItem = null;
-                    PreviousRunTable.SelectedItem = null;
+                    LatestRunTable.UnselectAll();
+                    PreviousRunTable.UnselectAll();
                 }
                 else if (sender == PreviousRunTable)
                 {
-                    LatestRunTable.SelectedItem = null;
-                    NotExecutedTable.SelectedItem = null;
+                    LatestRunTable.UnselectAll();
+                    NotExecutedTable.UnselectAll();
                 }
 
-                var command = new DynamoModel.SelectModelCommand(new[] { modelBase.GUID }, ModifierKeys.None);
-                commandExecutive.ExecuteCommand(command, uniqueId, "TuneUp");
+                // Select the node on the canvas and center the view on it. FindByIdCommand leaves keyboard focus
+                // in TuneUp, so Ctrl+C and Ctrl+A keep acting on the table. Recordable commands such as
+                // SelectModelCommand are not used here, because Dynamo moves keyboard focus to the canvas after them.
+                // Dynamo has no public way to center on a group, so group rows don't change the canvas.
+                if (addedItem.NodeModel != null)
+                {
+                    viewModelCommandExecutive.FindByIdCommand(addedItem.NodeModel.GUID.ToString());
+                }
+            }
+        }
 
-                viewModelCommandExecutive.FindByIdCommand(modelBase.GUID.ToString());
+        private void CopySelectedRows_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = ((DataGrid)sender).SelectedItems.Count > 0;
+            e.Handled = true;
+        }
+
+        private void CopySelectedRows_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            CopySelectedRows((DataGrid)sender);
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Copies the selected rows to the clipboard as tab-separated text, in the order the table shows them.
+        /// Each row includes the node or group GUID, so the rows can be matched to the graph.
+        /// </summary>
+        private void CopySelectedRows(DataGrid table)
+        {
+            var viewModel = table.DataContext as TuneUpWindowViewModel;
+            if (viewModel == null) return;
+
+            // A set makes each membership check constant time; SelectedItems.Contains is a linear search.
+            var selected = new HashSet<ProfiledNodeViewModel>(table.SelectedItems.OfType<ProfiledNodeViewModel>());
+            var selectedRows = table.Items.OfType<ProfiledNodeViewModel>().Where(selected.Contains);
+            var text = viewModel.GetRowsAsTabSeparatedText(selectedRows);
+
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (ExternalException ex)
+            {
+                // Another process, such as a clipboard manager or a remote desktop client, can hold the
+                // clipboard open. WPF retries before throwing; don't let it surface as an unhandled error in Dynamo.
+                (viewLoadedParams?.DynamoWindow?.DataContext as Dynamo.ViewModels.DynamoViewModel)?.Model.Logger
+                    .Log($"TuneUp could not copy rows to the clipboard: {ex.Message}");
             }
         }
 
