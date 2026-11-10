@@ -3,7 +3,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Default properties for the project -->
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>TuneUpTests</RootNamespace>
     <AssemblyName>TuneUpTests</AssemblyName>
     <OutputType>Library</OutputType>
