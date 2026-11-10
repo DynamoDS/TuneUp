@@ -1,7 +1,7 @@
 # TuneUp
 
 [![Build Status](https://c007.cloudbees-ci.autodesk.com/buildStatus/icon?job=DYNCI%2FDynamo%2FTuneUp%2Fmaster)](https://c007.cloudbees-ci.autodesk.com/job/DYNCI/job/Dynamo/job/TuneUp/job/master/)
-![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FDynamoDS%2FTuneUp%2Frefs%2Fheads%2Fmaster%2FTuneUp%2Fmanifests%2Fpkg.json&query=%24.version&logo=autodesk&label=dpm)
+![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FDynamoDS%2FTuneUp%2Frefs%2Fheads%2Fmaster%2FTuneUp%2Fmanifests%2Fpkg.json&query=%24.version&logo=autodesk&label=version)
 [![Build](https://github.com/DynamoDS/TuneUp/actions/workflows/build.yml/badge.svg)](https://github.com/DynamoDS/TuneUp/actions/workflows/build.yml)
 
 TuneUp is in `beta`.
@@ -62,12 +62,14 @@ Please check out known issues before trying to setup testing.
 
 ### How to publish a new version
 
-Releases are built from the internal mirror, and CILibrary opens the version bump PR against this public repository automatically (`create_pr_release_to_public_master` in `pipeline.yml`).
+TuneUp is built into Dynamo (`extern/TuneUp` in the Dynamo repository) and is no longer published to the Dynamo Package Manager (`publish_to_package_manager: false` in `pipeline.yml`). Releases are built from the internal mirror, and CILibrary opens the version bump PR against this public repository automatically (`create_pr_release_to_public_master` in `pipeline.yml`).
 
+- Before the release, set the next version by hand in `TuneUp/manifests/pkg.json` (`version`) and `TuneUp/Properties/AssemblyInfo.cs`. CI doesn't change either file, and with no Package Manager publish nothing overrides the `pkg.json` version, so the package Dynamo ships reports whatever is in this file
 - Make sure the internal repository's master is in sync with public master
 - Create a release branch on the internal repository, named for the bump type (e.g. `release/patch-7`, `release/minor-1`)
-- Build the branch to publish. CILibrary bumps the version in `pipeline.yml`, publishes that version, then opens a PR on the public repository with the bump
-- Review and merge that PR, so public master matches the published version
+- Build the branch. CILibrary bumps the version in `pipeline.yml`, signs the binaries, archives `TuneUp.zip` on the Jenkins build, then opens a PR on the public repository with the bump
+- Review and merge that PR, so public master matches the released version
 - Delete the release branch on the internal repository
+- Copy the contents of `TuneUp.zip` from the Jenkins build into `extern/TuneUp` in the Dynamo repository, and open a PR there
 
-The version in `pipeline.yml` must always be the latest published version; the release build adds one to it. If the automatic PR is not opened, create it manually with the updated version number in the pipeline file.
+The version in `pipeline.yml` must always be the latest released version; the release build adds one to it. If the automatic PR is not opened, create it manually with the updated version number in the pipeline file.
