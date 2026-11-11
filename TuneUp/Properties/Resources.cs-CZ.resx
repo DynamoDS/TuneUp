@@ -133,7 +133,7 @@
     <value>Zobrazit skupiny</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>Zobrazit TuneUp</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>TuneUp</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>Doba provedení (ms)</value>
+  </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>ID</value>
   </data>
   <data name="Header_Name" xml:space="preserve">
     <value>Název</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>Celkem</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>Kopírovat</value>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>Soubor je aktuálně používán jinou aplikací. Než se pokusíte soubor přepsat, zavřete jej.</value>

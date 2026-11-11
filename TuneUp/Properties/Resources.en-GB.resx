@@ -133,7 +133,7 @@
     <value>Show groups</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>Show TuneUp</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>TuneUp</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>Execution time (ms)</value>
+  </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>ID</value>
   </data>
   <data name="Header_Name" xml:space="preserve">
     <value>Name</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>Total</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>Copy</value>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>The file is currently in use by another application. Please close the file before trying to overwrite it.</value>

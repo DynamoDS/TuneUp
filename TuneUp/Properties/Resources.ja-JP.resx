@@ -133,7 +133,7 @@
     <value>グループを表示</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>TuneUp を表示</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>TuneUp</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>実行時間(ms)</value>
+  </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>位置表示</value>
   </data>
   <data name="Header_Name" xml:space="preserve">
     <value>名前</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>合計</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>コピー</value>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>ファイルは他のアプリケーションによって現在使用中です。上書きする前にファイルを閉じてください。</value>

@@ -133,7 +133,7 @@
     <value>显示组</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>显示 TuneUp</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>TuneUp</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>执行时间(毫秒)</value>
+  </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>ID</value>
   </data>
   <data name="Header_Name" xml:space="preserve">
     <value>名称</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>总计</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>复制</value>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>文件当前正由其他应用程序使用。请先关闭文件，然后再尝试将其覆盖。</value>
