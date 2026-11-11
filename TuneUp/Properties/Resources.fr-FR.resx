@@ -133,7 +133,7 @@
     <value>Afficher les groupes</value>
   </data>
   <data name="Button_ShowTuneUp" xml:space="preserve">
-    <value>Afficher TuneUp</value>
+    <value>Show _TuneUp</value>
   </data>
   <data name="ExtensionName" xml:space="preserve">
     <value>Tuneup</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="Header_ExecutionTime" xml:space="preserve">
     <value>Temps d’exécution (ms)</value>
+  </data>
+  <data name="Header_ID" xml:space="preserve">
+    <value>ID</value>
   </data>
   <data name="Header_Name" xml:space="preserve">
     <value>Nom</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Label_Total" xml:space="preserve">
     <value>Total</value>
+  </data>
+  <data name="MenuItem_Copy" xml:space="preserve">
+    <value>Copier</value>
   </data>
   <data name="Message_FileInUse" xml:space="preserve">
     <value>Le fichier est actuellement utilisé par une autre application. Fermez le fichier avant d’essayer de le remplacer.</value>
